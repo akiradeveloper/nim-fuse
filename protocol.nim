@@ -407,8 +407,8 @@ type fuse_fallocate_in = object
   mode: uint32
   padding: uint32
 
-type fuse_in_header = object
-  len: uint32
+type fuse_in_header* = object
+  len*: uint32
   opcode: uint32
   unique: uint64
   nodeid: uint64

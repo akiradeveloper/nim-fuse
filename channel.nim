@@ -1,3 +1,6 @@
+import posix
+import protocol
+
 include Buf
 
 type fuse_args = object
@@ -16,8 +19,28 @@ proc connect*(mountpoint, options): Channel =
 proc disconnect*(chan: Channel) =
   discard
 
-proc fetch(chan: Channel, buf: Buf) =
-  discard
+# Read /dev/fuse into a provided buffer
+# success: 0
+# failure: error value (< 0)
+proc fetch(chan: Channel, buf: Buf): int =
+  buf.initPos
+  let header_sz = sizeof(fuse_in_header)
+  let n = posix.read(chan.fd, buf.asPtr, header_sz)
+  # Read syscall may be interrupted and may return before full read.
+  # We handle this case as failure because the the position of cursor
+  # in this case isn't defined.
+  if (n < header_sz):
+    return -1 # FIXME
+  elif n < 0:
+    return n
+
+  let header = pop[fuse_in_header](buf)
+  let remained_len = cast[int](header.len) - header_sz
+  let n2 = posix.read(chan.fd, buf.asPtr, remained_len)
+  if (n2 < remained_len):
+    return -1 # FIXME
+  
+  return 0
 
 type Sender* = ref object
   fd: cint

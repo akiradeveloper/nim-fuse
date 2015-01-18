@@ -20,8 +20,11 @@ proc mkBuf*(size: int): Buf =
 proc pos(self: Buf): auto =
   self.pos
 
+proc initPos*(self: Buf) =
+  self.pos = 0
+
 # Returns current pos as a pointer
-proc asPtr(self: Buf): pointer =
+proc asPtr*(self: Buf): pointer =
   addr(self.data[self.pos])
 
 proc advance*(self: Buf, n) =
@@ -47,7 +50,7 @@ proc read[T](self: Buf): T =
 # and advance the cursor
 proc pop[T](self: Buf): T =
   let v = read[T](self)
-  self.advance
+  self.advance(sizeof(T))
   v
 
 when isMainModule:
@@ -68,3 +71,5 @@ when isMainModule:
   
   write[uint32](b, 3)
   echo read[uint32](b)
+
+  echo pop[uint32](b)
