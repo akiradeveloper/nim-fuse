@@ -26,7 +26,9 @@ proc handle(self: Session, buf: Buf): Request =
   mkRequest(self.chan.mkSender, buf)
 
 proc loop(self: Session) =
-  var buf = mkBuf(RECOMMENDED_BUFSIZE)
+  let
+    MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
+  var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
   while self.exists:
     let err = self.chan.fetch(buf)
     if unlikely(err):

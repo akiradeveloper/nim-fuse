@@ -1,6 +1,9 @@
-let 
-  MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
-  RECOMMENDED_BUFSIZE* = MAX_WRITE_BUFSIZE + 100
+## **************************************
+#         Nim binding for FUSE
+#        (C) 2015 Akira Hayakawa
+# **************************************
+
+# C to Nim port of fuse_kernel.h
 
 let
   FUSE_KERNEL_VERSION = 7
