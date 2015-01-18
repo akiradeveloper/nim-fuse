@@ -24,10 +24,10 @@ proc pos(self: Buf): auto =
 proc asPtr(self: Buf): pointer =
   addr(self.data[self.pos])
 
-proc inc*(self: Buf, n) =
+proc advance*(self: Buf, n) =
   self.pos += n
 
-proc dec*(self: Buf, n) =
+proc retard*(self: Buf, n) =
   self.pos -= n
 
 proc len(self: Buf): int =
@@ -42,12 +42,19 @@ proc write[T](self: Buf, obj: T) =
 
 proc read[T](self: Buf): T =
   cast[ptr T](self.asPtr)[]
- 
+
+# Read out T struct from the buffer
+# and advance the cursor
+proc pop[T](self: Buf): T =
+  let v = read[T](self)
+  self.advance
+  v
+
 when isMainModule:
   var b = mkBuf 101 
   echo repr(b)
-  b.inc 10 
-  b.dec 3
+  b.advance 10 
+  b.retard 3
   echo repr(b)
   echo b.len
   echo b.pos

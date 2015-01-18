@@ -31,6 +31,7 @@ proc loop(self: Session) =
     let err = self.chan.fetch(buf)
     if err:
       # TODO
+      # ENODEV -> quit the loop by set 1 to se.destroyed
     else:
       # Now the buffer is valid
       self.handle(buf)
