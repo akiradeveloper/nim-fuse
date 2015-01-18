@@ -28,6 +28,7 @@ proc handle(self: Session, buf: Buf): Request =
 proc loop(self: Session) =
   let
     MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
+  # Always alloc max sized buffer but 100 bytes as safety mergin
   var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
   while self.exists:
     let err = self.chan.fetch(buf)
