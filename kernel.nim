@@ -43,8 +43,10 @@ type fuse_kstatfs = object
 
 type fuse_file_lock = object
   start: uint64
-  m_end: uint64
-  m_type: uint32
+  # end, type and block are reserved by Nim compiler but
+  # as a workaround, we can add backticks. taught by Araq
+  `end`: uint64
+  `type`: uint32
   pid: uint32 # tgid
 
 let
@@ -357,12 +359,12 @@ type fuse_interrupt_in = object
   unique: uint64
 
 type fuse_bmap_in = object
-  m_block: uint64
+  `block`: uint64
   blocksize: uint32
   padding: uint32
 
 type fuse_bmap_out = object
-  m_block: uint64
+  `block`: uint64
 
 type fuse_ioctl_in = object
   fh: uint64
@@ -421,7 +423,7 @@ type fuse_dirent = object
   ino: uint64
   off: uint64
   namelen: uint32
-  m_type: uint32
+  `type`: uint32
   # followed by name
 
 type fuse_notify_inval_inode_out = object
