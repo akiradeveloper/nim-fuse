@@ -14,6 +14,7 @@ proc connect*(mountpoint, options): Channel =
   let fd = fuse_mount_compat25(mountpoint, options) # TODO
 
 proc disconnect*(chan: Channel) =
+  discard
 
 proc fetch(chan: Channel, buf: Buf) =
   discard

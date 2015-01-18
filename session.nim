@@ -29,9 +29,10 @@ proc loop(self: Session) =
   var buf = mkBuf(RECOMMENDED_BUFSIZE)
   while self.exists:
     let err = self.chan.fetch(buf)
-    if err:
+    if unlikely(err):
       # TODO
       # ENODEV -> quit the loop by set 1 to se.destroyed
+      discard
     else:
       # Now the buffer is valid
       self.handle(buf)
