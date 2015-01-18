@@ -47,7 +47,10 @@ type fuse_kstatfs = object
 type fuse_file_lock = object
   start: uint64
   # end, type and block are reserved by Nim compiler but
-  # as a workaround, we can add backticks. taught by Araq
+  # (By Araq)
+  # as a workaround, we can add backticks.
+  # (By dom96)
+  # If Nim compiler discard this support, use the prefix (e.g. theEnd)
   `end`: uint64
   `type`: uint32
   pid: uint32 # tgid
