@@ -1,7 +1,8 @@
 import channel
 
 type Request* = ref object
-  chan: Channel
+  sender: Sender # sender to reply
+  buf: Buf # a buffer received
 
-proc newRequest*(send: Send, buf: Buf): Request =
+proc mkRequest*(sender: Sender, buf: Buf): Request =
   discard

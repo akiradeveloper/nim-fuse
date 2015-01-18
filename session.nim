@@ -11,26 +11,33 @@ type Session[FS:Filesystem] = ref object
   initialized: bool
   destroyed: bool
 
-proc newSession(): Session =
-  discard
+proc mkSession[FS:Filesystem](fs:FS, chan: Channel): Session =
+  Session (
+    fs: fs,
+    chan: chan,
+    initialized: false,
+    destroyed: false,
+  )
 
-proc handleReq(self: Session, buf: Buf): Request =
-  newRequest(self.chan.mkSend, buf)
+proc exists(self: Session): bool =
+  not self.destroyed
 
-proc loop(self) =
+proc handle(self: Session, buf: Buf): Request =
+  mkRequest(self.chan.mkSender, buf)
+
+proc loop(self: Session) =
   var buf = mkBuf(RECOMMENDED_BUFSIZE)
-  while true:
-    let err = self.chan.receive(buf)
-    if err > 0:
-      self.handleReq(buf)
+  while self.exists:
+    let err = self.chan.fetch(buf)
+    if err:
+      # TODO
+    else:
+      # Now the buffer is valid
+      self.handle(buf)
 
-# proc setup() =
-#   discard
-#
-# proc teardown() =
-#   discard
-#
-# proc mount() =
-#   setup()
-#   se.loop
-#   teardown()
+proc mkMain(fstype: typedesc[Filesystem], mountpoint: string, options) =
+  let fs = fstype()
+  let chan = connect(mountpoint, options)
+  let se = mkSession(fs, chan)
+  se.loop
+  disconnect(chan)

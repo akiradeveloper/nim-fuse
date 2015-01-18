@@ -1,3 +1,8 @@
+# **************************************
+#         Nim binding for FUSE
+#        (C) 2015 Akira Hayakawa
+# **************************************
+
 type Buf* = ref object
   pos: int
   size: int

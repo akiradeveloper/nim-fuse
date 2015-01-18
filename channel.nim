@@ -10,17 +10,19 @@ proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {. impo
 type Channel* = ref object 
   fd: cint
 
-proc newChannel(mountpoint, options):Channel =
+proc connect*(mountpoint, options): Channel =
+  let fd = fuse_mount_compat25(mountpoint, options) # TODO
+
+proc disconnect*(chan: Channel) =
+
+proc fetch(chan: Channel, buf: Buf) =
   discard
 
-proc receive(chan: Channel, buf: Buf) =
-  discard
-
-type Send* = ref object
+type Sender* = ref object
   fd: cint
 
-proc mkSend(chan: Channel): Send =
-  Send(fd: chan.fd)
+proc mkSender(chan: Channel): Sender =
+  Sender(fd: chan.fd)
 
-proc run(self: Send, buffer) =
+proc send(self: Sender, buf: Buf) =
   discard
