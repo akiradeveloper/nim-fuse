@@ -42,11 +42,9 @@ proc fetch(chan: Channel, buf: Buf): int =
   
   return 0
 
-type Sender* = ref object
-  fd: cint
-
-proc mkSender(chan: Channel): Sender =
-  Sender(fd: chan.fd)
-
-proc send(self: Sender, buf: Buf) =
-  discard
+proc send(self: Channel, bufs: seq[Buf]): int =
+  let n = len(bufs)
+  var iov = newSeq[TIOVec](n)
+  for i in 0..n-1:
+    iov[i].iov_base = bufs[i].asPtr
+    iov[i].iov_len = len(bufs[i])

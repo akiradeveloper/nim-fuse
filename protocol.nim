@@ -430,7 +430,7 @@ type fuse_dirent = object
   off: uint64
   namelen: uint32
   `type`: uint32
-  # followed by name
+  # name[]
 
 type fuse_notify_inval_inode_out = object
   ino: uint64
