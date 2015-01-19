@@ -24,6 +24,9 @@ proc mkBuf*(p: pointer, size: int): Buf =
     pos: 0,
   )
 
+proc mkBuf*[T](obj: T): Buf =
+  mkBuf(addr(obj), sizeof(T))
+
 proc pos(self: Buf): int =
   self.pos
 
