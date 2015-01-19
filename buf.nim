@@ -38,6 +38,13 @@ proc asPtr*(self: Buf): pointer =
   var n = cast[ByteAddress](self.p)
   cast[pointer](n + self.pos)
 
+proc asBuf*(self: Buf): Buf =
+  Buf (
+    p: self.asPtr,
+    size: self.size - self.pos,
+    pos: 0,
+  )
+
 proc advance*(self: Buf, n) =
   self.pos += n
 
