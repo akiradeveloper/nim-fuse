@@ -30,7 +30,7 @@ proc fetch(chan: Channel, buf: Buf): int =
   # We handle this case as failure because the the position of cursor
   # in this case isn't defined.
   if (n < header_sz):
-    return -1 # FIXME
+    return -posix.EIO
   elif n < 0:
     return n
 
@@ -38,7 +38,7 @@ proc fetch(chan: Channel, buf: Buf): int =
   let remained_len = cast[int](header.len) - header_sz
   let n2 = posix.read(chan.fd, buf.asPtr, remained_len)
   if (n2 < remained_len):
-    return -1 # FIXME
+    return -posix.EIO
   
   return 0
 
