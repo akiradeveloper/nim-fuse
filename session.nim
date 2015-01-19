@@ -22,10 +22,6 @@ proc mkSession[FS:Filesystem](fs:FS, chan: Channel): Session =
 proc exists(self: Session): bool =
   not self.destroyed
 
-proc handle(self: Session, buf: Buf): Request =
-  let req = mkRequest(self.chan, buf)
-  req.handle
-
 proc loop(self: Session) =
   let
     MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
@@ -39,7 +35,7 @@ proc loop(self: Session) =
       discard
     else:
       # Now the buffer is valid
-      self.handle(buf)
+      dispatch(self.chan, buf)
 
 proc mkMain(fstype: typedesc[Filesystem], mountpoint: string, options) =
   let fs = fstype()

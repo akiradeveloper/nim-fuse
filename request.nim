@@ -4,8 +4,15 @@ type Request* = ref object
   chan: Channel
   buf: Buf # a buffer received
 
-proc mkRequest*(chan: Channel, buf: Buf): Request =
-  discard
+  # copy from fuse_in_header
+  # see fuse_ll_process_buf
+  # uid: uint32
+  # gid: uint32
+  # pid: uint32
+  # unique: uint64
 
-proc handle(self: Request) =
+  header: fuse_in_header
+  data: Buf
+
+proc dispatch(chan: Channel, buf: Buf) =
   discard
