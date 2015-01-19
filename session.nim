@@ -23,7 +23,8 @@ proc exists(self: Session): bool =
   not self.destroyed
 
 proc handle(self: Session, buf: Buf): Request =
-  mkRequest(self.chan.mkSender, buf)
+  let req = mkRequest(self.chan, buf)
+  req.handle
 
 proc loop(self: Session) =
   let

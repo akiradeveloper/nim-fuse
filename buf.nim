@@ -4,20 +4,27 @@
 # **************************************
 
 type Buf* = ref object
-  pos: int
+  p: pointer
   size: int
-  data: seq[uint8]
+  pos: int
 
 proc mkBuf*(size: int): Buf =
   var data = newSeq[uint8](size)
   var buf = Buf(
-    pos: 0,
+    p: addr(data),
     size: size,
-    data: data,
+    pos: 0,
   )
   buf
 
-proc pos(self: Buf): auto =
+proc mkBuf*(p: pointer, size: int): Buf =
+  Buf (
+    p: p,
+    size: size,
+    pos: 0,
+  )
+
+proc pos(self: Buf): int =
   self.pos
 
 proc initPos*(self: Buf) =
@@ -25,7 +32,8 @@ proc initPos*(self: Buf) =
 
 # Returns current pos as a pointer
 proc asPtr*(self: Buf): pointer =
-  addr(self.data[self.pos])
+  var n = cast[ByteAddress](self.p)
+  cast[pointer](n + self.pos)
 
 proc advance*(self: Buf, n) =
   self.pos += n
@@ -39,7 +47,7 @@ proc len(self: Buf): int =
 proc write[T](self: Buf, obj: T) =
   let sz = sizeof(T)
   var v = obj
-  let src = cast[ptr uint8](addr(v))
+  let src = cast[pointer](addr(v))
   echo repr(src)
   copyMem(self.asPtr, src, sz)
 
