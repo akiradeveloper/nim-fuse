@@ -33,3 +33,6 @@ method readdir(self, req, ino, size, off, fi)
 
 method releasedir(self, req, ino, fi)
 
+# sketch
+
+# proc fuse_reply_statfs(req, stbuf: posix.TStatvfs)
