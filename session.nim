@@ -36,10 +36,3 @@ proc loop(self: Session) =
     else:
       # Now the buffer is valid
       dispatch(self.chan, buf)
-
-proc mkMain(fstype: typedesc[Filesystem], mountpoint: string, options) =
-  let fs = fstype()
-  let chan = connect(mountpoint, options)
-  let se = mkSession(fs, chan)
-  se.loop
-  disconnect(chan)

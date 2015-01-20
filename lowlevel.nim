@@ -1,4 +1,7 @@
-type Filesystem* = ref object of RootObj
+# Lowlevel server
+# Interacts with fuse client in the kernel
+
+type LowlevelFs* = ref object of RootObj
 
 type Request = ref object
 
@@ -36,3 +39,10 @@ method releasedir(self, req, ino, fi)
 # sketch
 
 # proc fuse_reply_statfs(req, stbuf: posix.TStatvfs)
+
+proc mount(fstype: typedesc[LowlevelFs], mountpoint: string, options) =
+  let fs = fstype()
+  let chan = connect(mountpoint, options)
+  let se = mkSession(fs, chan)
+  se.loop
+  disconnect(chan)
