@@ -5,6 +5,7 @@ include Buf
 
 type fuse_args = object
   argc: cint
+  # Use cstringArray???
   argv: ptr ptr cchar
   allocated: cint
 
