@@ -1,4 +1,5 @@
 import posix
+import os
 import protocol
 
 include Buf
@@ -14,8 +15,15 @@ proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {. impo
 type Channel* = ref object 
   fd: cint
 
-proc connect*(mountpoint, options): Channel =
-  let fd = fuse_mount_compat25(mountpoint, options) # TODO
+proc connect*(mountpoint: string, mount_options: openArray[string]): Channel =
+  let args = fuse_args (
+    argc = len(mount_options),
+    argv = allocCStringArray(mount_options),
+    allocated = 0 # control freeing by ourselves
+  )
+  let fd = fuse_mount_compat25(mountpoint, addr(options))
+  deallocCStringArray(args.argv)
+  Channel(fd:fd)
 
 proc disconnect*(chan: Channel) =
   discard

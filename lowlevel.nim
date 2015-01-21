@@ -40,8 +40,7 @@ method releasedir(self, req, ino, fi)
 
 # proc fuse_reply_statfs(req, stbuf: posix.TStatvfs)
 
-proc mount(fstype: typedesc[LowlevelFs], mountpoint: string, options) =
-  let fs = fstype()
+proc mount(fs: LowlevelFs, mountpoint: string, mount_options: openArray[string]) =
   let chan = connect(mountpoint, options)
   let se = mkSession(fs, chan)
   se.loop
