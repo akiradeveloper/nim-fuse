@@ -52,9 +52,14 @@ proc fetch(chan: Channel, buf: Buf): int =
   
   return 0
 
-proc send(self: Channel, bufs: seq[Buf]): int =
-  let n = len(bufs)
+proc send(self: Channel, bufs: openArray[Buf]): int =
+  let n = cast[cint](len(bufs))
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
     iov[i].iov_base = bufs[i].asPtr
     iov[i].iov_len = len(bufs[i])
+  posix.writev(self.fd, addr(iov[0]), n)
+
+when isMainModule:
+  let ch = channel.connect("/mnt", @[])
+  disconnect(ch)
