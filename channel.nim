@@ -6,27 +6,28 @@ include Buf
 
 type fuse_args = object
   argc: cint
-  # Use cstringArray???
-  argv: ptr ptr cchar
+  argv: cstringArray
   allocated: cint
 
 proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {. importc .}
+proc fuse_unmount_compat22(mountpoint: cstring) {. importc .}
 
 type Channel* = ref object 
+  mount_point: string
   fd: cint
 
-proc connect*(mountpoint: string, mount_options: openArray[string]): Channel =
-  let args = fuse_args (
-    argc = len(mount_options),
-    argv = allocCStringArray(mount_options),
-    allocated = 0 # control freeing by ourselves
+proc connect*(mount_point: string, mount_options: openArray[string]): Channel =
+  var args = fuse_args (
+    argc: cast[cint](len(mount_options)),
+    argv: allocCStringArray(mount_options),
+    allocated: 0, # control freeing by ourselves
   )
-  let fd = fuse_mount_compat25(mountpoint, addr(options))
+  let fd = fuse_mount_compat25(mount_point, addr(args))
   deallocCStringArray(args.argv)
-  Channel(fd:fd)
+  Channel(mount_point:mount_point, fd:fd)
 
 proc disconnect*(chan: Channel) =
-  discard
+  fuse_unmount_compat22(chan.mount_point)
 
 # Read /dev/fuse into a provided buffer
 # success: 0
