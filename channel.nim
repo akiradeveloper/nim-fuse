@@ -75,5 +75,7 @@ proc send(self: Channel, bufs: openArray[Buf]): int =
   posix.writev(self.fd, addr(iov[0]), n)
 
 when isMainModule:
-  let ch = channel.connect("./mnt", @[])
-  disconnect(ch)
+  let ch0 = channel.connect("./mnt0", @[])
+  let ch1 = channel.connect("./mnt1", @[])
+  disconnect(ch0)
+  disconnect(ch1)
