@@ -1,3 +1,6 @@
+{. passC: gorge("pkg-config --cflags fuse") .}
+{. passL: gorge("pkg-config --libs fuse") .}
+
 import posix
 import os
 import protocol
