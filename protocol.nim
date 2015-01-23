@@ -420,7 +420,7 @@ type fuse_in_header* = object
   pid: uint32
   padding: uint32
 
-type fuse_out_header = object
+type fuse_out_header* = object
   len: uint32
   error: int32
   unique: uint64

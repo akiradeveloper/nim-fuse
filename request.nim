@@ -1,3 +1,4 @@
+import protocol
 import channel
 
 type Request* = ref object
