@@ -19,17 +19,65 @@ proc sendIOV(req: Request, e: int, iov: openArray[TIOVec]):
   bufs[0] = mkBuf[fuse_out_header](outH)
   req.chan.send(bufs)
 
-proc send(req: Request, e: int):
-  sendIOV(req, e, &[])
-
 proc send[T](req: Request, e: int, o: T):
   sendIOV(req, e, &[TIOVec(io_base:addr(o), io_len:sizeof(T))])
 
-proc replyIOV*(req: Request, iov: openArray[TIOVec]):
+proc send(req: Request, e: int):
+  sendIOV(req, e, &[])
+
+proc iov*(req: Request, iov: openArray[TIOVec]):
   sendIOV(req, 0, iov)
 
-proc replyOk*(req: Request):
-  send(req, 0)
+proc ok*[T](req: Request, o: T):
+  send(req, 0, o)
 
-proc replyErr*(req: Request, int err):
+proc err*(req: Request, err: int):
   send(req, -err)
+
+proc readlink*(req: Request, linkname: string):
+  ok(req, linkname)
+
+proc none*():
+  discard
+
+proc entry*():
+  discard
+
+proc attr*():
+  discard
+
+proc open*():
+  discard
+
+proc write*():
+  discard
+
+proc buf*():
+  discard
+
+proc data*():
+  discard
+
+proc statfs:():
+  discard
+
+proc xattr():
+  discard
+
+proc lock():
+  discard
+
+proc bmap():
+  discard
+
+proc ioctl_retry():
+  discard
+
+proc ioctl():
+  discard
+
+proc ioctl_iov():
+  discard
+
+proc poll():
+  discard
