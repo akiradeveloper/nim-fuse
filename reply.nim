@@ -4,72 +4,101 @@ import posix
 import protocol
 import request
 
-type Reply = ref object
+type Sender = ref object of RootObj
+proc send(self: Sender):
+  discard
 
-proc sendIOV(req: Request, e: int, iov: openArray[TIOVec]):
-  var bufs = newSeq[Buf](len(iov) + 1)
-  var outH: fuse_out_header
-  outH.unique = req.header.unique
-  outH.error = e
+type Raw = ref object
+  unique: uint64
+  sender: Sender
+  data: openArray[Buf]
+proc newReplyRaw(sender: Sender, unique: uint64): ReplyRaw =
+  discard
+proc ack(self: ReplyRaw, err: int, dataSeq: openArray[Buf]) =
+  var bufs = newSeq[Buf](len(dataSeq) + 1)
   var l = sizeof(fuse_out_header)
-  for i, io in iov:
-    l += io.io_len
-    bufs[i+1] = mkBuf(io.iov_base, io.io_len)
+  for i, data in dataSeq:
+    bufs[i+1] = dataSeq[i]
+  var outH: fuse_out_header
+  outH.unique = self.unique
+  outH.error = e
   outH.len = l
   bufs[0] = mkBuf[fuse_out_header](outH)
-  req.chan.send(bufs)
+  sender.send(bufs)
+proc ok(self: ReplyRaw, dataSeq: openArray[Buf]) =
+  self.ack(0, dataSeq)
+proc err(self: ReplyRaw, err: int) =
+  self.ack(e, @[])
 
-proc send[T](req: Request, e: int, o: T):
-  sendIOV(req, e, &[TIOVec(io_base:addr(o), io_len:sizeof(T))])
+type ReplyOk = ref object
+  raw: Raw
+proc newOk(sender: Sender, unique: uint64): ReplyOk =
+  ReplyOk(raw: newReplyRaw(sender, unique))
+proc ok(self: ReplyOk) =
+  self.raw.ok()
 
-proc send(req: Request, e: int):
-  sendIOV(req, e, &[])
-
-proc iov*(req: Request, iov: openArray[TIOVec]):
-  sendIOV(req, 0, iov)
-
-proc ok*[T](req: Request, o: T):
-  send(req, 0, o)
-
-proc err*(req: Request, err: int):
-  send(req, -err)
-
-proc readlink*(req: Request, linkname: string):
-  ok(req, linkname)
-
-proc none*():
+type IOV = ref object
+  raw: Raw
+proc newIOV(sender: Sender, unique: uint64): ReplyIOV =
+  IOV(raw: newRaw(sender, unique))
+proc ok(self: ReplyIOV, iov: openArray[TIOVec]) =
   discard
 
-proc entry*():
+type Readlink = ref object
+  raw: Raw
+proc newReadlink(sender: Sender, unique: uint64) =
+  Readlink(raw: newRaw(sender, unique))
+proc ok(self: Readlink, link: string) =
+  self.raw.ok([mkBuf[string](link)])
+
+type None = ref object
+  raw: Raw
+proc newNone(sender: Sender, unique: uint64) =
+  None(raw: newRaw(sender, unique))
+proc ok(self: Readlink) =
+  self.raw.ok([])
+
+type Entry = ref object
+proc newEntry*():
   discard
 
-proc attr*():
+type Attr = ref object
+proc newAttr*():
   discard
 
-proc open*():
+type Open = ref object
+proc newOpen*():
   discard
 
-proc write*():
+type Write = ref object
+proc newWrite*():
   discard
 
-proc buf*():
+type Buf = ref object
+proc newBuf*():
   discard
 
-proc data*():
+type Data = ref object
+proc newData*():
   discard
 
-proc statfs:():
+type Statfs = ref object
+proc newStatfs:():
   discard
 
-proc xattr():
+type XAttr = ref object
+proc newXAttr():
   discard
 
-proc lock():
+type Lock = ref object
+proc newLock():
   discard
 
-proc bmap():
+type Bmap = ref object
+proc newBmap():
   discard
 
+# TODO
 proc ioctl_retry():
   discard
 
