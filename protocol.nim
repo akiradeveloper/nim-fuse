@@ -288,9 +288,9 @@ type fuse_write_in = object
   flags: uint32
   padding: uint32
 
-type fuse_write_out = object
-  size: uint32
-  padding: uint32
+type fuse_write_out* = object
+  size*: uint32
+  padding*: uint32
 
 let FUSE_COMPAT_STATFS_SIZE = 48
 

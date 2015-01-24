@@ -10,11 +10,11 @@ proc send(self: Sender, dataSeq: openArray[Buf]) =
   discard
 
 type Raw = ref object
-  unique: uint64
   sender: Sender
+  unique: uint64
 
-proc newRaw(sender: Sender, unique: uint64): Raw =
-  discard
+proc newRaw*(sender: Sender, unique: uint64): Raw =
+  Raw(sender: sender, unique: unique)
 
 proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
   var bufs = newSeq[Buf](len(dataSeq) + 1)
@@ -32,164 +32,170 @@ proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
 proc ok(self: Raw, dataSeq: openArray[Buf]) =
   self.ack(0, dataSeq)
 
-proc err(self: Raw, err: int) =
-  self.ack(err, @[])
+proc err(self: Raw, e: int) =
+  self.ack(e, @[])
 
-template mkWrapper(typ: expr) =
-  type `typ` {. inject .} = ref object
+template defWrapper(typ: expr) =
+  type `typ`* {. inject .} = ref object
     raw: Raw
 
-template mkEntry(typ: typedesc) =
+template defEntry(typ: typedesc) =
   proc entry*(self: `typ`) =
     discard
 
-template mkErr(typ: typedesc) =
-  proc err*(self: `typ`) =
+template defErr(typ: typedesc) =
+  proc err*(self: `typ`, e: int) =
+    self.raw.err(e)
+
+template defNone(typ: typedesc) =
+  proc none*(self: `typ`) =
+    self.raw.ok(@[])
+
+template defAttr(typ: typedesc) =
+  proc attr*(self: `typ`) =
     discard
 
-template mkNone(typ: typedesc) =
-  proc none(self: `typ`) =
+# template defData(typ: typedesc) =
+#   proc data*(self: `typ`, data: Buf) =
+#     discard
+
+template defBuf(typ: typedesc) =
+  proc buf*(self: `typ`, data: Buf) =
+    self.raw.ok(@[data])
+
+template defOpen(typ: typedesc) =
+  proc open*(self: `typ`) =
     discard
 
-template mkAttr(typ: typedesc) =
-  proc attr(self: `typ`) =
+template defWrite(typ: typedesc) =
+  proc write*(self: `typ`, count: uint32) =
+    var o = fuse_write_out(size:cast[uint32](count), padding:0)
+    self.raw.ok(@[mkBuf(o)])
+
+template defXAttr(typ: typedesc) =
+  proc xattr*(self: `typ`) =
     discard
 
-template mkData(typ: typedesc) =
-  proc data(self: `typ`) =
-    discard
+defWrapper(Lookup)
+defEntry(Lookup)
+defErr(Lookup)
 
-template mkOpen(typ: typedesc) =
-  proc open(self: `typ`) =
-    discard
+defWrapper(Forget)
+defNone(Forget)
 
-template mkWrite(typ: typedesc) =
-  proc write(self: `typ`) =
-    discard
+defWrapper(GetAttr)
+defAttr(GetAttr)
+defErr(GetAttr)
 
-template mkXAttr(typ: typedesc) =
-  proc xattr(self: `typ`) =
-    discard
+defWrapper(SetAttr)
+defAttr(SetAttr)
+defErr(SetAttr)
 
-mkWrapper(Lookup)
-mkEntry(Lookup)
-mkErr(Lookup)
-
-mkWrapper(Forget)
-mkNone(Forget)
-
-mkWrapper(GetAttr)
-mkAttr(GetAttr)
-mkErr(GetAttr)
-
-mkWrapper(SetAttr)
-mkAttr(SetAttr)
-mkErr(SetAttr)
-
-mkWrapper(Readlink)
-proc readlink(self: Readlink, link: string) =
+defWrapper(Readlink)
+proc readlink*(self: Readlink, link: string) =
   var s = link
   self.raw.ok(@[mkBuf[string](s)])
-mkErr(Readlink)
+defErr(Readlink)
 
-mkWrapper(Mknod)
-mkEntry(Mknod)
-mkErr(Mknod)
+defWrapper(Mknod)
+defEntry(Mknod)
+defErr(Mknod)
 
-mkWrapper(Mkdir)
-mkEntry(Mkdir)
-mkErr(Mkdir)
+defWrapper(Mkdir)
+defEntry(Mkdir)
+defErr(Mkdir)
 
-mkWrapper(Unlink)
-mkErr(Unlink)
+defWrapper(Unlink)
+defErr(Unlink)
 
-mkWrapper(Rmdir)
-mkErr(Rmdir)
+defWrapper(Rmdir)
+defErr(Rmdir)
 
-mkWrapper(Symlink)
-mkEntry(Symlink)
-mkErr(Symlink)
+defWrapper(Symlink)
+defEntry(Symlink)
+defErr(Symlink)
 
-mkWrapper(Rename)
-mkErr(Rename)
+defWrapper(Rename)
+defErr(Rename)
 
-mkWrapper(Link)
-mkEntry(Link)
-mkErr(Link)
+defWrapper(Link)
+defEntry(Link)
+defErr(Link)
 
-mkWrapper(Open)
-mkOpen(Open)
-mkErr(Open)
+defWrapper(Open)
+defOpen(Open)
+defErr(Open)
 
-mkWrapper(Read)
-# mkBuf(Read)
-mkData(Read)
+defWrapper(Read)
+defBuf(Read)
+# defData(Read)
 proc iov(self: Read) =
   discard
 
-mkWrapper(Write)
-mkWrite(Write)
-mkErr(Write)
+defWrapper(Write)
+defWrite(Write)
+defErr(Write)
 
-mkWrapper(Flush)
-mkErr(Flush)
+defWrapper(Flush)
+defErr(Flush)
 
-mkWrapper(Release)
-mkErr(Release)
+defWrapper(Release)
+defErr(Release)
 
-mkWrapper(Fsync)
-mkErr(Fsync)
+defWrapper(Fsync)
+defErr(Fsync)
 
-mkWrapper(Opendir)
-mkOpen(Opendir)
-mkErr(Opendir)
+defWrapper(Opendir)
+defOpen(Opendir)
+defErr(Opendir)
 
 type Readdir = ref object
   raw: Raw
   data: Buf
 proc add*(Self: Readdir, ino: TIno, offset: TOff, kind: TMode, name: string): bool =
   discard
-# mkBuf(Directory)
-mkData(Readdir)
-mkErr(Readdir)
+defBuf(Readdir)
+# defData(Readdir)
+defErr(Readdir)
 
-mkWrapper(Releasedir)
-mkErr(Releasedir)
+defWrapper(Releasedir)
+defErr(Releasedir)
 
-mkWrapper(Fsyncdir)
-mkErr(Fsyncdir)
+defWrapper(Fsyncdir)
+defErr(Fsyncdir)
 
-mkWrapper(Statfs)
-proc statfs(self: Statfs) =
+defWrapper(Statfs)
+proc statfs*(self: Statfs) =
   discard
-mkErr(Statfs)
+defErr(Statfs)
 
-mkWrapper(SetXAttr)
-mkErr(SetXAttr)
+defWrapper(SetXAttr)
+defErr(SetXAttr)
 
-mkWrapper(GetXAttr)
-# mkBuf(GetXAttr)
-mkData(GetXAttr)
-mkXAttr(GetXAttr)
-mkErr(GetXAttr)
+defWrapper(GetXAttr)
+defBuf(GetXAttr)
+# defData(GetXAttr)
+defXAttr(GetXAttr)
+defErr(GetXAttr)
 
-mkWrapper(ListXAttr)
-mkData(ListXAttr)
-mkXAttr(ListXAttr)
-mkErr(ListXAttr)
+defWrapper(ListXAttr)
+defBuf(ListXAttr)
+# defData(ListXAttr)
+defXAttr(ListXAttr)
+defErr(ListXAttr)
 
-mkWrapper(RemoveXAttr)
-mkErr(RemoveXAttr)
+defWrapper(RemoveXAttr)
+defErr(RemoveXAttr)
 
-mkWrapper(Access)
-mkErr(Access)
+defWrapper(Access)
+defErr(Access)
 
-mkWrapper(Create)
-proc create(self: Create) =
+defWrapper(Create)
+proc create*(self: Create) =
   discard
-mkErr(Create)
+defErr(Create)
 
-mkWrapper(Getlk)
-proc lock(self: Getlk) =
+defWrapper(Getlk)
+proc lock*(self: Getlk) =
   discard
-mkErr(Getlk)
+defErr(Getlk)
