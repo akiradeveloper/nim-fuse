@@ -3,7 +3,21 @@
 import buf
 import posix
 import protocol
-# import request
+
+type TFileAttrObj = object
+  # TODO
+type TFileAttr = ref TFileAttrObj
+
+type TEntryParam = ref object 
+  ino: Tino
+  generation: uint64
+  attr: TFileAttrObj
+  attr_timeout: posix.Ttimespec
+  entry_timeout: posix.Ttimespec
+
+type Ttimespec = ref posix.Ttimespec
+type TStatvfs = ref posix.TStatvfs
+type Tflock = ref posix.Tflock
 
 type Sender = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]) =
@@ -40,7 +54,7 @@ template defWrapper(typ: expr) =
     raw: Raw
 
 template defEntry(typ: typedesc) =
-  proc entry*(self: `typ`) =
+  proc entry*(self: `typ`, e: TEntryParam) =
     discard
 
 template defErr(typ: typedesc) =
@@ -52,7 +66,7 @@ template defNone(typ: typedesc) =
     self.raw.ok(@[])
 
 template defAttr(typ: typedesc) =
-  proc attr*(self: `typ`) =
+  proc attr*(self: `typ`, attr: TFileAttr, ttl: Ttimespec) =
     discard
 
 # template defData(typ: typedesc) =
@@ -64,7 +78,7 @@ template defBuf(typ: typedesc) =
     self.raw.ok(@[data])
 
 template defOpen(typ: typedesc) =
-  proc open*(self: `typ`) =
+  proc open*(self: `typ`, fh: uint64, flags: uint32) =
     discard
 
 template defWrite(typ: typedesc) =
@@ -73,7 +87,7 @@ template defWrite(typ: typedesc) =
     self.raw.ok(@[mkBuf(o)])
 
 template defXAttr(typ: typedesc) =
-  proc xattr*(self: `typ`) =
+  proc xattr*(self: `typ`, count: uint32) =
     discard
 
 defWrapper(Lookup)
@@ -129,7 +143,7 @@ defErr(Open)
 defWrapper(Read)
 defBuf(Read)
 # defData(Read)
-proc iov(self: Read) =
+proc iov*(self: Read, iov: openArray[TIOVec]) =
   discard
 
 defWrapper(Write)
@@ -152,8 +166,12 @@ defErr(Opendir)
 type Readdir = ref object
   raw: Raw
   data: Buf
-proc add*(Self: Readdir, ino: TIno, offset: TOff, kind: TMode, name: string): bool =
+
+# only few of the member in TStat input is used but comforming to c-fuse
+# makes it easy to be backward-compatible.
+proc add*(Self: Readdir, name: string, stat: TStat, off: posix.TOff) =
   discard
+
 defBuf(Readdir)
 # defData(Readdir)
 defErr(Readdir)
@@ -165,7 +183,7 @@ defWrapper(Fsyncdir)
 defErr(Fsyncdir)
 
 defWrapper(Statfs)
-proc statfs*(self: Statfs) =
+proc statfs*(self: Statfs, stat: TStatvfs) =
   discard
 defErr(Statfs)
 
@@ -191,11 +209,11 @@ defWrapper(Access)
 defErr(Access)
 
 defWrapper(Create)
-proc create*(self: Create) =
+proc create*(self: Create, e: TEntryParam) =
   discard
 defErr(Create)
 
 defWrapper(Getlk)
-proc lock*(self: Getlk) =
+proc lock*(self: Getlk, lock: Tflock) =
   discard
 defErr(Getlk)

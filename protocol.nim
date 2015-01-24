@@ -294,7 +294,7 @@ type fuse_write_out* = object
 
 let FUSE_COMPAT_STATFS_SIZE = 48
 
-type fuse_statfs_out = object
+type fuse_statfs_out* = object
   st: fuse_kstatfs
 
 type fuse_fsync_in = object
@@ -310,7 +310,7 @@ type fuse_getxattr_in = object
   size: uint32
   padding: uint32
 
-type fuse_getxattr_out = object
+type fuse_getxattr_out* = object
   size: uint32
   padding: uint32
 
@@ -321,7 +321,7 @@ type fuse_lk_in = object
   lk_flags: uint32
   padding: uint32
 
-type fuse_lk_out = object
+type fuse_lk_out* = object
   lk: fuse_file_lock
 
 type fuse_access_in = object
@@ -334,7 +334,7 @@ type fuse_init_in = object
   max_readahead: uint32
   flags: uint32
 
-type fuse_init_out = object
+type fuse_init_out* = object
   major: uint32
   minor: uint32
   max_readahead: uint32
@@ -369,7 +369,7 @@ type fuse_bmap_in = object
   blocksize: uint32
   padding: uint32
 
-type fuse_bmap_out = object
+type fuse_bmap_out* = object
   `block`: uint64
 
 type fuse_ioctl_in = object
@@ -384,7 +384,7 @@ type fuse_ioctl_iovec = object
   base: uint64
   len: uint64
 
-type fuse_ioctl_out = object
+type fuse_ioctl_out* = object
   result: int32
   flags: uint32
   in_iovs: uint32
@@ -396,11 +396,11 @@ type fuse_poll_in = object
   flags: uint32
   padding: uint32
 
-type fuse_poll_out = object
+type fuse_poll_out* = object
   revents: uint32
   padding: uint32
 
-type fuse_notify_poll_wakeup_out = object
+type fuse_notify_poll_wakeup_out* = object
   kh: uint64
 
 type fuse_fallocate_in = object
@@ -432,7 +432,7 @@ type fuse_dirent = object
   `type`: uint32
   # name[]
 
-type fuse_notify_inval_inode_out = object
+type fuse_notify_inval_inode_out* = object
   ino: uint64
   off: int64
   len: int64
