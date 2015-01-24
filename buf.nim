@@ -24,7 +24,7 @@ proc mkBuf*(p: pointer, size: int): Buf =
     pos: 0,
   )
 
-proc mkBuf*[T](obj: T): Buf =
+proc mkBuf*[T](obj: var T): Buf =
   mkBuf(addr(obj), sizeof(T))
 
 proc pos(self: Buf): int =
@@ -51,7 +51,7 @@ proc advance*(self: Buf, n) =
 proc retard*(self: Buf, n) =
   self.pos -= n
 
-proc len(self: Buf): int =
+proc len*(self: Buf): int =
   self.size
 
 proc write[T](self: Buf, obj: T) =

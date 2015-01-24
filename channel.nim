@@ -1,6 +1,7 @@
 {. passC: gorge("pkg-config --cflags fuse") .}
 {. passL: gorge("pkg-config --libs fuse") .}
 
+import reply
 import posix
 import os
 import protocol
@@ -66,7 +67,7 @@ proc fetch(chan: Channel, buf: Buf): int =
   
   return 0
 
-proc ChannelSender = ref object of Sender
+type ChannelSender = ref object of Sender
   chan: Channel
 
 proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =

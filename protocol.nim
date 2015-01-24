@@ -421,9 +421,9 @@ type fuse_in_header* = object
   padding: uint32
 
 type fuse_out_header* = object
-  len: uint32
-  error: int32
-  unique: uint64
+  len*: uint32
+  error*: int32
+  unique*: uint64
 
 type fuse_dirent = object
   ino: uint64
