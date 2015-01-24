@@ -14,23 +14,23 @@ proc `<<`(a: uint32, b: uint32): uint32 =
   let v = cast[int32](a) shl cast[int32](b)
   cast[uint32](v)
 
-type fuse_attr = object
-  ino: uint64
-  size: uint64
-  blocks: uint64
-  atime: uint64
-  mtime: uint64
-  ctime: uint64
-  atimensec: uint32
-  mtimensec: uint32
-  ctimensec: uint32
-  mode: uint32
-  nlink: uint32
-  uid: uint32
-  gid: uint32
-  rdev: uint32
-  blksize: uint32
-  padding: uint32
+type fuse_attr* = object
+  ino*: uint64
+  size*: uint64
+  blocks*: uint64
+  atime*: uint64
+  mtime*: uint64
+  ctime*: uint64
+  atimensec*: uint32
+  mtimensec*: uint32
+  ctimensec*: uint32
+  mode*: uint32
+  nlink*: uint32
+  uid*: uint32
+  gid*: uint32
+  rdev*: uint32
+  blksize*: uint32
+  padding*: uint32
   
 type fuse_kstatfs = object
   blocks: uint64

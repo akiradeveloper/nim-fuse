@@ -5,8 +5,12 @@ import posix
 import protocol
 
 type TFileAttrObj = object
-  # TODO
+  mode: TMode
+
 type TFileAttr = ref TFileAttrObj
+
+proc fuse_attr_of(attr: TFileAttr): fuse_attr =
+  discard
 
 type TEntryParam = ref object 
   ino: Tino
@@ -53,10 +57,6 @@ template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
     raw: Raw
 
-template defEntry(typ: typedesc) =
-  proc entry*(self: `typ`, e: TEntryParam) =
-    discard
-
 template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
     self.raw.err(e)
@@ -65,17 +65,22 @@ template defNone(typ: typedesc) =
   proc none*(self: `typ`) =
     self.raw.ok(@[])
 
+template defEntry(typ: typedesc) =
+  proc entry*(self: `typ`, e: TEntryParam) =
+    discard
+
+template defCreate(typ: typedesc) =
+  proc create*(self: typ, e: TEntryParam) =
+    discard
+
 template defAttr(typ: typedesc) =
   proc attr*(self: `typ`, attr: TFileAttr, ttl: Ttimespec) =
     discard
 
-# template defData(typ: typedesc) =
-#   proc data*(self: `typ`, data: Buf) =
-#     discard
-
-template defBuf(typ: typedesc) =
-  proc buf*(self: `typ`, data: Buf) =
-    self.raw.ok(@[data])
+template defReadlink(typ: typedesc) =
+  proc readlink*(self: typ, li: string) =
+    var s = li
+    self.raw.ok(@[mkBuf[string](s)])
 
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, fh: uint64, flags: uint32) =
@@ -86,8 +91,32 @@ template defWrite(typ: typedesc) =
     var o = fuse_write_out(size:cast[uint32](count), padding:0)
     self.raw.ok(@[mkBuf(o)])
 
+template defBuf(typ: typedesc) =
+  proc buf*(self: `typ`, data: Buf) =
+    self.raw.ok(@[data])
+
+# template defData(typ: typedesc) =
+#   proc data*(self: `typ`, data: Buf) =
+#     discard
+
+template defIov(typ: typedesc) =
+  proc iov*(self: typ, iov: openArray[TIOVec]) =
+    discard
+
+template defStatfs(typ: typedesc) =
+  proc statfs*(self: Statfs, s: TStatvfs) =
+    discard
+
 template defXAttr(typ: typedesc) =
   proc xattr*(self: `typ`, count: uint32) =
+    discard
+
+template defLock(typ: typedesc) =
+  proc lock*(self: typ, lock: Tflock) =
+    discard
+
+template defBmap(typ: typedesc) =
+  proc bmap(self: typ, idx: uint64) =
     discard
 
 defWrapper(Lookup)
@@ -106,9 +135,7 @@ defAttr(SetAttr)
 defErr(SetAttr)
 
 defWrapper(Readlink)
-proc readlink*(self: Readlink, link: string) =
-  var s = link
-  self.raw.ok(@[mkBuf[string](s)])
+defReadlink(Readlink)
 defErr(Readlink)
 
 defWrapper(Mknod)
@@ -143,8 +170,7 @@ defErr(Open)
 defWrapper(Read)
 defBuf(Read)
 # defData(Read)
-proc iov*(self: Read, iov: openArray[TIOVec]) =
-  discard
+defIov(Read)
 
 defWrapper(Write)
 defWrite(Write)
@@ -183,8 +209,7 @@ defWrapper(Fsyncdir)
 defErr(Fsyncdir)
 
 defWrapper(Statfs)
-proc statfs*(self: Statfs, stat: TStatvfs) =
-  discard
+defStatfs(Statfs)
 defErr(Statfs)
 
 defWrapper(SetXAttr)
@@ -209,11 +234,9 @@ defWrapper(Access)
 defErr(Access)
 
 defWrapper(Create)
-proc create*(self: Create, e: TEntryParam) =
-  discard
+defCreate(Create)
 defErr(Create)
 
 defWrapper(Getlk)
-proc lock*(self: Getlk, lock: Tflock) =
-  discard
+defLock(Getlk)
 defErr(Getlk)
