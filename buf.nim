@@ -71,6 +71,11 @@ proc pop[T](self: Buf): T =
   self.advance(sizeof(T))
   v
 
+proc append[T](self: Buf, o: T): Buf =
+  write[T](self, o)
+  self.advance(sizeof(T))
+  self
+
 when isMainModule:
   var b = mkBuf 101 
   echo repr(b)

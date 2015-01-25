@@ -74,7 +74,7 @@ proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =
   let n = cast[cint](len(dataSeq))
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
-    iov[i].iov_base = bufs[i].asPtr
+    iov[i].iov_base = dataSeq[i].asPtr
     iov[i].iov_len = len(bufs[i])
   posix.writev(self.chan.fd, addr(iov[0]), n)
 

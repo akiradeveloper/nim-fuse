@@ -32,17 +32,17 @@ type fuse_attr* = object
   blksize*: uint32
   padding*: uint32
   
-type fuse_kstatfs = object
-  blocks: uint64
-  bfree: uint64
-  bavail: uint64
-  files: uint64
-  ffree: uint64
-  bsize: uint32
-  namelen: uint32
-  frsize: uint32
-  padding: uint32
-  spare: array[6, uint32]
+type fuse_kstatfs* = object
+  blocks*: uint64
+  bfree*: uint64
+  bavail*: uint64
+  files*: uint64
+  ffree*: uint64
+  bsize*: uint32
+  namelen*: uint32
+  frsize*: uint32
+  padding*: uint32
+  spare*: array[6, uint32]
 
 type fuse_file_lock = object
   start: uint64

@@ -4,27 +4,69 @@ import buf
 import posix
 import protocol
 
-type TFileAttrObj = object
-  mode: TMode
-
-type TFileAttr = ref TFileAttrObj
-
-proc fuse_attr_of(attr: TFileAttr): fuse_attr =
-  discard
-
-type TEntryParam = ref object 
-  ino: Tino
-  generation: uint64
-  attr: TFileAttrObj
-  attr_timeout: posix.Ttimespec
-  entry_timeout: posix.Ttimespec
-
 type Ttimespec = ref posix.Ttimespec
 type TStatvfs = ref posix.TStatvfs
 type Tflock = ref posix.Tflock
 
-type Sender = ref object of RootObj
-proc send(self: Sender, dataSeq: openArray[Buf]) =
+type TFileStatObj = object
+  ino: uint64
+  size: uint64
+  blocks: uint64
+  atime: Ttimespec
+  mtime: Ttimespec
+  ctime: Ttimespec
+  mode: TMode
+  nlink: uint32
+  uid: uint32
+  gid: uint32
+  rdev: uint32
+  blksize: uint32
+type TStat = ref TFileStatObj
+
+proc convertStat(st: TStat): fuse_attr =
+  fuse_attr (
+    ino: st.ino,
+    size: st.size,
+    blocks: st.blocks,
+    atime: st.atime.tv_sec,
+    mtime: st.mtime.tv_sec,
+    ctime: st.ctime.tv_sec,
+    atimensec: st.atime.tv_nsec,
+    mtimensec: st.mtime.tv_nsec,
+    ctimensec: st.ctime.tv_nsec,
+    mode: st_mode,
+    nlink: st_nlink,
+    uid: st_uid,
+    gid: st_gid,
+    rdev: st_rdev,
+    blksize: st.st_blksize,
+  )
+
+proc ConvertStatfs(st: TStatvfs) =
+  fuse_kstatfs (
+    blocks: st.f_blocks,
+    bfree: st.f_bfree,
+    bavail: st.f_bavail,
+    files: st.f_files,
+    ffree: st.f_ffree,
+    bsize: st.f_bsize,
+    namelen: st.f_namemax,
+    frsize: st.f_frsize,
+  )
+
+# posix.Ttimespec
+#   sec: times.Time = int32
+#   nsec: int
+
+type TEntryParam* = ref object 
+  ino*: Tino
+  generation*: uint64
+  attr*: TFileStatObj
+  attr_timeout*: posix.Ttimespec
+  entry_timeout*: posix.Ttimespec
+
+type Sender* = ref object of RootObj
+proc send(self: Sender, dataSeq: openArray[Buf]): int =
   discard
 
 type Raw = ref object
@@ -45,7 +87,7 @@ proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
   outH.error = cast[int32](err)
   outH.len = cast[uint32](sumLen)
   bufs[0] = mkBuf[fuse_out_header](outH)
-  self.sender.send(bufs)
+  discard self.sender.send(bufs)
 
 proc ok(self: Raw, dataSeq: openArray[Buf]) =
   self.ack(0, dataSeq)
@@ -74,7 +116,7 @@ template defCreate(typ: typedesc) =
     discard
 
 template defAttr(typ: typedesc) =
-  proc attr*(self: `typ`, attr: TFileAttr, ttl: Ttimespec) =
+  proc attr*(self: `typ`, attr: TStat, timeout: Ttimespec) =
     discard
 
 template defReadlink(typ: typedesc) =

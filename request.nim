@@ -11,7 +11,6 @@ type Request* = ref object
   # gid: uint32
   # pid: uint32
   # unique: uint64
-
   header: fuse_in_header
   data: Buf
 
