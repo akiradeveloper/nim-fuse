@@ -1,69 +1,53 @@
 # fuse_lowlevel.h describes the reply protocols
 
-import buf
 import posix
+import buf
 import protocol
 
-type Ttimespec = ref posix.Ttimespec
-type TStatvfs = ref posix.TStatvfs
-type Tflock = ref posix.Tflock
-
-type TFileStatObj = object
-  ino: uint64
-  size: uint64
-  blocks: uint64
-  atime: Ttimespec
-  mtime: Ttimespec
-  ctime: Ttimespec
-  mode: TMode
-  nlink: uint32
-  uid: uint32
-  gid: uint32
-  rdev: uint32
-  blksize: uint32
-type TStat = ref TFileStatObj
-
-proc convertStat(st: TStat): fuse_attr =
-  fuse_attr (
-    ino: st.ino,
-    size: st.size,
-    blocks: st.blocks,
-    atime: st.atime.tv_sec,
-    mtime: st.mtime.tv_sec,
-    ctime: st.ctime.tv_sec,
-    atimensec: st.atime.tv_nsec,
-    mtimensec: st.mtime.tv_nsec,
-    ctimensec: st.ctime.tv_nsec,
-    mode: st_mode,
-    nlink: st_nlink,
-    uid: st_uid,
-    gid: st_gid,
-    rdev: st_rdev,
-    blksize: st.st_blksize,
-  )
-
-proc ConvertStatfs(st: TStatvfs) =
-  fuse_kstatfs (
-    blocks: st.f_blocks,
-    bfree: st.f_bfree,
-    bavail: st.f_bavail,
-    files: st.f_files,
-    ffree: st.f_ffree,
-    bsize: st.f_bsize,
-    namelen: st.f_namemax,
-    frsize: st.f_frsize,
-  )
-
-# posix.Ttimespec
-#   sec: times.Time = int32
-#   nsec: int
-
-type TEntryParam* = ref object 
-  ino*: Tino
-  generation*: uint64
-  attr*: TFileStatObj
-  attr_timeout*: posix.Ttimespec
-  entry_timeout*: posix.Ttimespec
+# type TFileAttr* = ref object
+#   ino*: uint64
+#   size*: uint64
+#   blocks*: uint64
+#   atime*: Ttimespec
+#   mtime*: Ttimespec
+#   ctime*: Ttimespec
+#   mode*: uint32
+#   nlink*: uint32
+#   uid*: uint32
+#   gid*: uint32
+#   rdev*: uint32
+#   blksize*: uint32
+#
+# proc fuse_attr_of(st: TFileAttr): fuse_attr =
+#   fuse_attr (
+#     ino: st.ino,
+#     size: st.st_size,
+#     blocks: st.st_blocks,
+#     atime: st.st_atime.tv_sec,
+#     mtime: st.st_mtime.tv_sec,
+#     ctime: st.st_ctime.tv_sec,
+#     atimensec: st.st_atime.tv_nsec,
+#     mtimensec: st.st_mtime.tv_nsec,
+#     ctimensec: st.st_ctime.tv_nsec,
+#     mode: st.st_mode,
+#     nlink: st.st_nlink,
+#     uid: st.st_uid,
+#     gid: st.st_gid,
+#     rdev: st.st_rdev,
+#     blksize: st.st_blksize,
+#   )
+#
+# proc fuse_kstatfs_of(st: TStatvfs): fuse_kstatfs =
+#   fuse_kstatfs (
+#     blocks: st.f_blocks,
+#     bfree: st.f_bfree,
+#     bavail: st.f_bavail,
+#     files: st.f_files,
+#     ffree: st.f_ffree,
+#     bsize: st.f_bsize,
+#     namelen: st.f_namemax,
+#     frsize: st.f_frsize,
+#   )
 
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
@@ -98,6 +82,9 @@ proc err(self: Raw, e: int) =
 template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
     raw: Raw
+  proc sendOk[T](self: `typ`, a: T) =
+    var b = a
+    self.raw.ok(@[mkBuf[T](b)])
 
 template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
@@ -108,30 +95,28 @@ template defNone(typ: typedesc) =
     self.raw.ok(@[])
 
 template defEntry(typ: typedesc) =
-  proc entry*(self: `typ`, e: TEntryParam) =
-    discard
+  proc entry*(self: `typ`, hd: fuse_entry_out) =
+    self.sendOk(hd)
 
 template defCreate(typ: typedesc) =
-  proc create*(self: typ, e: TEntryParam) =
+  proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
     discard
 
 template defAttr(typ: typedesc) =
-  proc attr*(self: `typ`, attr: TStat, timeout: Ttimespec) =
-    discard
+  proc attr*(self: `typ`, hd: fuse_attr_out) =
+    self.sendOk(hd)
 
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
-    var s = li
-    self.raw.ok(@[mkBuf[string](s)])
+    self.sendOk(li)
 
 template defOpen(typ: typedesc) =
-  proc open*(self: `typ`, fh: uint64, flags: uint32) =
-    discard
+  proc open*(self: `typ`, hd: fuse_open_out) =
+    self.sendOk(hd)
 
 template defWrite(typ: typedesc) =
-  proc write*(self: `typ`, count: uint32) =
-    var o = fuse_write_out(size:cast[uint32](count), padding:0)
-    self.raw.ok(@[mkBuf(o)])
+  proc write*(self: `typ`, hd: fuse_write_out) =
+    self.sendOk(hd)
 
 template defBuf(typ: typedesc) =
   proc buf*(self: `typ`, data: Buf) =
@@ -146,20 +131,20 @@ template defIov(typ: typedesc) =
     discard
 
 template defStatfs(typ: typedesc) =
-  proc statfs*(self: Statfs, s: TStatvfs) =
-    discard
+  proc statfs*(self: typ, hd: fuse_kstatfs) =
+    self.sendOk(hd)
 
 template defXAttr(typ: typedesc) =
-  proc xattr*(self: `typ`, count: uint32) =
-    discard
+  proc xattr*(self: `typ`, hd: fuse_getxattr_out) =
+    self.sendOk(hd)
 
 template defLock(typ: typedesc) =
-  proc lock*(self: typ, lock: Tflock) =
-    discard
+  proc lock*(self: typ, hd: fuse_lk_out) =
+    self.sendOk(hd)
 
 template defBmap(typ: typedesc) =
-  proc bmap(self: typ, idx: uint64) =
-    discard
+  proc bmap(self: typ, hd: fuse_bmap_out) =
+    self.sendOk(hd)
 
 defWrapper(Lookup)
 defEntry(Lookup)

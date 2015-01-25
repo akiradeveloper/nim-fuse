@@ -175,7 +175,7 @@ let
   FUSE_MIN_READ_BUFFER = 8192
   FUSE_COMPAT_EMTRY_OUT_SIZE = 120
 
-type fuse_entry_out = object
+type fuse_entry_out* = object
   nodeid: uint64
   generation: uint64 
   entry_valid: uint64
@@ -202,7 +202,7 @@ type fuse_getattr_in = object
 
 let FUSE_COMPAT_ATTR_OUT_SIZE = 96
 
-type fuse_attr_out = object
+type fuse_attr_out* = object
   attr_valid: uint64
   attr_valid_nsec: uint32
   dummy: uint32
@@ -251,7 +251,7 @@ type fuse_create_in = object
   umask: uint32
   padding: uint32
 
-type fuse_open_out = object
+type fuse_open_out* = object
   fh: uint64
   open_flags: uint32
   padding: uint32
@@ -437,24 +437,24 @@ type fuse_notify_inval_inode_out* = object
   off: int64
   len: int64
 
-type fuse_notify_inval_entry_out = object
+type fuse_notify_inval_entry_out* = object
   parent: uint64
   namelen: uint32
   padding: uint32
 
-type fuse_notify_delete_out = object
+type fuse_notify_delete_out* = object
   parent: uint64
   child: uint64
   namelen: uint32
   padding: uint32
 
-type fuse_notify_store_out = object
+type fuse_notify_store_out* = object
   nodeid: uint64
   offset: uint64
   size: uint32
   padding: uint32
 
-type fuse_notify_retrieve_out = object
+type fuse_notify_retrieve_out* = object
   notify_unique: uint64
   nodeid: uint64
   offset: uint64
