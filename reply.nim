@@ -222,7 +222,7 @@ type Readdir = ref object
 
 # only few of the member in TStat input is used but comforming to c-fuse
 # makes it easy to be backward-compatible.
-proc add*(Self: Readdir, name: string, stat: TStat, off: posix.TOff) =
+proc add*(Self: Readdir, hd: fuse_direct, name: string) =
   discard
 
 defBuf(Readdir)
