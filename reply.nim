@@ -128,7 +128,10 @@ template defBuf(typ: typedesc) =
 
 template defIov(typ: typedesc) =
   proc iov*(self: typ, iov: openArray[TIOVec]) =
-    discard
+    var dataSeq = newSeq[Buf](len(iov))
+    for i, io in iov:
+      dataSeq[i] = mkBuf(io.iov_base, io.iov_len)
+    self.raw.ok(dataSeq)
 
 template defStatfs(typ: typedesc) =
   proc statfs*(self: typ, hd: fuse_kstatfs) =
