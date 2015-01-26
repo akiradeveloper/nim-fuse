@@ -98,9 +98,14 @@ template defEntry(typ: typedesc) =
   proc entry*(self: `typ`, hd: fuse_entry_out) =
     self.sendOk(hd)
 
+type fuse_create_out = object
+  hd0: fuse_entry_out
+  hd1: fuse_open_out
+
 template defCreate(typ: typedesc) =
   proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
-    discard
+    let hd = fuse_create_out(hd0: hd0, hd1:hd1)
+    self.sendOk(hd)
 
 template defAttr(typ: typedesc) =
   proc attr*(self: `typ`, hd: fuse_attr_out) =
