@@ -4,51 +4,6 @@ import posix
 import buf
 import protocol
 
-# type TFileAttr* = ref object
-#   ino*: uint64
-#   size*: uint64
-#   blocks*: uint64
-#   atime*: Ttimespec
-#   mtime*: Ttimespec
-#   ctime*: Ttimespec
-#   mode*: uint32
-#   nlink*: uint32
-#   uid*: uint32
-#   gid*: uint32
-#   rdev*: uint32
-#   blksize*: uint32
-#
-# proc fuse_attr_of(st: TFileAttr): fuse_attr =
-#   fuse_attr (
-#     ino: st.ino,
-#     size: st.st_size,
-#     blocks: st.st_blocks,
-#     atime: st.st_atime.tv_sec,
-#     mtime: st.st_mtime.tv_sec,
-#     ctime: st.st_ctime.tv_sec,
-#     atimensec: st.st_atime.tv_nsec,
-#     mtimensec: st.st_mtime.tv_nsec,
-#     ctimensec: st.st_ctime.tv_nsec,
-#     mode: st.st_mode,
-#     nlink: st.st_nlink,
-#     uid: st.st_uid,
-#     gid: st.st_gid,
-#     rdev: st.st_rdev,
-#     blksize: st.st_blksize,
-#   )
-#
-# proc fuse_kstatfs_of(st: TStatvfs): fuse_kstatfs =
-#   fuse_kstatfs (
-#     blocks: st.f_blocks,
-#     bfree: st.f_bfree,
-#     bavail: st.f_bavail,
-#     files: st.f_files,
-#     ffree: st.f_ffree,
-#     bsize: st.f_bsize,
-#     namelen: st.f_namemax,
-#     frsize: st.f_frsize,
-#   )
-
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
   discard
