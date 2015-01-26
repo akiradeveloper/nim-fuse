@@ -96,3 +96,9 @@ when isMainModule:
   echo read[uint32](b)
 
   echo pop[uint32](b)
+
+  var s = "akiradeveloper"
+  echo sizeof(string)
+  echo sizeof(s)
+  echo cast[uint64](addr(s))
+  echo len(s)

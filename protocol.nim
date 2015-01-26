@@ -281,7 +281,7 @@ type fuse_out_header* = object
   error*: int32
   unique*: uint64
 
-type fuse_dirent = object
+type fuse_dirent* = object
   ino: uint64
   off: uint64
   namelen: uint32

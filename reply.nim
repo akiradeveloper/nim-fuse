@@ -60,6 +60,7 @@ type fuse_create_out = object
 template defCreate(typ: typedesc) =
   proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
     let hd = fuse_create_out(hd0: hd0, hd1:hd1)
+    # TODO use [hd0, hd1]
     self.sendOk(hd)
 
 template defAttr(typ: typedesc) =
@@ -68,7 +69,8 @@ template defAttr(typ: typedesc) =
 
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
-    self.sendOk(li)
+    var s = li
+    self.raw.ok(@[mkBuf(addr(s), len(s))])
 
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, hd: fuse_open_out) =
@@ -183,10 +185,28 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-# only few of the member in TStat input is used but comforming to c-fuse
-# makes it easy to be backward-compatible.
-proc add*(Self: Readdir, name: string, stat: TStat, off: posix.TOff) =
-  discard
+proc add*(Self: Readdir, ino: uint64, off: uint64, st_mode: uint32, theType: uint32, name: string) =
+  proc align(x: int64) =
+    let sz = cast[int64](sizeof(uint64))
+    (x + sz - 1) & ~(sz - 1)
+
+  let namelen = len(name)
+  let entlen = sizeof(fuse_dirent) + namelen
+  let entsize = align(entlen)
+  let hd = fuse_dirent (
+    ino: ino,
+    off: off,
+    namelen: namelen,
+    `type`: (st_mode & 0170000) >> 12,
+    )
+  data.append[fuse_dirent](hd)
+  var s = name
+  copyMem(data.asPtr(), addr(s), len(s)) # FIXME null termination?
+  data.advance(len(s))
+  let padlen = entsize - entlen
+  if (padlen > 0):
+    zeroMem(data.asPtr(), padlen)
+  
 
 defBuf(Readdir)
 # defData(Readdir)
