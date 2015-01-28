@@ -3,42 +3,46 @@
 
 import option
 import request
+import channel
 
-type *LowlevelFs = ref object of RootObj
+type LowlevelFs* = ref object of RootObj
+import session
 
 type Request = ref object
 
-method init(self: LowlevelFs, req: Request) =
+method init(self: LowlevelFs, req: Request): int =
   discard 
 
 method destroy(self: LowlevelFs, req: Request) =
   discard
 
-method lookup(self: LowlevelFs, req: Request, parent: u64, name: string) =
+method lookup(self: LowlevelFs, req: Request, name: string) =
   discard
 
-method forget(self, req: Request, ino, nlookup)
+method forget(self: LowlevelFs, req: Request, ino, nlookup) =
+  discard
 
-method getattr(self, req, ino, fi)
+method getattr(self: LowlevelFs, req, ino, fi) =
+  discard
 
-method open(self, req, ino, fi)
+method open(self: LowlevelFs, req, ino, fi) =
+  discard
+ 
+method read(self: LowlevelFs, req: Request, size, off) =
+  discard
 
-method read(self, ino, size, off, fi)
+method release(self: LowlevelFs, req: Request) =
+  discard
 
-method release(self, req, ino, fi)
+method opendir(self: LowlevelFs, req: Request) =
+  discard
 
-method opendir(self, req, ino, fi)
+method readdir(self: LowlevelFs, req: Request, size, off) =
+  discard
 
-method readdir(self, req, ino, size, off, fi)
-
-method releasedir(self, req, ino, fi)
-
+method releasedir(self: LowlevelFs, req: Request) =
+  discard
+ 
 # sketch
 
 # proc fuse_reply_statfs(req, stbuf: posix.TStatvfs)
-
-proc mount(fs: LowlevelFs, mountpoint: string, mount_options: openArray[string]) =
-  let chan = connect(mountpoint, options)
-  let se = mkSession(fs, chan)
-  se.loop
-  disconnect(chan)

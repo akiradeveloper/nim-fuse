@@ -47,7 +47,7 @@ proc disconnect*(chan: Channel) =
 # Read /dev/fuse into a provided buffer
 # success: 0
 # failure: error value (< 0)
-proc fetch(chan: Channel, buf: Buf): int =
+proc fetch*(chan: Channel, buf: Buf): int =
   buf.initPos
   let header_sz = sizeof(fuse_in_header)
   let n = posix.read(chan.fd, buf.asPtr, header_sz)
@@ -75,10 +75,10 @@ proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
     iov[i].iov_base = dataSeq[i].asPtr
-    iov[i].iov_len = len(bufs[i])
+    iov[i].iov_len = len(dataSeq[i])
   posix.writev(self.chan.fd, addr(iov[0]), n)
 
-proc mkSender(self: Channel): ChannelSender =
+proc mkSender*(self: Channel): ChannelSender =
   ChannelSender(chan: self)
 
 when isMainModule:

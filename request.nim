@@ -14,5 +14,5 @@ type Request* = ref object
   header: fuse_in_header
   data: Buf
 
-proc dispatch(chan: Channel, buf: Buf) =
+proc dispatch*(chan: Channel, buf: Buf) =
   discard

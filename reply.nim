@@ -62,35 +62,51 @@ template defNone(typ: typedesc) =
   proc none*(self: `typ`) =
     self.raw.ok(@[])
 
+type TEntryOut = ref object
+  attr_timeout: Ttimespec
+  entry_timeout: Ttimespec
+  generation: uint64
+  attr: FileAttr
+
+# FIXME
 template defEntry(typ: typedesc) =
-  proc entry*(self: `typ`, hd: fuse_entry_out) =
+  proc entry(self: `typ`, hd: fuse_entry_out) =
     self.sendOk(hd)
+  proc entry*(self: typ, eout: TEntryOut) =
+    discard
 
 type fuse_create_out = object
   hd0: fuse_entry_out
   hd1: fuse_open_out
 
+# FIXME
 template defCreate(typ: typedesc) =
   # I think these raw reply interface should be remained for simple replies
   # but some other bit complicated ones need human-friendly wrapper.
-  proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
+  proc create(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
     let hd = fuse_create_out(hd0: hd0, hd1:hd1)
     # TODO use [hd0, hd1]
     self.sendOk(hd)
+  proc create*(self: typ, eout: TEntryOut, oout: fuse_open_out) =
+    discard
 
+# FIXME
 template defAttr(typ: typedesc) =
   proc attr*(self: `typ`, hd: fuse_attr_out) =
     self.sendOk(hd)
 
+# ok
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
     var s = li
     self.raw.ok(@[mkBuf(addr(s), len(s))])
 
+# ok
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, hd: fuse_open_out) =
     self.sendOk(hd)
 
+# ok
 template defWrite(typ: typedesc) =
   proc write*(self: `typ`, hd: fuse_write_out) =
     self.sendOk(hd)
@@ -103,6 +119,7 @@ template defBuf(typ: typedesc) =
 #   proc data*(self: `typ`, data: Buf) =
 #     discard
 
+# FIXME use openArray[Buf]
 template defIov(typ: typedesc) =
   proc iov*(self: typ, iov: openArray[TIOVec]) =
     var dataSeq = newSeq[Buf](len(iov))
@@ -110,18 +127,26 @@ template defIov(typ: typedesc) =
       dataSeq[i] = mkBuf(io.iov_base, io.iov_len)
     self.raw.ok(dataSeq)
 
+# ok
 template defStatfs(typ: typedesc) =
   proc statfs*(self: typ, hd: fuse_statfs_out) =
     self.sendOk(hd)
+  proc statfs(self: typ, hd: fuse_kstatfs) =
+    self.statfs(fuse_statfs_out(st:hd))
 
+# ok
 template defXAttr(typ: typedesc) =
   proc xattr*(self: `typ`, hd: fuse_getxattr_out) =
     self.sendOk(hd)
 
+# ok
 template defLock(typ: typedesc) =
-  proc lock*(self: typ, hd: fuse_lk_out) =
+  proc lock(self: typ, hd: fuse_lk_out) =
     self.sendOk(hd)
+  proc lock*(self: typ, hd: fuse_file_lock) =
+    lock(self, fuse_lk_out(lk: hd))
 
+# ok
 template defBmap(typ: typedesc) =
   proc bmap*(self: typ, hd: fuse_bmap_out) =
     self.sendOk(hd)
@@ -200,28 +225,31 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-proc add*(Self: Readdir, ino: uint64, off: uint64, st_mode: uint32, theType: uint32, name: string) =
-  proc align(x: int64): uint64 =
+proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
+  proc align(x: int): uint64 =
     let sz = cast[int64](sizeof(uint64))
-    let y = (x + sz - 1) and not(sz - 1)
+    let y = (cast[int64](x) + sz - 1) and not(sz - 1)
     cast[uint64](y)
 
-  let namelen = cast[uint32](len(name))
+  let namelen = len(name)
   let entlen = sizeof(fuse_dirent) + namelen
   let entsize = align(entlen)
-  let hd = fuse_dirent (
+  let hd = fuse_dirent(
     ino: ino,
     off: off,
-    namelen: namelen,
-    `type`: (st_mode & 0170000) shr 12,
+    namelen: cast[uint32](namelen),
+    theType: cast[uint32]((cast[int32](st_mode) and 0170000) shr 12)
     )
-  data.append[fuse_dirent](hd)
+  append[fuse_dirent](self.data, hd)
   var s = name
-  copyMem(data.asPtr(), addr(s), len(s)) # FIXME null termination?
-  data.advance(len(s))
-  let padlen = entsize - entlen
+  copyMem(self.data.asPtr(), addr(s), len(s)) # FIXME null termination?
+  self.data.advance(len(s))
+  let padlen = cast[int](entsize) - entlen
   if (padlen > 0):
-    zeroMem(data.asPtr(), padlen)
+    zeroMem(self.data.asPtr(), padlen)
+
+proc add*(self: Readdir, ino: uint64, off: uint64, mode: TMode, name: string): bool =
+  add(self, ino, off, cast[uint32](mode), name)
 
 defBuf(Readdir)
 # defData(Readdir)

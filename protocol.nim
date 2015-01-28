@@ -46,8 +46,8 @@ type fuse_file_lock* = object
   # as a workaround, we can add backticks.
   # (By dom96)
   # If Nim compiler discard this support, use the prefix (e.g. theEnd)
-  `end`*: uint64
-  `type`*: uint32
+  theEnd*: uint64
+  theType*: uint32
   pid*: uint32 # tgid
 
 let
@@ -254,12 +254,12 @@ type fuse_interrupt_in* = object
   unique*: uint64
 
 type fuse_bmap_in* = object
-  `block`*: uint64
+  theBlock*: uint64
   blocksize*: uint32
   padding: uint32
 
 type fuse_bmap_out* = object
-  `block`*: uint64
+  theBlock*: uint64
 
 type fuse_in_header* = object
   len*: uint32
@@ -280,5 +280,5 @@ type fuse_dirent* = object
   ino*: uint64
   off*: uint64
   namelen*: uint32
-  `type`*: uint32
+  theType*: uint32
   # name[]
