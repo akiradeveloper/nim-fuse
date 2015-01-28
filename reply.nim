@@ -16,6 +16,24 @@ type FileAttr = ref object
   uid: uint32
   gid: uint32
   rdev: uint32
+
+proc fuse_attr_of(at: FileAttr): fuse_attr =
+  fuse_attr(
+    ino: at.ino,
+    size: at.size,
+    atime: at.atime.tv_sec.uint64,
+    atimensec: at.atime.tv_nsec.uint32,
+    mtime: at.mtime.tv_sec.uint64,
+    mtimensec: at.mtime.tv_nsec.uint32,
+    ctime: at.ctime.tv_nsec.uint64,
+    ctimensec: at.ctime.tv_nsec.uint32,
+    mode: at.mode.uint32,
+    nlink: at.nlink,
+    uid: at.uid,
+    gid: at.gid,
+    rdev: at.rdev,
+  )
+
   
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
@@ -63,10 +81,21 @@ template defNone(typ: typedesc) =
     self.raw.ok(@[])
 
 type TEntryOut = ref object
-  attr_timeout: Ttimespec
-  entry_timeout: Ttimespec
   generation: uint64
+  entry_timeout: Ttimespec
+  attr_timeout: Ttimespec
   attr: FileAttr
+
+proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
+  fuse_entry_out (
+    nodeid: eout.attr.ino,
+    generation: eout.generation,
+    entry_valid: eout.entry_timeout.tv_sec.uint64,
+    entry_valid_nsec: eout.entry_timeout.tv_nsec.uint32,
+    attr_valid: eout.attr_timeout.tv_sec.uint64,
+    attr_valid_nsec: eout.attr_timeout.tv_nsec.uint32,
+    attr: fuse_attr_of(eout.attr)
+  )
 
 # FIXME
 template defEntry(typ: typedesc) =

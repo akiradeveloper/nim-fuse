@@ -19,13 +19,13 @@ method destroy(self: LowlevelFs, req: Request) =
 method lookup(self: LowlevelFs, req: Request, name: string) =
   discard
 
-method forget(self: LowlevelFs, req: Request, ino, nlookup) =
+method forget(self: LowlevelFs, req: Request, nlookup) =
   discard
 
-method getattr(self: LowlevelFs, req, ino, fi) =
+method getattr(self: LowlevelFs, req) =
   discard
 
-method open(self: LowlevelFs, req, ino, fi) =
+method open(self: LowlevelFs, req) =
   discard
  
 method read(self: LowlevelFs, req: Request, size, off) =
