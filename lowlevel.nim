@@ -1,22 +1,23 @@
 # Lowlevel server
 # Interacts with fuse client in the kernel
 
+import option
 import request
 
-type LowlevelFs* = ref object of RootObj
+type *LowlevelFs = ref object of RootObj
 
 type Request = ref object
 
-method init(self: LowlevelFs, conn: fuse_conn_info) =
+method init(self: LowlevelFs, req: Request) =
   discard 
 
-method destroy(self: LowlevelFs) =
+method destroy(self: LowlevelFs, req: Request) =
   discard
 
 method lookup(self: LowlevelFs, req: Request, parent: u64, name: string) =
   discard
 
-method forget(self, req, ino, nlookup)
+method forget(self, req: Request, ino, nlookup)
 
 method getattr(self, req, ino, fi)
 

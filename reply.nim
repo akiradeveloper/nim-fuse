@@ -4,6 +4,19 @@ import posix
 import buf
 import protocol
 
+type FileAttr = ref object
+  ino: uint64
+  size: uint64
+  blocks: uint64
+  atime: Ttimespec
+  mtime: Ttimespec
+  ctime: Ttimespec
+  mode: TMode
+  nlink: uint32
+  uid: uint32
+  gid: uint32
+  rdev: uint32
+  
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
   discard
@@ -58,6 +71,8 @@ type fuse_create_out = object
   hd1: fuse_open_out
 
 template defCreate(typ: typedesc) =
+  # I think these raw reply interface should be remained for simple replies
+  # but some other bit complicated ones need human-friendly wrapper.
   proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
     let hd = fuse_create_out(hd0: hd0, hd1:hd1)
     # TODO use [hd0, hd1]
@@ -96,7 +111,7 @@ template defIov(typ: typedesc) =
     self.raw.ok(dataSeq)
 
 template defStatfs(typ: typedesc) =
-  proc statfs*(self: typ, hd: fuse_kstatfs) =
+  proc statfs*(self: typ, hd: fuse_statfs_out) =
     self.sendOk(hd)
 
 template defXAttr(typ: typedesc) =
@@ -108,7 +123,7 @@ template defLock(typ: typedesc) =
     self.sendOk(hd)
 
 template defBmap(typ: typedesc) =
-  proc bmap(self: typ, hd: fuse_bmap_out) =
+  proc bmap*(self: typ, hd: fuse_bmap_out) =
     self.sendOk(hd)
 
 defWrapper(Lookup)
@@ -186,18 +201,19 @@ type Readdir = ref object
   data: Buf
 
 proc add*(Self: Readdir, ino: uint64, off: uint64, st_mode: uint32, theType: uint32, name: string) =
-  proc align(x: int64) =
+  proc align(x: int64): uint64 =
     let sz = cast[int64](sizeof(uint64))
-    (x + sz - 1) & ~(sz - 1)
+    let y = (x + sz - 1) and not(sz - 1)
+    cast[uint64](y)
 
-  let namelen = len(name)
+  let namelen = cast[uint32](len(name))
   let entlen = sizeof(fuse_dirent) + namelen
   let entsize = align(entlen)
   let hd = fuse_dirent (
     ino: ino,
     off: off,
     namelen: namelen,
-    `type`: (st_mode & 0170000) >> 12,
+    `type`: (st_mode & 0170000) shr 12,
     )
   data.append[fuse_dirent](hd)
   var s = name
@@ -206,7 +222,6 @@ proc add*(Self: Readdir, ino: uint64, off: uint64, st_mode: uint32, theType: uin
   let padlen = entsize - entlen
   if (padlen > 0):
     zeroMem(data.asPtr(), padlen)
-  
 
 defBuf(Readdir)
 # defData(Readdir)
