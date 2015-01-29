@@ -9,3 +9,7 @@ please follow develop branch if you're interested.
 
 Will be released Feb. or Mar. 2015  
 Stay tuned!
+
+## Todo
+
+* remove ugly type casting

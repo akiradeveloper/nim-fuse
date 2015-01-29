@@ -66,15 +66,14 @@ proc read[T](self: Buf): T =
 
 # Read out T struct from the buffer
 # and advance the cursor
-proc pop[T](self: Buf): T =
+proc pop*[T](self: Buf): T =
   let v = read[T](self)
   self.advance(sizeof(T))
   v
 
-proc append[T](self: Buf, o: T): Buf =
+proc append*[T](self: Buf, o: T) =
   write[T](self, o)
   self.advance(sizeof(T))
-  self
 
 when isMainModule:
   var b = mkBuf 101 
@@ -96,3 +95,9 @@ when isMainModule:
   echo read[uint32](b)
 
   echo pop[uint32](b)
+
+  var s = "akiradeveloper"
+  echo sizeof(string)
+  echo sizeof(s)
+  echo cast[uint64](addr(s))
+  echo len(s)

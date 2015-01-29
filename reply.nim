@@ -4,51 +4,37 @@ import posix
 import buf
 import protocol
 
-# type TFileAttr* = ref object
-#   ino*: uint64
-#   size*: uint64
-#   blocks*: uint64
-#   atime*: Ttimespec
-#   mtime*: Ttimespec
-#   ctime*: Ttimespec
-#   mode*: uint32
-#   nlink*: uint32
-#   uid*: uint32
-#   gid*: uint32
-#   rdev*: uint32
-#   blksize*: uint32
-#
-# proc fuse_attr_of(st: TFileAttr): fuse_attr =
-#   fuse_attr (
-#     ino: st.ino,
-#     size: st.st_size,
-#     blocks: st.st_blocks,
-#     atime: st.st_atime.tv_sec,
-#     mtime: st.st_mtime.tv_sec,
-#     ctime: st.st_ctime.tv_sec,
-#     atimensec: st.st_atime.tv_nsec,
-#     mtimensec: st.st_mtime.tv_nsec,
-#     ctimensec: st.st_ctime.tv_nsec,
-#     mode: st.st_mode,
-#     nlink: st.st_nlink,
-#     uid: st.st_uid,
-#     gid: st.st_gid,
-#     rdev: st.st_rdev,
-#     blksize: st.st_blksize,
-#   )
-#
-# proc fuse_kstatfs_of(st: TStatvfs): fuse_kstatfs =
-#   fuse_kstatfs (
-#     blocks: st.f_blocks,
-#     bfree: st.f_bfree,
-#     bavail: st.f_bavail,
-#     files: st.f_files,
-#     ffree: st.f_ffree,
-#     bsize: st.f_bsize,
-#     namelen: st.f_namemax,
-#     frsize: st.f_frsize,
-#   )
+type FileAttr = ref object
+  ino: uint64
+  size: uint64
+  blocks: uint64
+  atime: Ttimespec
+  mtime: Ttimespec
+  ctime: Ttimespec
+  mode: TMode
+  nlink: uint32
+  uid: uint32
+  gid: uint32
+  rdev: uint32
 
+proc fuse_attr_of(at: FileAttr): fuse_attr =
+  fuse_attr(
+    ino: at.ino,
+    size: at.size,
+    atime: at.atime.tv_sec.uint64,
+    atimensec: at.atime.tv_nsec.uint32,
+    mtime: at.mtime.tv_sec.uint64,
+    mtimensec: at.mtime.tv_nsec.uint32,
+    ctime: at.ctime.tv_nsec.uint64,
+    ctimensec: at.ctime.tv_nsec.uint32,
+    mode: at.mode.uint32,
+    nlink: at.nlink,
+    uid: at.uid,
+    gid: at.gid,
+    rdev: at.rdev,
+  )
+
+  
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
   discard
@@ -94,26 +80,62 @@ template defNone(typ: typedesc) =
   proc none*(self: `typ`) =
     self.raw.ok(@[])
 
-template defEntry(typ: typedesc) =
-  proc entry*(self: `typ`, hd: fuse_entry_out) =
-    self.sendOk(hd)
+type TEntryOut = ref object
+  generation: uint64
+  entry_timeout: Ttimespec
+  attr_timeout: Ttimespec
+  attr: FileAttr
 
-template defCreate(typ: typedesc) =
-  proc create*(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
+proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
+  fuse_entry_out (
+    nodeid: eout.attr.ino,
+    generation: eout.generation,
+    entry_valid: eout.entry_timeout.tv_sec.uint64,
+    entry_valid_nsec: eout.entry_timeout.tv_nsec.uint32,
+    attr_valid: eout.attr_timeout.tv_sec.uint64,
+    attr_valid_nsec: eout.attr_timeout.tv_nsec.uint32,
+    attr: fuse_attr_of(eout.attr)
+  )
+
+# FIXME
+template defEntry(typ: typedesc) =
+  proc entry(self: `typ`, hd: fuse_entry_out) =
+    self.sendOk(hd)
+  proc entry*(self: typ, eout: TEntryOut) =
     discard
 
+type fuse_create_out = object
+  hd0: fuse_entry_out
+  hd1: fuse_open_out
+
+# FIXME
+template defCreate(typ: typedesc) =
+  # I think these raw reply interface should be remained for simple replies
+  # but some other bit complicated ones need human-friendly wrapper.
+  proc create(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
+    let hd = fuse_create_out(hd0: hd0, hd1:hd1)
+    # TODO use [hd0, hd1]
+    self.sendOk(hd)
+  proc create*(self: typ, eout: TEntryOut, oout: fuse_open_out) =
+    discard
+
+# FIXME
 template defAttr(typ: typedesc) =
   proc attr*(self: `typ`, hd: fuse_attr_out) =
     self.sendOk(hd)
 
+# ok
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
-    self.sendOk(li)
+    var s = li
+    self.raw.ok(@[mkBuf(addr(s), len(s))])
 
+# ok
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, hd: fuse_open_out) =
     self.sendOk(hd)
 
+# ok
 template defWrite(typ: typedesc) =
   proc write*(self: `typ`, hd: fuse_write_out) =
     self.sendOk(hd)
@@ -126,24 +148,36 @@ template defBuf(typ: typedesc) =
 #   proc data*(self: `typ`, data: Buf) =
 #     discard
 
+# FIXME use openArray[Buf]
 template defIov(typ: typedesc) =
   proc iov*(self: typ, iov: openArray[TIOVec]) =
-    discard
+    var dataSeq = newSeq[Buf](len(iov))
+    for i, io in iov:
+      dataSeq[i] = mkBuf(io.iov_base, io.iov_len)
+    self.raw.ok(dataSeq)
 
+# ok
 template defStatfs(typ: typedesc) =
-  proc statfs*(self: typ, hd: fuse_kstatfs) =
+  proc statfs*(self: typ, hd: fuse_statfs_out) =
     self.sendOk(hd)
+  proc statfs(self: typ, hd: fuse_kstatfs) =
+    self.statfs(fuse_statfs_out(st:hd))
 
+# ok
 template defXAttr(typ: typedesc) =
   proc xattr*(self: `typ`, hd: fuse_getxattr_out) =
     self.sendOk(hd)
 
+# ok
 template defLock(typ: typedesc) =
-  proc lock*(self: typ, hd: fuse_lk_out) =
+  proc lock(self: typ, hd: fuse_lk_out) =
     self.sendOk(hd)
+  proc lock*(self: typ, hd: fuse_file_lock) =
+    lock(self, fuse_lk_out(lk: hd))
 
+# ok
 template defBmap(typ: typedesc) =
-  proc bmap(self: typ, hd: fuse_bmap_out) =
+  proc bmap*(self: typ, hd: fuse_bmap_out) =
     self.sendOk(hd)
 
 defWrapper(Lookup)
@@ -220,10 +254,32 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-# only few of the member in TStat input is used but comforming to c-fuse
-# makes it easy to be backward-compatible.
-proc add*(Self: Readdir, hd: fuse_direct, name: string) =
-  discard
+<<<<<<< HEAD
+proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
+  proc align(x: int): uint64 =
+    let sz = cast[int64](sizeof(uint64))
+    let y = (cast[int64](x) + sz - 1) and not(sz - 1)
+    cast[uint64](y)
+
+  let namelen = len(name)
+  let entlen = sizeof(fuse_dirent) + namelen
+  let entsize = align(entlen)
+  let hd = fuse_dirent(
+    ino: ino,
+    off: off,
+    namelen: cast[uint32](namelen),
+    theType: cast[uint32]((cast[int32](st_mode) and 0170000) shr 12)
+    )
+  append[fuse_dirent](self.data, hd)
+  var s = name
+  copyMem(self.data.asPtr(), addr(s), len(s)) # FIXME null termination?
+  self.data.advance(len(s))
+  let padlen = cast[int](entsize) - entlen
+  if (padlen > 0):
+    zeroMem(self.data.asPtr(), padlen)
+
+proc add*(self: Readdir, ino: uint64, off: uint64, mode: TMode, name: string): bool =
+  add(self, ino, off, cast[uint32](mode), name)
 
 defBuf(Readdir)
 # defData(Readdir)
