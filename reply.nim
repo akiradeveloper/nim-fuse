@@ -54,8 +54,8 @@ proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
     sumLen += len(data)
   var outH: fuse_out_header
   outH.unique = self.unique
-  outH.error = cast[int32](err)
-  outH.len = cast[uint32](sumLen)
+  outH.error = err.int32
+  outH.len = sumLen.uint32
   bufs[0] = mkBuf[fuse_out_header](outH)
   discard self.sender.send(bufs)
 
@@ -255,10 +255,10 @@ type Readdir = ref object
   data: Buf
 
 proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
-  proc align(x: int): uint64 =
-    let sz = cast[int64](sizeof(uint64))
-    let y = (cast[int64](x) + sz - 1) and not(sz - 1)
-    cast[uint64](y)
+  proc align(x): uint64 =
+    let sz = sizeof(uint64).int64
+    let y = (x.int64 + sz - 1) and not(sz - 1)
+    y.uint64
 
   let namelen = len(name)
   let entlen = sizeof(fuse_dirent) + namelen
@@ -266,19 +266,19 @@ proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string)
   let hd = fuse_dirent(
     ino: ino,
     off: off,
-    namelen: cast[uint32](namelen),
-    theType: cast[uint32]((cast[int32](st_mode) and 0170000) shr 12)
+    namelen: namelen.uint32,
+    theType: cast[uint32]((st_mode.int and 0170000) shr 12)
     )
   append[fuse_dirent](self.data, hd)
   var s = name
   copyMem(self.data.asPtr(), addr(s), len(s)) # FIXME null termination?
   self.data.advance(len(s))
-  let padlen = cast[int](entsize) - entlen
+  let padlen = entsize.int - entlen
   if (padlen > 0):
     zeroMem(self.data.asPtr(), padlen)
 
 proc add*(self: Readdir, ino: uint64, off: uint64, mode: TMode, name: string): bool =
-  add(self, ino, off, cast[uint32](mode), name)
+  add(self, ino, off, mode.uint32, name)
 
 defBuf(Readdir)
 # defData(Readdir)
