@@ -254,6 +254,7 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
+<<<<<<< HEAD
 proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
   proc align(x): uint64 =
     let sz = sizeof(uint64).int64
