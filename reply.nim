@@ -3,6 +3,7 @@
 import posix
 import buf
 import protocol
+import unsigned
 
 type FileAttr = ref object
   ino: uint64
@@ -254,12 +255,10 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-<<<<<<< HEAD
 proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
-  proc align(x): uint64 =
-    let sz = sizeof(uint64).int64
-    let y = (x.int64 + sz - 1) and not(sz - 1)
-    y.uint64
+  proc align(x:int): int =
+    let sz = sizeof(uint64)
+    (x + sz - 1) and not(sz - 1)
 
   let namelen = len(name)
   let entlen = sizeof(fuse_dirent) + namelen
@@ -268,15 +267,15 @@ proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string)
     ino: ino,
     off: off,
     namelen: namelen.uint32,
-    theType: cast[uint32]((st_mode.int and 0170000) shr 12)
+    theType: (st_mode and 0170000) shr 12
     )
   append[fuse_dirent](self.data, hd)
   var s = name
-  copyMem(self.data.asPtr(), addr(s), len(s)) # FIXME null termination?
+  copyMem(self.data.asPtr(), addr(s), len(s))
   self.data.advance(len(s))
-  let padlen = entsize.int - entlen
+  let padlen = entsize - entlen
   if (padlen > 0):
-    zeroMem(self.data.asPtr(), padlen)
+    zeroMem(self.data.asPtr(), padlen.int)
 
 proc add*(self: Readdir, ino: uint64, off: uint64, mode: TMode, name: string): bool =
   add(self, ino, off, mode.uint32, name)
