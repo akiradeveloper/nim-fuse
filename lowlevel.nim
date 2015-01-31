@@ -4,6 +4,7 @@
 import protocol
 import option
 import Buf
+import reply
 
 type Request* = ref object
   header*: fuse_in_header
@@ -11,38 +12,45 @@ type Request* = ref object
 
 type LowlevelFs* = ref object of RootObj
 
-method init(self: LowlevelFs, req: Request): int =
+method init*(self: LowlevelFs, req: Request): int =
   discard 
 
-method destroy(self: LowlevelFs, req: Request) =
+method destroy*(self: LowlevelFs, req: Request) =
   discard
 
-method lookup(self: LowlevelFs, req: Request, name: string) =
+method lookup*(self: LowlevelFs, req: Request, name: string, reply: Lookup) =
   discard
 
-method forget(self: LowlevelFs, req: Request, nlookup) =
+method forget*(self: LowlevelFs, req: Request, nlookup) =
   discard
 
-method getattr(self: LowlevelFs, req) =
+method getattr*(self: LowlevelFs, req) =
   discard
 
-method open(self: LowlevelFs, req) =
+method open*(self: LowlevelFs, req) =
   discard
  
-method read(self: LowlevelFs, req: Request, size, off) =
+method read*(self: LowlevelFs, req: Request, size, off) =
   discard
 
-method release(self: LowlevelFs, req: Request) =
+method release*(self: LowlevelFs, req: Request) =
   discard
 
-method opendir(self: LowlevelFs, req: Request) =
+method opendir*(self: LowlevelFs, req: Request) =
   discard
 
-method readdir(self: LowlevelFs, req: Request, size, off) =
+method readdir*(self: LowlevelFs, req: Request, size, off) =
   discard
 
-method releasedir(self: LowlevelFs, req: Request) =
+method releasedir*(self: LowlevelFs, req: Request) =
   discard
+
+method symlink*(self: LowlevelFs, req: Request, name: string, link: string) =
+  discard
+
+method unlink*(self: LowlevelFs, req: Request, name: string) =
+  discard
+
  
 # sketch
 

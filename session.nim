@@ -2,6 +2,7 @@ import lowlevel
 import protocol
 import channel
 import buf
+import reply
 
 type Session* = ref object 
   fs: LowlevelFs
@@ -14,14 +15,55 @@ type Session* = ref object
 proc doInit(self: Request) =
   discard
 
-proc nop() =
+proc nop =
   discard
 
-proc dispatch*(self: Request, se: Session) =
-  let opcode = self.header.opcode.fuse_opcode
+proc parseStr(self: Buf): string =
+  var sq = cast[seq[char]](self.asPtr)
+  $cstring(addr sq[0])
+
+template defNew(typ: typedesc) =
+  proc `new typ`(req: Request, se: Session): `typ` =
+    typ (
+      raw: newRaw(se.chan.mkSender, req.header.unique)
+    )
+
+defNew(Lookup)
+defNew(Forget)
+defNew(GetAttr)
+defNew(SetAttr)
+defNew(Readlink)
+defNew(Mknod)
+defNew(Mkdir)
+defNew(Unlink)
+defNew(Rmdir)
+defNew(Symlink)
+defNew(Rename)
+defNew(Link)
+defNew(Open)
+defNew(Read)
+defNew(Write)
+defNew(Flush)
+defNew(Release)
+defNew(Fsync)
+defNew(Opendir)
+  
+proc dispatch*(req: Request, se: Session) =
+  let opcode = req.header.opcode.fuse_opcode
+
+  # if destroyed, any requests are discarded.
+  if se.destroyed:
+    return
+
+  # before initialized, only FUSE_INIT is accepted.
+  if not se.initialized:
+    if opcode != FUSE_INIT:
+      return
+
   case opcode
   of FUSE_LOOKUP:
-    nop()
+    let name = req.data.parseStr
+    se.fs.lookup(req, name, newLookup(req, se))
   of FUSE_FORGET:
     nop()
   of FUSE_GETATTR:
@@ -31,13 +73,17 @@ proc dispatch*(self: Request, se: Session) =
   of FUSE_READLINK:
     nop()
   of FUSE_SYMLINK:
-    nop()
+    let name = req.data.parseStr
+    req.data.advance(len(name) + 1)
+    let link = req.data.parseStr
+    se.fs.symlink(req, name, link)
   of FUSE_MKNOD:
     nop()
   of FUSE_MKDIR:
     nop()
   of FUSE_UNLINK:
-    nop()
+    let name = req.data.parseStr
+    se.fs.unlink(req, name)
   of FUSE_RMDIR:
     nop()
   of FUSE_RENAME:
@@ -67,7 +113,7 @@ proc dispatch*(self: Request, se: Session) =
   of FUSE_FLUSH:
     nop()
   of FUSE_INIT:
-    self.doInit()
+    req.doInit()
     nop()
   of FUSE_OPENDIR:
     nop()

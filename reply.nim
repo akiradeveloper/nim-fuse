@@ -67,7 +67,7 @@ proc err(self: Raw, e: int) =
 
 template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
-    raw: Raw
+    raw*: Raw
   proc sendOk[T](self: `typ`, a: T) =
     var b = a
     self.raw.ok(@[mkBuf[T](b)])
