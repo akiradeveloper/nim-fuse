@@ -49,6 +49,10 @@ proc disconnect*(chan: Channel) =
 # failure: error value (< 0)
 proc fetch*(chan: Channel, buf: Buf): int =
   buf.initPos
+
+  # TODO
+  # don't read twice
+  
   let header_sz = sizeof(fuse_in_header)
   let n = posix.read(chan.fd, buf.asPtr, header_sz)
   # Read syscall may be interrupted and may return before full read.

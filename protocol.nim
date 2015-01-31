@@ -71,7 +71,7 @@ let
   # Release flags
   FUSE_RELEASE_FLUSH* = 1 shl 0
 
-type fuse_opcode = enum
+type fuse_opcode* = enum
   FUSE_LOOKUP = 1
   FUSE_FORGET = 2 # no reply
   FUSE_GETATTR = 3
@@ -107,6 +107,7 @@ type fuse_opcode = enum
   FUSE_CREATE = 35
   FUSE_INTERRUPT = 36
   FUSE_BMAP = 37
+  FUSE_DESTROY = 38
 
 let
   FUSE_MIN_READ_BUFFER* = 8192

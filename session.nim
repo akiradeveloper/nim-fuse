@@ -1,8 +1,9 @@
 import lowlevel
+import protocol
 import channel
 import request
 
-type Session = ref object 
+type Session* = ref object 
   fs: LowlevelFs
   chan: Channel
   proto_major: uint32
@@ -25,6 +26,15 @@ proc exists(self: Session): bool =
 let
   MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
+proc processBuf(self: Session, buf: Buf) =
+  var hd = pop[fuse_in_header](buf)
+  var req = Request (
+    se: self,
+    header: hd,
+    data: buf.asBuf
+  )
+  req.dispatch()
+
 proc loop*(self: Session) =
   # Always alloc max sized buffer but 100 bytes as safety mergin
   var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
@@ -35,8 +45,7 @@ proc loop*(self: Session) =
       # ENODEV -> quit the loop by set 1 to se.destroyed
       discard
     else:
-      # Now the buffer is valid
-      dispatch(self.chan, buf)
+      self.processBuf(buf)
 
 proc mount*(fs: LowlevelFs, mountpoint: string, options: openArray[string]) =
   let chan = connect(mountpoint, options)
