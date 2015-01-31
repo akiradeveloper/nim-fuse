@@ -103,7 +103,7 @@ template defEntry(typ: typedesc) =
   proc entry(self: `typ`, hd: fuse_entry_out) =
     self.sendOk(hd)
   proc entry*(self: typ, eout: TEntryOut) =
-    discard
+    self.entry(fuse_entry_out_of(eout))
 
 type fuse_create_out = object
   hd0: fuse_entry_out
@@ -118,7 +118,7 @@ template defCreate(typ: typedesc) =
     # TODO use [hd0, hd1]
     self.sendOk(hd)
   proc create*(self: typ, eout: TEntryOut, oout: fuse_open_out) =
-    discard
+    self.create(fuse_entry_out_of(eout), oout)
 
 # FIXME
 template defAttr(typ: typedesc) =
