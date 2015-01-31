@@ -1,14 +1,15 @@
 # Lowlevel server
 # Interacts with fuse client in the kernel
 
+import protocol
 import option
-import request
-import channel
+import Buf
+
+type Request* = ref object
+  header*: fuse_in_header
+  data*: Buf
 
 type LowlevelFs* = ref object of RootObj
-import session
-
-type Request = ref object
 
 method init(self: LowlevelFs, req: Request): int =
   discard 

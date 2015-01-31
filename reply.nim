@@ -5,18 +5,18 @@ import buf
 import protocol
 import unsigned
 
-type FileAttr = ref object
-  ino: uint64
-  size: uint64
-  blocks: uint64
-  atime: Ttimespec
-  mtime: Ttimespec
-  ctime: Ttimespec
-  mode: TMode
-  nlink: uint32
-  uid: uint32
-  gid: uint32
-  rdev: uint32
+type FileAttr* = ref object
+  ino*: uint64
+  size*: uint64
+  blocks*: uint64
+  atime*: Ttimespec
+  mtime*: Ttimespec
+  ctime*: Ttimespec
+  mode*: TMode
+  nlink*: uint32
+  uid*: uint32
+  gid*: uint32
+  rdev*: uint32
 
 proc fuse_attr_of(at: FileAttr): fuse_attr =
   fuse_attr(
@@ -80,11 +80,11 @@ template defNone(typ: typedesc) =
   proc none*(self: `typ`) =
     self.raw.ok(@[])
 
-type TEntryOut = ref object
-  generation: uint64
-  entry_timeout: Ttimespec
-  attr_timeout: Ttimespec
-  attr: FileAttr
+type TEntryOut* = ref object
+  generation*: uint64
+  entry_timeout*: Ttimespec
+  attr_timeout*: Ttimespec
+  attr*: FileAttr
 
 proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
   fuse_entry_out (
@@ -165,9 +165,9 @@ template defIov(typ: typedesc) =
 
 # ok
 template defStatfs(typ: typedesc) =
-  proc statfs*(self: typ, hd: fuse_statfs_out) =
+  proc statfs(self: typ, hd: fuse_statfs_out) =
     self.sendOk(hd)
-  proc statfs(self: typ, hd: fuse_kstatfs) =
+  proc statfs*(self: typ, hd: fuse_kstatfs) =
     self.statfs(fuse_statfs_out(st:hd))
 
 # ok
@@ -261,7 +261,7 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-proc resized(self: Readdir, newsize: int): Readdir =
+proc resized*(self: Readdir, newsize: int): Readdir =
   self.data = mkBuf(newsize)
   self
 

@@ -5,8 +5,7 @@ import reply
 import posix
 import os
 import protocol
-
-include Buf
+import Buf
 
 type fuse_args {. importc:"struct fuse_args", header:"<fuse.h>" .} = object
   argc: cint
