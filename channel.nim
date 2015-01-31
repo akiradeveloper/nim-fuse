@@ -29,7 +29,7 @@ type Channel* = ref object
 
 proc connect*(mount_point: string, mount_options: openArray[string]): Channel =
   var args = fuse_args (
-    argc: cast[cint](len(mount_options)),
+    argc: mount_options.len.cint,
     argv: allocCStringArray(mount_options),
     allocated: 0, # control freeing by ourselves
   )
@@ -60,7 +60,7 @@ proc fetch*(chan: Channel, buf: Buf): int =
     return n
 
   let header = pop[fuse_in_header](buf)
-  let remained_len = cast[int](header.len) - header_sz
+  let remained_len = header.len.int - header_sz
   let n2 = posix.read(chan.fd, buf.asPtr, remained_len)
   if (n2 < remained_len):
     return -posix.EIO
@@ -71,7 +71,7 @@ type ChannelSender = ref object of Sender
   chan: Channel
 
 proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =
-  let n = cast[cint](len(dataSeq))
+  let n = dataSeq.len.cint
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
     iov[i].iov_base = dataSeq[i].asPtr

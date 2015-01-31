@@ -10,12 +10,11 @@ type Buf* = ref object
 
 proc mkBuf*(size: int): Buf =
   var data = newSeq[uint8](size)
-  var buf = Buf(
+  Buf(
     p: addr(data),
     size: size,
     pos: 0,
   )
-  buf
 
 proc mkBuf*(p: pointer, size: int): Buf =
   Buf (
@@ -24,6 +23,7 @@ proc mkBuf*(p: pointer, size: int): Buf =
     pos: 0,
   )
 
+# FIXME
 proc mkBuf*[T](obj: var T): Buf =
   mkBuf(addr(obj), sizeof(T))
 
