@@ -21,34 +21,34 @@ method destroy*(self: LowlevelFs, req: Request) =
 method lookup*(self: LowlevelFs, req: Request, name: string, reply: Lookup) =
   discard
 
-method forget*(self: LowlevelFs, req: Request, nlookup) =
+method forget*(self: LowlevelFs, req: Request, nlookup: uint64, reply: Forget) =
   discard
 
-method getattr*(self: LowlevelFs, req) =
+method getattr*(self: LowlevelFs, req: Request, reply: GetAttr) =
   discard
 
-method open*(self: LowlevelFs, req) =
+method open*(self: LowlevelFs, req: Request, reply: Open) =
   discard
  
-method read*(self: LowlevelFs, req: Request, size, off) =
+method read*(self: LowlevelFs, req: Request, size, off, reply: Read) =
   discard
 
-method release*(self: LowlevelFs, req: Request) =
+method release*(self: LowlevelFs, req: Request, reply: Release) =
   discard
 
-method opendir*(self: LowlevelFs, req: Request) =
+method opendir*(self: LowlevelFs, req: Request, reply: Opendir) =
   discard
 
 method readdir*(self: LowlevelFs, req: Request, size, off) =
   discard
 
-method releasedir*(self: LowlevelFs, req: Request) =
+method releasedir*(self: LowlevelFs, req: Request, fh: uint64, flags: uint32, reply: Releasedir) =
   discard
 
-method symlink*(self: LowlevelFs, req: Request, name: string, link: string) =
+method symlink*(self: LowlevelFs, req: Request, name: string, link: string, reply: Symlink) =
   discard
 
-method unlink*(self: LowlevelFs, req: Request, name: string) =
+method unlink*(self: LowlevelFs, req: Request, name: string, reply: Unlink) =
   discard
 
  

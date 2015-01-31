@@ -57,14 +57,14 @@ proc retard*(self: Buf, n) =
 proc len*(self: Buf): int =
   self.size
 
-proc write[T](self: Buf, obj: T) =
+proc write*[T](self: Buf, obj: T) =
   let sz = sizeof(T)
   var v = obj
   let src = cast[pointer](addr(v))
   echo repr(src)
   copyMem(self.asPtr, src, sz)
 
-proc read[T](self: Buf): T =
+proc read*[T](self: Buf): T =
   cast[ptr T](self.asPtr)[]
 
 # Read out T struct from the buffer

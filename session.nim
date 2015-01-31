@@ -47,6 +47,16 @@ defNew(Flush)
 defNew(Release)
 defNew(Fsync)
 defNew(Opendir)
+defNew(Releasedir)
+defNew(Fsyncdir)
+defNew(Statfs)
+defNew(SetXAttr)
+defNew(GetXAttr)
+defNew(ListXAttr)
+defNew(RemoveXAttr)
+defNew(Access)
+defNew(Create)
+defNew(Getlk)
   
 proc dispatch*(req: Request, se: Session) =
   let opcode = req.header.opcode.fuse_opcode
@@ -60,14 +70,17 @@ proc dispatch*(req: Request, se: Session) =
     if opcode != FUSE_INIT:
       return
 
+  let fs = se.fs
+
   case opcode
   of FUSE_LOOKUP:
     let name = req.data.parseStr
-    se.fs.lookup(req, name, newLookup(req, se))
+    fs.lookup(req, name, newLookup(req, se))
   of FUSE_FORGET:
-    nop()
+    let arg = read[fuse_forget_in](req.data)
+    fs.forget(req, arg.nlookup, newForget(req, se))
   of FUSE_GETATTR:
-    nop()
+    fs.getattr(req, newGetAttr(req, se))
   of FUSE_SETATTR:
     nop()
   of FUSE_READLINK:
@@ -76,14 +89,14 @@ proc dispatch*(req: Request, se: Session) =
     let name = req.data.parseStr
     req.data.advance(len(name) + 1)
     let link = req.data.parseStr
-    se.fs.symlink(req, name, link)
+    se.fs.symlink(req, name, link, newSymlink(req, se))
   of FUSE_MKNOD:
     nop()
   of FUSE_MKDIR:
     nop()
   of FUSE_UNLINK:
     let name = req.data.parseStr
-    se.fs.unlink(req, name)
+    se.fs.unlink(req, name, newUnlink(req, se))
   of FUSE_RMDIR:
     nop()
   of FUSE_RENAME:
@@ -120,7 +133,8 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_READDIR:
     nop()
   of FUSE_RELEASEDIR:
-    nop()
+    let arg = read[fuse_release_in](req.data)
+    fs.releasedir(req, arg.fh, arg.flags, newReleasedir(req, se))
   of FUSE_FSYNCDIR:
     nop()
   of FUSE_GETLK:
