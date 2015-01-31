@@ -121,8 +121,14 @@ template defCreate(typ: typedesc) =
 
 # FIXME
 template defAttr(typ: typedesc) =
-  proc attr*(self: `typ`, hd: fuse_attr_out) =
+  proc attr(self: `typ`, hd: fuse_attr_out) =
     self.sendOk(hd)
+  proc attr*(self: typ, timeout: Ttimespec, at: FileAttr) =
+    self.attr(
+      fuse_attr_out(
+        attr_valid: timeout.tv_sec.uint64,
+        attr_valid_nsec: timeout.tv_nsec.uint32,
+        attr: fuse_attr_of(at)))
 
 # ok
 template defReadlink(typ: typedesc) =
