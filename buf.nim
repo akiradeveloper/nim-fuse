@@ -27,11 +27,14 @@ proc mkBuf*(p: pointer, size: int): Buf =
 proc mkBuf*[T](obj: var T): Buf =
   mkBuf(addr(obj), sizeof(T))
 
-proc pos(self: Buf): int =
+proc pos*(self: Buf): int =
   self.pos
 
 proc initPos*(self: Buf) =
   self.pos = 0
+
+proc dropUnused*(self: Buf) =
+  self.size = self.pos
 
 # Returns current pos as a pointer
 proc asPtr*(self: Buf): pointer =

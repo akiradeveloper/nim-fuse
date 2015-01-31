@@ -46,7 +46,7 @@ type Raw = ref object
 proc newRaw*(sender: Sender, unique: uint64): Raw =
   Raw(sender: sender, unique: unique)
 
-proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
+proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   var bufs = newSeq[Buf](len(dataSeq) + 1)
   var sumLen = sizeof(fuse_out_header)
   for i, data in dataSeq:
@@ -60,10 +60,10 @@ proc ack(self: Raw, err: int, dataSeq: openArray[Buf]) =
   discard self.sender.send(bufs)
 
 proc ok(self: Raw, dataSeq: openArray[Buf]) =
-  self.ack(0, dataSeq)
+  self.send(0, dataSeq)
 
 proc err(self: Raw, e: int) =
-  self.ack(e, @[])
+  self.send(e, @[])
 
 template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
@@ -97,7 +97,7 @@ proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
     attr: fuse_attr_of(eout.attr)
   )
 
-# FIXME
+# ok
 template defEntry(typ: typedesc) =
   proc entry(self: `typ`, hd: fuse_entry_out) =
     self.sendOk(hd)
@@ -108,7 +108,7 @@ type fuse_create_out = object
   hd0: fuse_entry_out
   hd1: fuse_open_out
 
-# FIXME
+# ok
 template defCreate(typ: typedesc) =
   # I think these raw reply interface should be remained for simple replies
   # but some other bit complicated ones need human-friendly wrapper.
@@ -119,7 +119,7 @@ template defCreate(typ: typedesc) =
   proc create*(self: typ, eout: TEntryOut, oout: fuse_open_out) =
     self.create(fuse_entry_out_of(eout), oout)
 
-# FIXME
+# ok
 template defAttr(typ: typedesc) =
   proc attr(self: `typ`, hd: fuse_attr_out) =
     self.sendOk(hd)
@@ -146,6 +146,7 @@ template defWrite(typ: typedesc) =
   proc write*(self: `typ`, hd: fuse_write_out) =
     self.sendOk(hd)
 
+# ok
 template defBuf(typ: typedesc) =
   proc buf*(self: `typ`, data: Buf) =
     self.raw.ok(@[data])
@@ -260,7 +261,11 @@ type Readdir = ref object
   raw: Raw
   data: Buf
 
-proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
+proc resized(self: Readdir, newsize: int): Readdir =
+  self.data = mkBuf(newsize)
+  self
+
+proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
   proc align(x:int): int =
     let sz = sizeof(uint64)
     (x + sz - 1) and not(sz - 1)
@@ -268,12 +273,15 @@ proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string)
   let namelen = len(name)
   let entlen = sizeof(fuse_dirent) + namelen
   let entsize = align(entlen)
+  if self.data.pos + entsize > self.data.len:
+    return false
+
   let hd = fuse_dirent(
     ino: ino,
     off: off,
     namelen: namelen.uint32,
     theType: (st_mode and 0170000) shr 12
-    )
+  )
   append[fuse_dirent](self.data, hd)
   var s = name
   copyMem(self.data.asPtr(), addr(s), len(s))
@@ -282,13 +290,22 @@ proc add(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string)
   if (padlen > 0):
     zeroMem(self.data.asPtr(), padlen.int)
 
-proc add*(self: Readdir, ino: uint64, off: uint64, mode: TMode, name: string): bool =
-  add(self, ino, off, mode.uint32, name)
+  return true
 
-defBuf(Readdir)
+# if not reply.tryAdd(...):
+#   reply.ok()
+proc tryAdd*(self: Readdir, ino: uint64, idx: uint64, mode: TMode, name: string): bool =
+  tryAdd(self, ino, idx, mode.uint32, name)
+
+defBuf(Readdir) # should not be called by client
 # defData(Readdir)
 defErr(Readdir)
 
+proc ok*(self: Readdir) =
+  # send an empty buffer on end of the stream
+  self.data.dropUnused()
+  self.buf(self.data)
+ 
 defWrapper(Releasedir)
 defErr(Releasedir)
 
@@ -302,12 +319,16 @@ defErr(Statfs)
 defWrapper(SetXAttr)
 defErr(SetXAttr)
 
+# FIXME not available
+# TODO (if size > 0)
 defWrapper(GetXAttr)
 defBuf(GetXAttr)
 # defData(GetXAttr)
 defXAttr(GetXAttr)
 defErr(GetXAttr)
 
+# FIXME not available
+# TODO (if size > 0)
 defWrapper(ListXAttr)
 defBuf(ListXAttr)
 # defData(ListXAttr)
