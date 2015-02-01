@@ -50,7 +50,11 @@ defNew(Flush)
 defNew(Release)
 defNew(Fsync)
 defNew(Opendir)
-# readdir
+proc newReaddir(req: Request, se: Session, size: int): Readdir =
+  Readdir (
+    raw: newRaw(se.chan.mkSender, req.header.unique),
+    data: mkBuf(size)
+  )
 defNew(Releasedir)
 defNew(Fsyncdir)
 defNew(Statfs)
@@ -63,6 +67,7 @@ defNew(Create)
 defNew(Getlk)
 defNew(Setlk)
 defNew(Bmap)
+
   
 proc dispatch*(req: Request, se: Session) =
   let opcode = req.header.opcode.fuse_opcode
@@ -149,7 +154,6 @@ proc dispatch*(req: Request, se: Session) =
     let value = req.data.mkBuf
     let pos = 0'u32
     fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(req, se))
-    nop()
   of FUSE_GETXATTR:
     let arg = pop[fuse_getxattr_in](req.data)
     let key = req.data.parseStr
@@ -160,14 +164,17 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_REMOVEXATTR:
     nop()
   of FUSE_FLUSH:
-    nop()
+    let arg = pop[fuse_flush_in](req.data)
+    fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
   of FUSE_INIT:
     req.doInit()
     nop()
   of FUSE_OPENDIR:
+    let arg = pop[fuse_open_in](req.data)
     nop()
   of FUSE_READDIR:
-    nop()
+    let arg = pop[fuse_read_in](req.data)
+    fs.readdir(req, req.header.nodeid, arg.fh, arg.offset, newReaddir(req, se, arg.size.int))
   of FUSE_RELEASEDIR:
     let arg = read[fuse_release_in](req.data)
     fs.releasedir(req, arg.fh, arg.flags, newReleasedir(req, se))

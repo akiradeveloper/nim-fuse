@@ -260,12 +260,8 @@ defOpen(Opendir)
 defErr(Opendir)
 
 type Readdir* = ref object
-  raw: Raw
-  data: Buf
-
-proc resized*(self: Readdir, newsize: int): Readdir =
-  self.data = mkBuf(newsize)
-  self
+  raw*: Raw
+  data*: Buf
 
 proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: string): bool =
   proc align(x:int): int =
