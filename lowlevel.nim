@@ -22,8 +22,7 @@ method destroy*(self: LowlevelFs, req: Request) =
 method lookup*(self: LowlevelFs, req: Request, parent: uint64, name: string, reply: Lookup) =
   reply.err(-ENOSYS)
 
-# FIXME remove reply
-method forget*(self: LowlevelFs, req: Request, ino: uint64, nlookup: uint64, reply: Forget) =
+method forget*(self: LowlevelFs, req: Request, ino: uint64, nlookup: uint64) =
   discard
 
 method getattr*(self: LowlevelFs, req: Request, ino: uint64, reply: GetAttr) =
@@ -90,7 +89,7 @@ method fsyncdir*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, datasy
 method statfs*(self: LowlevelFs, req: Request, ino: uint64, reply: Statfs) =
   reply.err(-ENOSYS)
 
-method setxattr*(self: LowlevelFs, req: Request, ino: uint64, key: string, value: string, flags: uint32, position: uint32, reply: SetXAttr) =
+method setxattr*(self: LowlevelFs, req: Request, ino: uint64, key: string, value: Buf, flags: uint32, position: uint32, reply: SetXAttr) =
   reply.err(-ENOSYS)
 
 method getxattr*(self: LowlevelFs, req: Request, ino: uint64, key: string, reply: GetXAttr) =
