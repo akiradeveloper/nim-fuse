@@ -39,7 +39,7 @@ type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
   discard
 
-type Raw = ref object
+type Raw* = ref object
   sender: Sender
   unique: uint64
 
@@ -71,6 +71,10 @@ template defWrapper(typ: expr) =
   proc sendOk[T](self: `typ`, a: T) =
     var b = a
     self.raw.ok(@[mkBuf[T](b)])
+
+template defOk(typ: typedesc) =
+  proc ok*(self: typ, dataSeq: openArray[Buf]) =
+    self.raw.ok(dataSeq)
 
 template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
@@ -187,6 +191,10 @@ template defLock(typ: typedesc) =
 template defBmap(typ: typedesc) =
   proc bmap*(self: typ, hd: fuse_bmap_out) =
     self.sendOk(hd)
+
+defWrapper(Any)
+defOk(Any)
+defErr(Any)
 
 defWrapper(Lookup)
 defEntry(Lookup)

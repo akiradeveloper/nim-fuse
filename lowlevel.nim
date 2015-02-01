@@ -68,7 +68,7 @@ method write*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, offset: u
 method flush*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, reply: Flush) =
   reply.err(-ENOSYS)
 
-method release*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, flags: uint32, lock_owner: uint64, reply: Release) =
+method release*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, flags: uint32, lock_owner: uint64, flush: bool, reply: Release) =
   reply.err(-ENOSYS)
 
 method fsync*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsync) =
@@ -113,5 +113,5 @@ method getlk*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, lock_owne
 method setlk*(self: LowlevelFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, start: uint64, theEnd: uint64, theType: uint64, pid: uint32, sleep: bool, reply: Setlk) =
   reply.err(-ENOSYS)
 
-method bmap*(self: LowlevelFs, req: Request, ino: uint64, idx: int64, blocksize: uint32, reply: Bmap) =
+method bmap*(self: LowlevelFs, req: Request, ino: uint64, idx: uint64, blocksize: uint32, reply: Bmap) =
   reply.err(-ENOSYS)

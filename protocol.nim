@@ -8,8 +8,8 @@
 import unsigned
 
 let
-  FUSE_KERNEL_VERSION* = 7
-  FUSE_KERNEL_MINOR_VERSION* = 8
+  FUSE_KERNEL_VERSION* = 7'u32
+  FUSE_KERNEL_MINOR_VERSION* = 8'u32
   FUSE_ROOT_ID* = 1
 
 type fuse_attr* = object
@@ -166,13 +166,7 @@ type fuse_setattr_in* = object
 
 type fuse_open_in* = object
   flags*: uint32
-  unused: uint32
-
-type fuse_create_in* = object
-  flags*: uint32
   mode*: uint32
-  umask*: uint32
-  padding: uint32
 
 type fuse_open_out* = object
   fh*: uint64
