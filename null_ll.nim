@@ -4,5 +4,5 @@ import session
 type Null = ref object of LowlevelFs
 
 if isMainModule:
-  var fs = Null
+  var fs = Null()
   mount(fs, "mnt", @[])

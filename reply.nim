@@ -76,6 +76,7 @@ template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
     self.raw.err(e)
 
+# FIXME don't send header
 template defNone(typ: typedesc) =
   proc none*(self: `typ`) =
     self.raw.ok(@[])
@@ -239,6 +240,7 @@ defWrapper(Read)
 defBuf(Read)
 # defData(Read)
 defIov(Read)
+defErr(Read)
 
 defWrapper(Write)
 defWrite(Write)
@@ -257,7 +259,7 @@ defWrapper(Opendir)
 defOpen(Opendir)
 defErr(Opendir)
 
-type Readdir = ref object
+type Readdir* = ref object
   raw: Raw
   data: Buf
 
@@ -348,3 +350,11 @@ defErr(Create)
 defWrapper(Getlk)
 defLock(Getlk)
 defErr(Getlk)
+
+defWrapper(Setlk)
+defErr(Setlk)
+
+defWrapper(Bmap)
+defBmap(Bmap)
+defErr(Bmap)
+

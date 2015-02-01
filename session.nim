@@ -28,6 +28,8 @@ template defNew(typ: typedesc) =
       raw: newRaw(se.chan.mkSender, req.header.unique)
     )
 
+# init
+# destroy
 defNew(Lookup)
 defNew(Forget)
 defNew(GetAttr)
@@ -47,6 +49,7 @@ defNew(Flush)
 defNew(Release)
 defNew(Fsync)
 defNew(Opendir)
+# readdir
 defNew(Releasedir)
 defNew(Fsyncdir)
 defNew(Statfs)
@@ -57,6 +60,8 @@ defNew(RemoveXAttr)
 defNew(Access)
 defNew(Create)
 defNew(Getlk)
+defNew(Setlk)
+defNew(Bmap)
   
 proc dispatch*(req: Request, se: Session) =
   let opcode = req.header.opcode.fuse_opcode
@@ -75,12 +80,12 @@ proc dispatch*(req: Request, se: Session) =
   case opcode
   of FUSE_LOOKUP:
     let name = req.data.parseStr
-    fs.lookup(req, name, newLookup(req, se))
+    fs.lookup(req, req.header.nodeid, name, newLookup(req, se))
   of FUSE_FORGET:
     let arg = read[fuse_forget_in](req.data)
-    fs.forget(req, arg.nlookup, newForget(req, se))
+    fs.forget(req, req.header.nodeid, arg.nlookup, newForget(req, se))
   of FUSE_GETATTR:
-    fs.getattr(req, newGetAttr(req, se))
+    fs.getattr(req, req.header.nodeid, newGetAttr(req, se))
   of FUSE_SETATTR:
     nop()
   of FUSE_READLINK:
@@ -89,14 +94,14 @@ proc dispatch*(req: Request, se: Session) =
     let name = req.data.parseStr
     req.data.advance(len(name) + 1)
     let link = req.data.parseStr
-    se.fs.symlink(req, name, link, newSymlink(req, se))
+    se.fs.symlink(req, req.header.nodeid, name, link, newSymlink(req, se))
   of FUSE_MKNOD:
     nop()
   of FUSE_MKDIR:
     nop()
   of FUSE_UNLINK:
     let name = req.data.parseStr
-    se.fs.unlink(req, name, newUnlink(req, se))
+    se.fs.unlink(req, req.header.nodeid, name, newUnlink(req, se))
   of FUSE_RMDIR:
     nop()
   of FUSE_RENAME:
