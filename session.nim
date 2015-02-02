@@ -7,6 +7,7 @@ import reply
 import unsigned
 import posix
 import times
+import logging
 
 type Session* = ref object 
   fs: LowlevelFs
@@ -182,6 +183,15 @@ proc dispatch*(req: Request, se: Session) =
     fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
   of FUSE_INIT:
     let reply = newAny(req, se)
+    let arg = read[fuse_init_in](req.data)
+    debug("INIT IN:$1", expr(arg))
+    if (arg.major < 7) or (arg.minor < 6):
+      reply.err(-EPROTO)
+      return
+    let res = fs.init(req)
+    if res != 0:
+      reply.err(res)
+      return
     var init = fuse_init_out (
       major: FUSE_KERNEL_VERSION,
       minor: FUSE_KERNEL_MINOR_VERSION,
@@ -226,6 +236,9 @@ proc dispatch*(req: Request, se: Session) =
     newAny(req, se).ok(@[])
 
 proc mkSession*(fs:LowlevelFs, chan: Channel): Session =
+  var Lc = newConsoleLogger()
+  logging.handlers.add(Lc)
+
   Session (
     fs: fs,
     chan: chan,
