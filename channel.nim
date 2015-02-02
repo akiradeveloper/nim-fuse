@@ -54,21 +54,26 @@ proc fetch*(chan: Channel, buf: Buf): int =
   # don't read twice
   
   let header_sz = sizeof(fuse_in_header)
+  debug("fetch start")
   let n = posix.read(chan.fd, buf.asPtr, header_sz)
   # Read syscall may be interrupted and may return before full read.
   # We handle this case as failure because the the position of cursor
   # in this case isn't defined.
   if (n < header_sz):
+    debug("fetch error 1. n:$1", n)
     return -posix.EIO
   elif n < 0:
+    debug("fetch error 2. n:$1", n)
     return n
 
   let header = pop[fuse_in_header](buf)
   let remained_len = header.len.int - header_sz
   let n2 = posix.read(chan.fd, buf.asPtr, remained_len)
   if (n2 < remained_len):
+    debug("fetch error 3")
     return -posix.EIO
   
+  debug("fetch end")
   return 0
 
 type ChannelSender = ref object of Sender

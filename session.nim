@@ -271,12 +271,20 @@ proc loop*(self: Session) =
       # FIXME Don't use the whole buffer. Must shrink
       self.processBuf(buf)
 
+var se: Session = nil
+proc handler() {.noconv.} =
+  se.destroyed = true
+  debug("Disconect")
+  disconnect(se.chan)
+
 proc mount*(fs: LowlevelFs, mountpoint: string, options: openArray[string]) =
   var Lc = newConsoleLogger()
   logging.handlers.add(Lc)
 
   let chan = connect(mountpoint, options)
-  let se = mkSession(fs, chan)
+  se = mkSession(fs, chan)
   debug("Session created")
+  setControlCHook(handler)
+  debug("Connected")
   se.loop
   disconnect(chan)
