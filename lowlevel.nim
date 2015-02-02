@@ -44,7 +44,7 @@ method mkdir*(self: LowlevelFs, req: Request, parent: uint64, name: string, mode
 method unlink*(self: LowlevelFs, req: Request, parent: uint64, name: string, reply: Unlink) =
   reply.err(-ENOSYS)
 
-method rmdir*(self, LowlevelFs, req: Request, parent: uint64, name: string, reply: Rmdir) =
+method rmdir*(self: LowlevelFs, req: Request, parent: uint64, name: string, reply: Rmdir) =
   reply.err(-ENOSYS)
 
 method symlink*(self: LowlevelFs, req: Request, parent: uint64, name: string, link: string, reply: Symlink) =

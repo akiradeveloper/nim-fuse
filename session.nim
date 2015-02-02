@@ -110,7 +110,7 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_MKNOD:
     let arg = pop[fuse_mknod_in](req.data)
     let name = req.data.parseStr
-    nop()
+    fs.mknod(req, req.header.nodeid, name, arg.mode, arg.rdev, newMknod(req, se))
   of FUSE_MKDIR:
     let arg = pop[fuse_mkdir_in](req.data)
     let name = req.data.parseStr
@@ -119,20 +119,20 @@ proc dispatch*(req: Request, se: Session) =
     se.fs.unlink(req, req.header.nodeid, name, newUnlink(req, se))
   of FUSE_RMDIR:
     let name = req.data.parseStr
-    nop()
+    fs.rmdir(req, req.header.nodeid, name, newRmdir(req, se))
   of FUSE_RENAME:
     let arg = pop[fuse_rename_in](req.data)
     let name = req.data.parseStr
     req.data.advance(len(name) + 1)
     let newname = req.data.parseStr
-    nop()
+    fs.rename(req, req.header.nodeid, name, arg.newdir, newname, newRename(req, se))
   of FUSE_LINK:
     let arg = pop[fuse_link_in](req.data)
     let newname = req.data.parseStr
     fs.link(req, arg.oldnodeid, req.header.nodeid, newname, newLink(req, se))
   of FUSE_OPEN:
     let arg = read[fuse_open_in](req.data)
-    nop()
+    fs.open(req, req.header.nodeid, arg.flags, newOpen(req, se))
   of FUSE_READ:
     let arg = read[fuse_read_in](req.data)
     fs.read(req, req.header.nodeid, arg.fh, arg.offset, arg.size, newRead(req, se))
@@ -166,7 +166,8 @@ proc dispatch*(req: Request, se: Session) =
     let arg = read[fuse_getxattr_in](req.data)
     fs.listxattr(req, req.header.nodeid, newListXAttr(req, se))
   of FUSE_REMOVEXATTR:
-    nop()
+    let name = req.data.parseStr
+    fs.removexattr(req, req.header.nodeid, name, newRemoveXAttr(req, se))
   of FUSE_FLUSH:
     let arg = read[fuse_flush_in](req.data)
     fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
@@ -179,7 +180,7 @@ proc dispatch*(req: Request, se: Session) =
     reply.ok(@[mkBuf[fuse_init_out](init)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
-    nop()
+    fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))
   of FUSE_READDIR:
     let arg = read[fuse_read_in](req.data)
     fs.readdir(req, req.header.nodeid, arg.fh, arg.offset, newReaddir(req, se, arg.size.int))
@@ -214,8 +215,6 @@ proc dispatch*(req: Request, se: Session) =
     fs.destroy(req)
     se.destroyed = true
     newAny(req, se).ok(@[])
-  else:
-    nop()
 
 proc mkSession*(fs:LowlevelFs, chan: Channel): Session =
   Session (
