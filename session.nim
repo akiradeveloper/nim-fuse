@@ -19,9 +19,6 @@ type Session* = ref object
 proc doInit(self: Request) =
   discard
 
-proc nop =
-  discard
-
 proc parseStr(self: Buf): string =
   var sq = cast[seq[char]](self.asPtr)
   $cstring(addr sq[0])
