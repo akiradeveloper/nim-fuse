@@ -29,7 +29,7 @@ method getattr*(self: LowlevelFs, req: Request, ino: uint64, reply: GetAttr) =
   reply.err(-ENOSYS)
 
 # TODO mode: TMode
-method setattr*(self: LowlevelFs, req: Request, ino: uint64, mode: TOption[uint32], uid: TOption[uint32], gid: TOption[uint32], size: TOption[uint64], atime: TOption[Ttimespec], mtime: TOption[Ttimespec], fh: TOption[uint64], crtime: TOption[Ttimespec], chgtime: TOption[Ttimespec], bkuptime: TOption[Ttimespec], reply: SetAttr) =
+method setattr*(self: LowlevelFs, req: Request, ino: uint64, mode: TOption[uint32], uid: TOption[uint32], gid: TOption[uint32], size: TOption[uint64], atime: TOption[Ttimespec], mtime: TOption[Ttimespec], fh: TOption[uint64], crtime: TOption[Ttimespec], chgtime: TOption[Ttimespec], bkuptime: TOption[Ttimespec], flags: TOption[uint32], reply: SetAttr) =
   reply.err(-ENOSYS)
 
 method readlink*(self: LowlevelFs, req: Request, ino: uint64, reply: Readlink) =

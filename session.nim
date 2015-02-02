@@ -1,10 +1,12 @@
 import lowlevel
 import protocol
+import option
 import channel
 import buf
 import reply
 import unsigned
 import posix
+import times
 
 type Session* = ref object 
   fs: LowlevelFs
@@ -99,7 +101,17 @@ proc dispatch*(req: Request, se: Session) =
     fs.getattr(req, req.header.nodeid, newGetAttr(req, se))
   of FUSE_SETATTR:
     let arg = pop[fuse_setattr_in](req.data)
-    nop()
+    let mode = if (arg.valid and FATTR_MODE) != 0: Some(arg.mode) else: None[uint32]()
+    let uid = if (arg.valid and FATTR_UID) != 0: Some(arg.uid) else: None[uint32]()
+    let gid = if (arg.valid and FATTR_GID) != 0: Some(arg.gid) else: None[uint32]()
+    let size = if (arg.valid and FATTR_SIZE) != 0: Some(arg.size) else: None[uint64]()
+    let atime = if (arg.valid and FATTR_ATIME) != 0: Some(Ttimespec(tv_sec:arg.atime.Time, tv_nsec:arg.atimensec.int)) else: None[Ttimespec]()
+    let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Ttimespec(tv_sec:arg.mtime.Time, tv_nsec:arg.mtimensec.int)) else: None[Ttimespec]()
+    let fh = if (arg.valid and FATTR_FH) != 0: Some(arg.fh) else: None[uint64]()
+
+    # TODO linux only
+    fs.setattr(req, req.header.nodeid, mode, uid, gid, size, atime, mtime, fh, None[Ttimespec](), None[Ttimespec](), None[Ttimespec](), None[uint32](), newSetAttr(req, se))
+
   of FUSE_READLINK:
     fs.readlink(req, req.header.nodeid, newReadlink(req, se))
   of FUSE_SYMLINK:
