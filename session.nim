@@ -75,14 +75,17 @@ defNew(Bmap)
 
 proc dispatch*(req: Request, se: Session) =
   let opcode = req.header.opcode.fuse_opcode
+  debug("opcode:$1", opcode)
 
   # if destroyed, any requests are discarded.
   if se.destroyed:
+    debug("Session is destroyed")
     return
 
   # before initialized, only FUSE_INIT is accepted.
   if not se.initialized:
     if opcode != FUSE_INIT:
+      debug("Session isn't initialized yet but received opcode other than FUSE_INIT")
       # newAny(req, se).err(-IOError)
       return
 
@@ -236,9 +239,6 @@ proc dispatch*(req: Request, se: Session) =
     newAny(req, se).ok(@[])
 
 proc mkSession*(fs:LowlevelFs, chan: Channel): Session =
-  var Lc = newConsoleLogger()
-  logging.handlers.add(Lc)
-
   Session (
     fs: fs,
     chan: chan,
@@ -261,7 +261,9 @@ proc loop*(self: Session) =
   # Always alloc max sized buffer but 100 bytes as safety mergin
   var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
   while not self.destroyed:
-    if self.chan.fetch(buf) != 0:
+    let err = self.chan.fetch(buf)
+    if err != 0:
+      debug("fetch failed. err:$1", err)
       # TODO
       # ENODEV -> quit the loop by set 1 to se.destroyed
       discard
@@ -270,7 +272,11 @@ proc loop*(self: Session) =
       self.processBuf(buf)
 
 proc mount*(fs: LowlevelFs, mountpoint: string, options: openArray[string]) =
+  var Lc = newConsoleLogger()
+  logging.handlers.add(Lc)
+
   let chan = connect(mountpoint, options)
   let se = mkSession(fs, chan)
+  debug("Session created")
   se.loop
   disconnect(chan)

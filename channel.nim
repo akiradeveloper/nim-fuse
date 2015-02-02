@@ -6,6 +6,7 @@ import posix
 import os
 import protocol
 import Buf
+import logging
 
 type fuse_args {. importc:"struct fuse_args", header:"<fuse.h>" .} = object
   argc: cint
@@ -33,11 +34,11 @@ proc connect*(mount_point: string, mount_options: openArray[string]): Channel =
     allocated: 0, # control freeing by ourselves
   )
   let fd = fuse_mount_compat25(mount_point, addr(args))
+  debug("fd:$1", fd)
   # let ch = fuse_mount(mount_point, addr(args))
-  echo "fd:", fd
   deallocCStringArray(args.argv)
   # Channel(mount_point:mount_point, fd:fuse_chan_fd(ch), raw_chan:ch)
-  Channel(mount_point: mount_point, fd:fd)
+  Channel(mount_point:mount_point, fd:fd)
 
 proc disconnect*(chan: Channel) =
   fuse_unmount_compat22(chan.mount_point)
