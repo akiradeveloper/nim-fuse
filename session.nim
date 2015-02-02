@@ -270,11 +270,12 @@ proc loop*(self: Session) =
     else:
       # FIXME Don't use the whole buffer. Must shrink
       self.processBuf(buf)
+  debug("loop end")
 
 var se: Session = nil
 proc handler() {.noconv.} =
   se.destroyed = true
-  debug("Disconect")
+  debug("Disconnect")
   disconnect(se.chan)
 
 proc mount*(fs: LowlevelFs, mountpoint: string, options: openArray[string]) =

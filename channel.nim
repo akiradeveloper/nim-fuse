@@ -54,8 +54,9 @@ proc fetch*(chan: Channel, buf: Buf): int =
   # don't read twice
   
   let header_sz = sizeof(fuse_in_header)
-  debug("fetch start")
-  let n = posix.read(chan.fd, buf.asPtr, header_sz)
+  debug("fetch start. fd:$1", chan.fd)
+  # let n = posix.read(chan.fd, buf.asPtr, header_sz)
+  let n = posix.read(chan.fd, buf.asPtr, buf.len)
   # Read syscall may be interrupted and may return before full read.
   # We handle this case as failure because the the position of cursor
   # in this case isn't defined.
