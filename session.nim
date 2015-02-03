@@ -260,6 +260,7 @@ proc processBuf(self: Session, buf: Buf) =
     return
 
   var hd = pop[fuse_in_header](buf)
+  debug("IN HEADER:$1", expr(hd))
   if buf.size != hd.len.int:
     error("fetched buffer is too short")
     return

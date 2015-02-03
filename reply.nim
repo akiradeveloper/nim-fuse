@@ -20,14 +20,14 @@ type FileAttr* = ref object
   rdev*: uint32
 
 proc fuse_attr_of(at: FileAttr): fuse_attr =
-  fuse_attr(
+  result = fuse_attr(
     ino: at.ino,
     size: at.size,
     atime: at.atime.tv_sec.uint64,
     atimensec: at.atime.tv_nsec.uint32,
     mtime: at.mtime.tv_sec.uint64,
     mtimensec: at.mtime.tv_nsec.uint32,
-    ctime: at.ctime.tv_nsec.uint64,
+    ctime: at.ctime.tv_sec.uint64,
     ctimensec: at.ctime.tv_nsec.uint32,
     mode: at.mode.uint32,
     nlink: at.nlink,
@@ -35,11 +35,12 @@ proc fuse_attr_of(at: FileAttr): fuse_attr =
     gid: at.gid,
     rdev: at.rdev,
   )
+  debug("attr:$1", expr(result))
 
 type Sender* = ref object of RootObj
 method send*(self: Sender, dataSeq: openArray[Buf]): int =
   debug("NULLSender.send")
-  discard
+  0
 
 type Raw* = ref object
   sender: Sender

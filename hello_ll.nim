@@ -15,7 +15,7 @@ let
     atime: CREATE_TIME,
     mtime: CREATE_TIME,
     ctime: CREATE_TIME,
-    mode: S_IFDIR and S_IRUSR,
+    mode: S_IFDIR or S_IRUSR,
     nlink: 2,
     uid: 501,
     gid: 20,
@@ -28,7 +28,7 @@ let
     atime: CREATE_TIME,
     mtime: CREATE_TIME,
     ctime: CREATE_TIME,
-    mode: S_IFREG and S_IRUSR,
+    mode: S_IFREG or S_IRUSR,
     nlink: 1,
     uid: 501,
     gid: 20,
@@ -44,8 +44,11 @@ method getattr*(self: Hello, req: Request, ino: uint64, reply: GetAttr) =
   debug("Hello")
   case ino.int
   of 1:
+    debug("1")
+    # debug("IFDIR:$1, IRUSR:$2", S_IFDIR, S_IRUSR)
     reply.attr(TTL, DIR_ATTR)
   of 2:
+    debug("2")
     reply.attr(TTL, TXT_ATTR)
   else:
     reply.err(-ENOENT)

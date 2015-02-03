@@ -50,6 +50,7 @@ proc disconnect*(chan: Channel) =
 proc fetch*(chan: Channel, buf: Buf): int =
   assert(buf.pos == 0)
 
+  debug("-------------------------------------------------")
   debug("fetch start. fd:$1", chan.fd)
   let n = posix.read(chan.fd, buf.asPtr, buf.size)
   debug("fetch end. n:$1", n)
