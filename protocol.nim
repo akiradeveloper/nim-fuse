@@ -27,7 +27,6 @@ type fuse_attr* = object
   uid*: uint32
   gid*: uint32
   rdev*: uint32
-  padding*: uint32
   
 type fuse_kstatfs* = object
   blocks*: uint64
