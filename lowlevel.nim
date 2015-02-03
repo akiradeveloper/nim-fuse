@@ -14,7 +14,7 @@ type Request* = ref object
 type LowlevelFs* = ref object of RootObj
 
 method init*(self: LowlevelFs, req: Request): int =
-  discard 
+  0
 
 method destroy*(self: LowlevelFs, req: Request) =
   discard

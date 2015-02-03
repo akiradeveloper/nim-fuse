@@ -192,6 +192,7 @@ proc dispatch*(req: Request, se: Session) =
       reply.err(-EPROTO)
       return
     let res = fs.init(req)
+    debug("INIT res:$1", res)
     if res != 0:
       reply.err(res)
       return
@@ -280,6 +281,7 @@ proc loop*(self: Session) =
     else:
       # raise
       discard
+    buf.pos = 0  
   debug("loop end")
 
 var se: Session = nil
