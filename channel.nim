@@ -52,12 +52,13 @@ proc fetch*(chan: Channel, buf: Buf): int =
 
   debug("fetch start. fd:$1", chan.fd)
   let n = posix.read(chan.fd, buf.asPtr, buf.size)
-  debug("fetch end. fd:$1", n)
-  if (n > 0):
+  debug("fetch end. n:$1", n)
+  if n > 0:
     buf.size = n # drop remaining buffer
     result = 0
   else:
     result = osLastError().int
+  debug("result:$1", result)
 
 type ChannelSender = ref object of Sender
   chan: Channel

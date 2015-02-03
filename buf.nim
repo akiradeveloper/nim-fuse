@@ -11,7 +11,7 @@ type Buf* = ref object
 proc mkBuf*(size: int): Buf =
   var data = newSeq[uint8](size)
   Buf(
-    p: addr(data),
+    p: addr(data[0]),
     size: size,
     pos: 0,
   )

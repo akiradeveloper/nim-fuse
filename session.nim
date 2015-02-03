@@ -270,6 +270,7 @@ proc loop*(self: Session) =
   var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
   while not self.destroyed:
     let err = self.chan.fetch(buf)
+    debug("err:$1", err)
     if err == 0:
       self.processBuf(buf)
     elif err == -EINTR or
