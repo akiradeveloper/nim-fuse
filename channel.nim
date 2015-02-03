@@ -48,35 +48,16 @@ proc disconnect*(chan: Channel) =
 # success: 0
 # failure: error value (< 0)
 proc fetch*(chan: Channel, buf: Buf): int =
-  buf.initPos
+  assert(buf.pos == 0)
 
-  # TODO
-  # don't read twice
-  
-  let header_sz = sizeof(fuse_in_header)
   debug("fetch start. fd:$1", chan.fd)
-  # let n = posix.read(chan.fd, buf.asPtr, header_sz)
-  let n = posix.read(chan.fd, buf.asPtr, buf.len)
-  debug("fetch end 1. n:$1", n)
-  # Read syscall may be interrupted and may return before full read.
-  # We handle this case as failure because the the position of cursor
-  # in this case isn't defined.
-  if (n < header_sz):
-    debug("fetch error 1. n:$1", n)
-    return -posix.EIO
-  elif n < 0:
-    debug("fetch error 2. n:$1", n)
-    return n
-
-  let header = pop[fuse_in_header](buf)
-  let remained_len = header.len.int - header_sz
-  let n2 = posix.read(chan.fd, buf.asPtr, remained_len)
-  if (n2 < remained_len):
-    debug("fetch error 3")
-    return -posix.EIO
-  
-  debug("fetch end")
-  return 0
+  let n = posix.read(chan.fd, buf.asPtr, buf.size)
+  debug("fetch end. fd:$1", n)
+  if (n > 0):
+    buf.size = n # drop remaining buffer
+    result = 0
+  else:
+    result = osLastError().int
 
 type ChannelSender = ref object of Sender
   chan: Channel
@@ -86,7 +67,7 @@ proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
     iov[i].iov_base = dataSeq[i].asPtr
-    iov[i].iov_len = len(dataSeq[i])
+    iov[i].iov_len = dataSeq[i].size
   posix.writev(self.chan.fd, addr(iov[0]), n)
 
 proc mkSender*(self: Channel): ChannelSender =

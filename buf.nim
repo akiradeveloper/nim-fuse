@@ -5,8 +5,8 @@
 
 type Buf* = ref object
   p: pointer
-  size: int
-  pos: int
+  size*: int
+  pos*: int
 
 proc mkBuf*(size: int): Buf =
   var data = newSeq[uint8](size)
@@ -27,15 +27,6 @@ proc mkBuf*(p: pointer, size: int): Buf =
 proc mkBuf*[T](obj: var T): Buf =
   mkBuf(addr(obj), sizeof(T))
 
-proc pos*(self: Buf): int =
-  self.pos
-
-proc initPos*(self: Buf) =
-  self.pos = 0
-
-proc dropUnused*(self: Buf) =
-  self.size = self.pos
-
 # Returns current pos as a pointer
 proc asPtr*(self: Buf): pointer =
   var n = cast[ByteAddress](self.p)
@@ -47,15 +38,6 @@ proc asBuf*(self: Buf): Buf =
     size: self.size - self.pos,
     pos: 0,
   )
-
-proc advance*(self: Buf, n) =
-  self.pos += n
-
-proc retard*(self: Buf, n) =
-  self.pos -= n
-
-proc len*(self: Buf): int =
-  self.size
 
 proc write*[T](self: Buf, obj: T) =
   let sz = sizeof(T)
@@ -71,12 +53,12 @@ proc read*[T](self: Buf): T =
 # and advance the cursor
 proc pop*[T](self: Buf): T =
   let v = read[T](self)
-  self.advance(sizeof(T))
+  self.pos += sizeof(T)
   v
 
 proc append*[T](self: Buf, o: T) =
   write[T](self, o)
-  self.advance(sizeof(T))
+  self.pos += sizeof(T)
 
 when isMainModule:
   var b = mkBuf 101 

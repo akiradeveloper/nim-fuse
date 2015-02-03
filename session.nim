@@ -117,7 +117,7 @@ proc dispatch*(req: Request, se: Session) =
     fs.readlink(req, req.header.nodeid, newReadlink(req, se))
   of FUSE_SYMLINK:
     let name = req.data.parseStr
-    req.data.advance(len(name) + 1)
+    req.data.pos += (len(name) + 1)
     let link = req.data.parseStr
     se.fs.symlink(req, req.header.nodeid, name, link, newSymlink(req, se))
   of FUSE_MKNOD:
@@ -136,7 +136,7 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_RENAME:
     let arg = pop[fuse_rename_in](req.data)
     let name = req.data.parseStr
-    req.data.advance(len(name) + 1)
+    req.data.pos += (len(name) + 1)
     let newname = req.data.parseStr
     fs.rename(req, req.header.nodeid, name, arg.newdir, newname, newRename(req, se))
   of FUSE_LINK:
@@ -152,7 +152,7 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_WRITE:
     let arg = pop[fuse_write_in](req.data)
     let data = req.data.mkBuf # get the remaining buffer
-    assert(data.len == arg.size.int)
+    assert(data.size == arg.size.int)
     fs.write(req, req.header.nodeid, arg.fh, arg.offset, data, arg.write_flags, newWrite(req, se))
   of FUSE_STATFS:
     fs.statfs(req, req.header.nodeid, newStatfs(req, se))
@@ -167,7 +167,7 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_SETXATTR:
     let arg = pop[fuse_setxattr_in](req.data)
     let key = req.data.parseStr
-    req.data.advance(len(key) + 1)
+    req.data.pos += (len(key) + 1)
     let value = req.data.mkBuf
     let pos = 0'u32
     fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(req, se))
@@ -250,7 +250,15 @@ let
   MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
 proc processBuf(self: Session, buf: Buf) =
+  if buf.size < sizeof(fuse_in_header):
+    error("fetched buffer doesn't contain header")
+    return
+
   var hd = pop[fuse_in_header](buf)
+  if buf.size != hd.len.int:
+    error("fetched buffer is too short")
+    return
+
   var req = Request (
     header: hd,
     data: buf.asBuf
@@ -262,14 +270,15 @@ proc loop*(self: Session) =
   var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
   while not self.destroyed:
     let err = self.chan.fetch(buf)
-    if err != 0:
-      debug("fetch failed. err:$1", err)
-      # TODO
-      # ENODEV -> quit the loop by set 1 to se.destroyed
-      discard
-    else:
-      # FIXME Don't use the whole buffer. Must shrink
+    if err == 0:
       self.processBuf(buf)
+    elif err == -EINTR or
+         err == -EAGAIN or
+         err == -ENOENT:
+      self.destroyed = true
+    else:
+      # raise
+      discard
   debug("loop end")
 
 var se: Session = nil
@@ -283,9 +292,11 @@ proc mount*(fs: LowlevelFs, mountpoint: string, options: openArray[string]) =
   logging.handlers.add(Lc)
 
   let chan = connect(mountpoint, options)
-  se = mkSession(fs, chan)
-  debug("Session created")
-  setControlCHook(handler)
-  debug("Connected")
-  se.loop
-  disconnect(chan)
+  try:
+    se = mkSession(fs, chan)
+    debug("Session created")
+    setControlCHook(handler)
+    debug("Connected")
+    se.loop
+  finally:
+    disconnect(chan)

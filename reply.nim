@@ -51,7 +51,7 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   var sumLen = sizeof(fuse_out_header)
   for i, data in dataSeq:
     bufs[i+1] = data
-    sumLen += len(data)
+    sumLen += data.size
   var outH: fuse_out_header
   outH.unique = self.unique
   outH.error = err.int32
@@ -279,7 +279,7 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   let namelen = len(name)
   let entlen = sizeof(fuse_dirent) + namelen
   let entsize = align(entlen)
-  if self.data.pos + entsize > self.data.len:
+  if self.data.pos + entsize > self.data.size:
     return false
 
   let hd = fuse_dirent(
@@ -291,7 +291,7 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   append[fuse_dirent](self.data, hd)
   var s = name
   copyMem(self.data.asPtr(), addr(s), len(s))
-  self.data.advance(len(s))
+  self.data.pos += len(s)
   let padlen = entsize - entlen
   if (padlen > 0):
     zeroMem(self.data.asPtr(), padlen.int)
@@ -309,7 +309,8 @@ defErr(Readdir)
 
 proc ok*(self: Readdir) =
   # send an empty buffer on end of the stream
-  self.data.dropUnused()
+  self.data.size = self.data.pos
+  self.data.pos = 0
   self.buf(self.data)
  
 defWrapper(Releasedir)
