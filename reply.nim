@@ -37,7 +37,7 @@ proc fuse_attr_of(at: FileAttr): fuse_attr =
   )
 
 type Sender* = ref object of RootObj
-proc send(self: Sender, dataSeq: openArray[Buf]): int =
+method send*(self: Sender, dataSeq: openArray[Buf]): int =
   debug("NULLSender.send")
   discard
 

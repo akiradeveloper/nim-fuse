@@ -63,7 +63,7 @@ proc fetch*(chan: Channel, buf: Buf): int =
 type ChannelSender* = ref object of Sender
   chan: Channel
 
-proc send*(self: ChannelSender, dataSeq: openArray[Buf]): int =
+method send*(self: ChannelSender, dataSeq: openArray[Buf]): int =
   let n = dataSeq.len.cint
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
