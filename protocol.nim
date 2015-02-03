@@ -244,7 +244,7 @@ type fuse_init_out* = object
   minor*: uint32
   max_readahead*: uint32
   flags*: uint32
-  unused: uint32
+  unused*: uint32
   max_write*: uint32
 
 type fuse_interrupt_in* = object

@@ -205,6 +205,8 @@ proc dispatch*(req: Request, se: Session) =
       flags: arg.flags,
       max_write: MAX_WRITE_BUFSIZE.uint32,
     )
+    debug("INIT OUT:$1", expr(init))
+    se.initialized = true
     anyReply.ok(@[mkBuf[fuse_init_out](init)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
@@ -252,7 +254,6 @@ proc mkSession*(fs:LowlevelFs, chan: Channel): Session =
     destroyed: false,
   )
 
-
 proc processBuf(self: Session, buf: Buf) =
   if buf.size < sizeof(fuse_in_header):
     error("fetched buffer doesn't contain header")
@@ -270,9 +271,13 @@ proc processBuf(self: Session, buf: Buf) =
   req.dispatch(self)
 
 proc loop*(self: Session) =
-  # Always alloc max sized buffer but 100 bytes as safety mergin
-  var buf = mkBuf(MAX_WRITE_BUFSIZE + 100)
+  # always alloc max sized buffer but 100 bytes as safety mergin
+  let initsize = MAX_WRITE_BUFSIZE + 100
+  var buf = mkBuf(initsize)
   while not self.destroyed:
+    # reset for the next fetch
+    buf.pos = 0  
+    buf.size = initsize
     let err = self.chan.fetch(buf)
     debug("err:$1", err)
     if err == 0:
@@ -284,7 +289,6 @@ proc loop*(self: Session) =
     else:
       # raise
       discard
-    buf.pos = 0  
   debug("loop end")
 
 var se: Session = nil
