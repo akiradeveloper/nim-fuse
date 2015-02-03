@@ -25,7 +25,11 @@ proc mkBuf*(p: pointer, size: int): Buf =
 
 # FIXME
 proc mkBuf*[T](obj: var T): Buf =
-  mkBuf(addr(obj), sizeof(T))
+  # mkBuf(addr(obj), sizeof(T))
+
+  # tmp. but I am not sure how this is needed.
+  result = mkBuf(sizeof(T))
+  copyMem(result.asPtr, addr(obj), sizeof(T))
 
 # Returns current pos as a pointer
 proc asPtr*(self: Buf): pointer =
