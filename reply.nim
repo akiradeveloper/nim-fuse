@@ -53,6 +53,7 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   var bufs = newSeq[Buf](len(dataSeq) + 1)
   var sumLen = sizeof(fuse_out_header)
   for i, data in dataSeq:
+    assert(data.pos == 0)
     bufs[i+1] = data
     sumLen += data.size
   var outH: fuse_out_header

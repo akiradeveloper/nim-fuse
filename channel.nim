@@ -67,11 +67,20 @@ type ChannelSender* = ref object of Sender
 method send*(self: ChannelSender, dataSeq: openArray[Buf]): int =
   let n = dataSeq.len.cint
   var iov = newSeq[TIOVec](n)
+  var sumLen = 0
   for i in 0..n-1:
-    iov[i].iov_base = dataSeq[i].asPtr
-    iov[i].iov_len = dataSeq[i].size
+    let data = dataSeq[i]
+    iov[i].iov_base = data.asPtr
+    iov[i].iov_len = data.size
+    sumLen += data.size
   debug("ChannelSender.send. fd:$1, n:$2", self.chan.fd, n)
-  posix.writev(self.chan.fd, addr(iov[0]), n)
+  let bytes = posix.writev(self.chan.fd, addr(iov[0]), n)
+  if bytes != sumLen:
+    debug("send NG. actual:$1byte, expected:$2", bytes, sumLen)
+    result = -posix.EIO
+  else:
+    debug("send OK")
+    result = 0
 
 proc mkSender*(self: Channel): ChannelSender =
   ChannelSender(chan: self)
