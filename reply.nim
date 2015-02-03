@@ -60,7 +60,7 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.uint32
-  debug("SEND:$1", expr(outH))
+  debug("OUT HEADER$1", expr(outH))
   bufs[0] = mkBuf[fuse_out_header](outH)
   discard self.sender.send(bufs)
 

@@ -70,13 +70,15 @@ method send*(self: ChannelSender, dataSeq: openArray[Buf]): int =
   var sumLen = 0
   for i in 0..n-1:
     let data = dataSeq[i]
+    assert(data.pos == 0)
     iov[i].iov_base = data.asPtr
     iov[i].iov_len = data.size
+    debug("iov base:$1, len:$2", cast[ByteAddress](iov[i].iov_base), iov[i].iov_len)
     sumLen += data.size
   debug("ChannelSender.send. fd:$1, n:$2", self.chan.fd, n)
   let bytes = posix.writev(self.chan.fd, addr(iov[0]), n)
   if bytes != sumLen:
-    debug("send NG. actual:$1byte, expected:$2", bytes, sumLen)
+    debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4", bytes, sumLen, osLastError(), osErrorMsg())
     result = -posix.EIO
   else:
     debug("send OK")
