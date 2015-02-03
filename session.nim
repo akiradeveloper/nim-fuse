@@ -17,8 +17,8 @@ type Session* = ref object
   initialized: bool
   destroyed: bool
 
-proc doInit(self: Request) =
-  discard
+let
+  MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
 proc parseStr(self: Buf): string =
   var sq = cast[seq[char]](self.asPtr)
@@ -74,19 +74,22 @@ defNew(Setlk)
 defNew(Bmap)
 
 proc dispatch*(req: Request, se: Session) =
+  let anyReply = newAny(req, se)
+
   let opcode = req.header.opcode.fuse_opcode
   debug("opcode:$1", opcode)
 
   # if destroyed, any requests are discarded.
   if se.destroyed:
     debug("Session is destroyed")
+    anyReply.err(-posix.EIO)
     return
 
   # before initialized, only FUSE_INIT is accepted.
   if not se.initialized:
     if opcode != FUSE_INIT:
       debug("Session isn't initialized yet but received opcode other than FUSE_INIT")
-      # newAny(req, se).err(-IOError)
+      anyReply.err(-posix.EIO)
       return
 
   let fs = se.fs
@@ -185,22 +188,24 @@ proc dispatch*(req: Request, se: Session) =
     let arg = read[fuse_flush_in](req.data)
     fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
   of FUSE_INIT:
-    let reply = newAny(req, se)
     let arg = read[fuse_init_in](req.data)
     debug("INIT IN:$1", expr(arg))
     if (arg.major < 7) or (arg.minor < 6):
-      reply.err(-EPROTO)
+      anyReply.err(-EPROTO)
       return
     let res = fs.init(req)
     debug("INIT res:$1", res)
     if res != 0:
-      reply.err(res)
+      anyReply.err(res)
       return
     var init = fuse_init_out (
       major: FUSE_KERNEL_VERSION,
       minor: FUSE_KERNEL_MINOR_VERSION,
+      max_readahead: arg.max_readahead,
+      flags: arg.flags,
+      max_write: MAX_WRITE_BUFSIZE.uint32,
     )
-    reply.ok(@[mkBuf[fuse_init_out](init)])
+    anyReply.ok(@[mkBuf[fuse_init_out](init)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
     fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))
@@ -247,8 +252,6 @@ proc mkSession*(fs:LowlevelFs, chan: Channel): Session =
     destroyed: false,
   )
 
-let
-  MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
 proc processBuf(self: Session, buf: Buf) =
   if buf.size < sizeof(fuse_in_header):

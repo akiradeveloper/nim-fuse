@@ -4,6 +4,7 @@ import posix
 import buf
 import protocol
 import unsigned
+import logging
 
 type FileAttr* = ref object
   ino*: uint64
@@ -37,6 +38,7 @@ proc fuse_attr_of(at: FileAttr): fuse_attr =
 
 type Sender* = ref object of RootObj
 proc send(self: Sender, dataSeq: openArray[Buf]): int =
+  debug("NULLSender.send")
   discard
 
 type Raw* = ref object
@@ -56,6 +58,7 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.uint32
+  debug("SEND:$1", expr(outH))
   bufs[0] = mkBuf[fuse_out_header](outH)
   discard self.sender.send(bufs)
 

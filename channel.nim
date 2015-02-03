@@ -60,15 +60,16 @@ proc fetch*(chan: Channel, buf: Buf): int =
     result = osLastError().int
   debug("result:$1", result)
 
-type ChannelSender = ref object of Sender
+type ChannelSender* = ref object of Sender
   chan: Channel
 
-proc send(self: ChannelSender, dataSeq: openArray[Buf]): int =
+proc send*(self: ChannelSender, dataSeq: openArray[Buf]): int =
   let n = dataSeq.len.cint
   var iov = newSeq[TIOVec](n)
   for i in 0..n-1:
     iov[i].iov_base = dataSeq[i].asPtr
     iov[i].iov_len = dataSeq[i].size
+  debug("ChannelSender.send. fd:$1, n:$2", self.chan.fd, n)
   posix.writev(self.chan.fd, addr(iov[0]), n)
 
 proc mkSender*(self: Channel): ChannelSender =
