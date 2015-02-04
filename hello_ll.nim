@@ -4,6 +4,8 @@ import reply
 import posix
 import logging
 import times
+import unsigned
+import buf
 
 let
   TTL = Ttimespec(tv_sec:1.Time, tv_nsec:0)
@@ -34,12 +36,20 @@ let
     gid: 20,
     rdev: 0
   )
+  TXT = "Hello World\n"
 
 type Hello = ref object of LowlevelFs
 method lookup*(self: Hello, req: Request, parent: uint64, name: string, reply: Lookup) =
   debug("Hello")
-  reply.err(-ENOSYS)
-
+  if parent == 1 and name == "hello.txt":
+    reply.entry(TEntryOut(
+      entry_timeout: TTL,
+      attr_timeout: TTL,
+      attr: TXT_ATTR,
+      generation: 0))
+  else:
+    reply.err(-ENOENT)
+       
 method getattr*(self: Hello, req: Request, ino: uint64, reply: GetAttr) =
   debug("Hello")
   case ino.int
@@ -55,11 +65,22 @@ method getattr*(self: Hello, req: Request, ino: uint64, reply: GetAttr) =
 
 method read*(self: Hello, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
   debug("Hello")
-  reply.err(-ENOSYS)
+  if ino == 2:
+    var s = TXT
+    reply.buf(mkBuf(addr(s), len(s)))
+  else:
+    reply.err(-ENOENT)
 
 method readdir*(self: Hello, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
   debug("Hello")
-  reply.err(-ENOSYS)
+  if ino == 1:
+    if offset == 0:
+      discard reply.tryAdd(1, 0, S_IFDIR, ".")
+      discard reply.tryAdd(1, 1, S_IFDIR, "..")
+      discard reply.tryAdd(2, 2, S_IFREG, "hello.txt")
+    reply.ok
+  else:
+    reply.err(-ENOENT)
 
 if isMainModule:
   var fs = Hello()

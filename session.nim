@@ -21,7 +21,13 @@ let
   MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
 proc parseStr(self: Buf): string =
-  var sq = cast[seq[char]](self.asPtr)
+  # FIXME
+  # This causes out-of-memory but I am not sure
+  # about the reason. I want to get rid of the copying overhead.
+  # var sq = cast[seq[char]](self.asPtr)
+  
+  var sq = newSeq[char](self.size)
+  copyMem(addr sq[0], self.asPtr, self.size)
   $cstring(addr sq[0])
 
 proc mkRaw(req: Request, se: Session): Raw =
@@ -96,7 +102,9 @@ proc dispatch*(req: Request, se: Session) =
 
   case opcode
   of FUSE_LOOKUP:
+    debug("parseStr start")
     let name = req.data.parseStr
+    debug("parseStr done")
     fs.lookup(req, req.header.nodeid, name, newLookup(req, se))
   of FUSE_FORGET:
     let arg = read[fuse_forget_in](req.data)
