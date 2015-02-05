@@ -56,12 +56,14 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
     assert(data.pos == 0)
     bufs[i+1] = data
     sumLen += data.size
+
   var outH: fuse_out_header
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.uint32
   debug("OUT HEADER$1", expr(outH))
   bufs[0] = mkBufT(outH)
+
   discard self.sender.send(bufs)
 
 proc ok(self: Raw, dataSeq: openArray[Buf]) =

@@ -35,8 +35,8 @@ proc write*[T](self: Buf, obj: T) =
   self.write(addr(v), sizeof(T))
 
 proc mkBufT*[T](o: T): Buf =
-  let b = mkBuf(sizeof(T))
-  write(b, o)
+  result = mkBuf(sizeof(T))
+  result.write(o)
 
 proc nullTerm*(s: string): string =
   var ss = s
@@ -61,3 +61,7 @@ proc read*[T](self: Buf): T =
 proc pop*[T](self: Buf): T =
   result = read[T](self)
   self.pos += sizeof(T)
+
+when isMainModule:
+  let b = mkBufT(10)
+  echo b.pos
