@@ -4,89 +4,56 @@
 # **************************************
 
 type Buf* = ref object
-  p: pointer
+  data: seq[char]
   size*: int
   pos*: int
 
 proc mkBuf*(size: int): Buf =
-  var data = newSeq[uint8](size)
+  var data = newSeq[char](size)
   Buf(
-    p: addr(data[0]),
+    data: data,
     size: size,
     pos: 0,
   )
 
-proc mkBuf*(p: pointer, size: int): Buf =
-  Buf (
-    p: p,
-    size: size,
-    pos: 0,
-  )
-
-# FIXME
-proc mkBuf*[T](obj: var T): Buf =
-  # mkBuf(addr(obj), sizeof(T))
-
-  # tmp. but I am not sure how this is needed.
-  result = mkBuf(sizeof(T))
-  copyMem(result.asPtr, addr(obj), sizeof(T))
-
-# Returns current pos as a pointer
 proc asPtr*(self: Buf): pointer =
-  var n = cast[ByteAddress](self.p)
-  cast[pointer](n + self.pos)
+  addr(self.data[self.pos])
 
 proc asBuf*(self: Buf): Buf =
   Buf (
-    p: self.asPtr,
+    data: self.data[self.pos..self.size-1],
     size: self.size - self.pos,
     pos: 0,
   )
 
+# Parse a null-terminated string in the buffer  
+proc parseStr*(self: Buf): string =
+  $cstring(addr(self.data[0]))
+
+proc write*(self: Buf, p: pointer, size: int) =
+  copyMem(self.asPtr, p, size)
+
 proc write*[T](self: Buf, obj: T) =
   let sz = sizeof(T)
   var v = obj
-  let src = cast[pointer](addr(v))
-  echo repr(src)
-  copyMem(self.asPtr, src, sz)
+  self.write(addr(v), sizeof(T))
+
+proc mkBuf*[T](o: T): Buf =
+  let b = mkBuf(sizeof(T))
+  write[T](b, o)
+
+proc nullTerm*(s: string): string =
+  var ss = s
+  ss.safeAdd(chr(0))
+  ss
+
+proc writeStr*(self: Buf, s: string) =
+  var vs = s
+  self.write(addr(vs[0]), len(s))
 
 proc read*[T](self: Buf): T =
   cast[ptr T](self.asPtr)[]
 
-# Read out T struct from the buffer
-# and advance the cursor
 proc pop*[T](self: Buf): T =
-  let v = read[T](self)
+  result = read[T](self)
   self.pos += sizeof(T)
-  v
-
-proc append*[T](self: Buf, o: T) =
-  write[T](self, o)
-  self.pos += sizeof(T)
-
-when isMainModule:
-  var b = mkBuf 101 
-  echo repr(b)
-  b.advance 10 
-  b.retard 3
-  echo repr(b)
-  echo b.len
-  echo b.pos
-  echo repr(b.asPtr)
-
-  # can't be
-  # let v = b.read[uint64]() or
-  # let v: uint64 = b.read
-  let v = read[uint64](b)
-  echo v
-  
-  write[uint32](b, 3)
-  echo read[uint32](b)
-
-  echo pop[uint32](b)
-
-  var s = "akiradeveloper"
-  echo sizeof(string)
-  echo sizeof(s)
-  echo cast[uint64](addr(s))
-  echo len(s)

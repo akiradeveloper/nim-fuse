@@ -20,16 +20,6 @@ type Session* = ref object
 let
   MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
 
-proc parseStr(self: Buf): string =
-  # FIXME
-  # This causes out-of-memory but I am not sure
-  # about the reason. I want to get rid of the copying overhead.
-  # var sq = cast[seq[char]](self.asPtr)
-  
-  var sq = newSeq[char](self.size)
-  copyMem(addr sq[0], self.asPtr, self.size)
-  $cstring(addr sq[0])
-
 proc mkRaw(req: Request, se: Session): Raw =
   newRaw(se.chan.mkSender, req.header.unique)
 

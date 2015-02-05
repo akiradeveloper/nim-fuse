@@ -143,8 +143,9 @@ template defAttr(typ: typedesc) =
 # ok
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
-    var s = li
-    self.raw.ok(@[mkBuf(addr(s), len(s))])
+    let b = mkBuf(len(li))
+    b.writeStr(li)
+    self.raw.ok(@[b])
 
 # ok
 template defOpen(typ: typedesc) =
@@ -170,7 +171,8 @@ template defIov(typ: typedesc) =
   proc iov*(self: typ, iov: openArray[TIOVec]) =
     var dataSeq = newSeq[Buf](len(iov))
     for i, io in iov:
-      dataSeq[i] = mkBuf(io.iov_base, io.iov_len)
+      dataSeq[i] = mkBuf(io.iov_len)
+      write(dataSeq[i], io.iov_base, io.iov_len)
     self.raw.ok(dataSeq)
 
 # ok
@@ -293,7 +295,9 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
     namelen: namelen.uint32,
     theType: (st_mode and 0170000) shr 12
   )
-  append[fuse_dirent](self.data, hd)
+  write[fuse_dirent](self.data, hd)
+  self.data.pos += sizeof(fuse_dirent)
+
   var s = name
   copyMem(self.data.asPtr(), addr(s), len(s))
   self.data.pos += len(s)
