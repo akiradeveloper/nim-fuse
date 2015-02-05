@@ -92,9 +92,9 @@ proc dispatch*(req: Request, se: Session) =
 
   case opcode
   of FUSE_LOOKUP:
-    debug("parseStr start")
-    let name = req.data.parseStr
-    debug("parseStr done")
+    debug("parseS start")
+    let name = req.data.parseS
+    debug("parseS done")
     fs.lookup(req, req.header.nodeid, name, newLookup(req, se))
   of FUSE_FORGET:
     let arg = read[fuse_forget_in](req.data)
@@ -117,32 +117,32 @@ proc dispatch*(req: Request, se: Session) =
   of FUSE_READLINK:
     fs.readlink(req, req.header.nodeid, newReadlink(req, se))
   of FUSE_SYMLINK:
-    let name = req.data.parseStr
+    let name = req.data.parseS
     req.data.pos += (len(name) + 1)
-    let link = req.data.parseStr
+    let link = req.data.parseS
     se.fs.symlink(req, req.header.nodeid, name, link, newSymlink(req, se))
   of FUSE_MKNOD:
     let arg = pop[fuse_mknod_in](req.data)
-    let name = req.data.parseStr
+    let name = req.data.parseS
     fs.mknod(req, req.header.nodeid, name, arg.mode, arg.rdev, newMknod(req, se))
   of FUSE_MKDIR:
     let arg = pop[fuse_mkdir_in](req.data)
-    let name = req.data.parseStr
+    let name = req.data.parseS
   of FUSE_UNLINK:
-    let name = req.data.parseStr
+    let name = req.data.parseS
     se.fs.unlink(req, req.header.nodeid, name, newUnlink(req, se))
   of FUSE_RMDIR:
-    let name = req.data.parseStr
+    let name = req.data.parseS
     fs.rmdir(req, req.header.nodeid, name, newRmdir(req, se))
   of FUSE_RENAME:
     let arg = pop[fuse_rename_in](req.data)
-    let name = req.data.parseStr
+    let name = req.data.parseS
     req.data.pos += (len(name) + 1)
-    let newname = req.data.parseStr
+    let newname = req.data.parseS
     fs.rename(req, req.header.nodeid, name, arg.newdir, newname, newRename(req, se))
   of FUSE_LINK:
     let arg = pop[fuse_link_in](req.data)
-    let newname = req.data.parseStr
+    let newname = req.data.parseS
     fs.link(req, arg.oldnodeid, req.header.nodeid, newname, newLink(req, se))
   of FUSE_OPEN:
     let arg = read[fuse_open_in](req.data)
@@ -152,7 +152,7 @@ proc dispatch*(req: Request, se: Session) =
     fs.read(req, req.header.nodeid, arg.fh, arg.offset, arg.size, newRead(req, se))
   of FUSE_WRITE:
     let arg = pop[fuse_write_in](req.data)
-    let data = req.data.mkBuf # get the remaining buffer
+    let data = req.data.asBuf # get the remaining buffer
     assert(data.size == arg.size.int)
     fs.write(req, req.header.nodeid, arg.fh, arg.offset, data, arg.write_flags, newWrite(req, se))
   of FUSE_STATFS:
@@ -167,20 +167,20 @@ proc dispatch*(req: Request, se: Session) =
     fs.fsync(req, req.header.nodeid, arg.fh, datasync, newFsync(req, se))
   of FUSE_SETXATTR:
     let arg = pop[fuse_setxattr_in](req.data)
-    let key = req.data.parseStr
+    let key = req.data.parseS
     req.data.pos += (len(key) + 1)
-    let value = req.data.mkBuf
+    let value = req.data.asBuf
     let pos = 0'u32
     fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(req, se))
   of FUSE_GETXATTR:
     let arg = pop[fuse_getxattr_in](req.data)
-    let key = req.data.parseStr
+    let key = req.data.parseS
     fs.getxattr(req, req.header.nodeid, key, newGetXAttr(req, se))
   of FUSE_LISTXATTR:
     let arg = read[fuse_getxattr_in](req.data)
     fs.listxattr(req, req.header.nodeid, newListXAttr(req, se))
   of FUSE_REMOVEXATTR:
-    let name = req.data.parseStr
+    let name = req.data.parseS
     fs.removexattr(req, req.header.nodeid, name, newRemoveXAttr(req, se))
   of FUSE_FLUSH:
     let arg = read[fuse_flush_in](req.data)
@@ -205,7 +205,7 @@ proc dispatch*(req: Request, se: Session) =
     )
     debug("INIT OUT:$1", expr(init))
     se.initialized = true
-    anyReply.ok(@[mkBuf[fuse_init_out](init)])
+    anyReply.ok(@[mkBufT(init)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
     fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))
@@ -231,7 +231,7 @@ proc dispatch*(req: Request, se: Session) =
     fs.access(req, req.header.nodeid, arg.mask, newAccess(req, se))
   of FUSE_CREATE:
     let arg = pop[fuse_open_in](req.data)
-    let name = req.data.parseStr
+    let name = req.data.parseS
     fs.create(req, req.header.nodeid, name, arg.mode, arg.flags, newCreate(req, se))
   of FUSE_INTERRUPT:
     let arg = read[fuse_interrupt_in](req.data)

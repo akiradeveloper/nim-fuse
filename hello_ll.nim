@@ -66,7 +66,7 @@ method getattr*(self: Hello, req: Request, ino: uint64, reply: GetAttr) =
 method read*(self: Hello, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
   debug("Hello")
   if ino == 2:
-    reply.buf(mkBuf(TXT))
+    reply.buf(mkBufS(TXT))
   else:
     reply.err(-ENOENT)
 

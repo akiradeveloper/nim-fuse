@@ -26,10 +26,6 @@ proc asBuf*(self: Buf): Buf =
     pos: 0,
   )
 
-# Parse a null-terminated string in the buffer  
-proc parseStr*(self: Buf): string =
-  $cstring(addr(self.data[0]))
-
 proc write*(self: Buf, p: pointer, size: int) =
   copyMem(self.asPtr, p, size)
 
@@ -38,22 +34,26 @@ proc write*[T](self: Buf, obj: T) =
   var v = obj
   self.write(addr(v), sizeof(T))
 
-proc mkBuf*[T](o: T): Buf =
+proc mkBufT*[T](o: T): Buf =
   let b = mkBuf(sizeof(T))
-  write[T](b, o)
+  write(b, o)
 
 proc nullTerm*(s: string): string =
   var ss = s
   ss.safeAdd(chr(0))
   ss
 
-proc writeStr*(self: Buf, s: string) =
+proc writeS*(self: Buf, s: string) =
   var vs = s
   self.write(addr(vs[0]), len(s))
 
+# Parse a null-terminated string in the buffer  
+proc parseS*(self: Buf): string =
+  $cstring(addr(self.data[0]))
+
 proc mkBufS*(s: string): Buf =
   result = mkBuf(len(s))
-  result.writeStr(s)
+  result.writeS(s)
 
 proc read*[T](self: Buf): T =
   cast[ptr T](self.asPtr)[]

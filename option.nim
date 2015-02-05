@@ -6,31 +6,31 @@ type
     kSome
     kNone
 
-  TOption*[T] = object
+  Option*[T] = object
     case kind: OptionKind
     of kSome: v: T
     of kNone: nil
 
-proc `$`*[T](o: TOption[T]): string =
+proc `$`*[T](o: Option[T]): string =
   case o.kind
   of kSome:
     "Some " & $o.v
   of kNone:
     "None"
 
-proc Some*[T](v: T): TOption[T] =
-  TOption[T](kind: kSome, v: v)
+proc Some*[T](v: T): Option[T] =
+  Option[T](kind: kSome, v: v)
 
-proc None*[T](): TOption[T] =
-  TOption[T](kind: kNone)
+proc None*[T](): Option[T] =
+  Option[T](kind: kNone)
 
-proc isSome*[T](o: TOption[T]): bool =
+proc isSome*[T](o: Option[T]): bool =
   o.kind == kSome
 
-proc isNone*[T](o: TOption[T]): bool =
+proc isNone*[T](o: Option[T]): bool =
   o.kind == kNone
 
-proc unwrap*[T](o: TOption[T]): T =
+proc unwrap*[T](o: Option[T]): T =
   o.v
 
 when isMainModule:

@@ -61,7 +61,7 @@ proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
   outH.error = err.int32
   outH.len = sumLen.uint32
   debug("OUT HEADER$1", expr(outH))
-  bufs[0] = mkBuf[fuse_out_header](outH)
+  bufs[0] = mkBufT(outH)
   discard self.sender.send(bufs)
 
 proc ok(self: Raw, dataSeq: openArray[Buf]) =
@@ -74,7 +74,7 @@ template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
     raw*: Raw
   proc sendOk[T](self: `typ`, a: T) =
-    self.raw.ok(@[mkBuf[T](a)])
+    self.raw.ok(@[mkBufT(a)])
 
 template defOk(typ: typedesc) =
   proc ok*(self: typ, dataSeq: openArray[Buf]) =
@@ -85,9 +85,9 @@ template defErr(typ: typedesc) =
     self.raw.err(e)
 
 # FIXME don't send header
-template defNone(typ: typedesc) =
-  proc none*(self: `typ`) =
-    self.raw.ok(@[])
+# template defNone(typ: typedesc) =
+#   proc none*(self: `typ`) =
+#     self.raw.ok(@[])
 
 type TEntryOut* = ref object
   generation*: uint64
@@ -143,7 +143,7 @@ template defAttr(typ: typedesc) =
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, li: string) =
     let b = mkBuf(len(li))
-    b.writeStr(li)
+    b.writeS(li)
     self.raw.ok(@[b])
 
 # ok
@@ -207,7 +207,7 @@ defEntry(Lookup)
 defErr(Lookup)
 
 defWrapper(Forget)
-defNone(Forget)
+# defNone(Forget)
 
 defWrapper(GetAttr)
 defAttr(GetAttr)
@@ -297,7 +297,7 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   write[fuse_dirent](self.data, hd)
   self.data.pos += sizeof(fuse_dirent)
 
-  self.data.writeStr(name)
+  self.data.writeS(name)
   self.data.pos += len(name)
   let padlen = entsize - entlen
   if (padlen > 0):
