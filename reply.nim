@@ -74,8 +74,7 @@ template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
     raw*: Raw
   proc sendOk[T](self: `typ`, a: T) =
-    var b = a
-    self.raw.ok(@[mkBuf[T](b)])
+    self.raw.ok(@[mkBuf[T](a)])
 
 template defOk(typ: typedesc) =
   proc ok*(self: typ, dataSeq: openArray[Buf]) =
@@ -298,9 +297,8 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   write[fuse_dirent](self.data, hd)
   self.data.pos += sizeof(fuse_dirent)
 
-  var s = name
-  copyMem(self.data.asPtr(), addr(s), len(s))
-  self.data.pos += len(s)
+  self.data.writeStr(name)
+  self.data.pos += len(name)
   let padlen = entsize - entlen
   if (padlen > 0):
     zeroMem(self.data.asPtr(), padlen.int)

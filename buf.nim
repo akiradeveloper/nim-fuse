@@ -51,6 +51,10 @@ proc writeStr*(self: Buf, s: string) =
   var vs = s
   self.write(addr(vs[0]), len(s))
 
+proc mkBufS*(s: string): Buf =
+  result = mkBuf(len(s))
+  result.writeStr(s)
+
 proc read*[T](self: Buf): T =
   cast[ptr T](self.asPtr)[]
 
