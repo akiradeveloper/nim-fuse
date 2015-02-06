@@ -1,6 +1,6 @@
 #
-#                 A FUSE binding for Nim
-#           (c) Copyright 2015 Akira Hayakawa
+#                           A FUSE binding for Nim
+#                     (c) Copyright 2015 Akira Hayakawa
 #
 
 import os
@@ -9,7 +9,7 @@ import logging
 import unsigned
 import times
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 type
   OptionKind = enum
@@ -43,7 +43,7 @@ proc isNone*[T](o: Option[T]): bool =
 proc unwrap*[T](o: Option[T]): T =
   o.v
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 type Buf* = ref object
   data: seq[char]
@@ -114,7 +114,7 @@ proc pop*[T](self: Buf): T =
   result = read[T](self)
   self.pos += sizeof(T)
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 let
   FUSE_KERNEL_VERSION* = 7'u32
@@ -382,7 +382,7 @@ type fuse_dirent* = object
   namelen*: uint32
   theType*: uint32
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 type FileAttr* = ref object
   ino*: uint64
@@ -717,7 +717,7 @@ defWrapper(Bmap)
 defBmap(Bmap)
 defErr(Bmap)
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 {. passC: gorge("pkg-config --cflags fuse") .}
 {. passL: gorge("pkg-config --libs fuse") .}
@@ -783,7 +783,7 @@ method send(self: ChannelSender, dataSeq: openArray[Buf]): int =
 proc mkSender(self: Channel): ChannelSender =
   ChannelSender(chan: self)
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 type Request* = ref object
   header*: fuse_in_header
@@ -893,7 +893,7 @@ method setlk*(self: FuseFs, req: Request, ino: uint64, fh: uint64, lock_owner: u
 method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: uint64, reply: Bmap) =
   reply.err(-ENOSYS)
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 type Session = ref object 
   fs: FuseFs
