@@ -2,7 +2,7 @@
 name = "fuse"
 version = "0.1.0"
 author = "Akira Hayakawa"
-description = "FUSE-binding for Nim"
+description = "A FUSE binding for Nim"
 license = "MIT"
 
 [Deps]
