@@ -1467,20 +1467,20 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="asPtr*(self: Buf): pointer"><wbr />as<wbr />Ptr</a></li>
   <li><a class="reference" href="#asBuf,Buf"
     title="asBuf*(self: Buf): Buf"><wbr />as<wbr />Buf</a></li>
+  <li><a class="reference" href="#mkTIOVecT,T"
+    title="mkTIOVecT*[T](o: var T): TIOVec"><wbr />mk<wbr />TIOVec<wbr />T</a></li>
+  <li><a class="reference" href="#mkTIOVecS,string"
+    title="mkTIOVecS*(s: var string): TIOVec"><wbr />mk<wbr />TIOVec<wbr />S</a></li>
   <li><a class="reference" href="#write,Buf,pointer,int"
     title="write*(self: Buf; p: pointer; size: int)"><wbr />write</a></li>
   <li><a class="reference" href="#write,Buf,T"
     title="write*[T](self: Buf; obj: T)"><wbr />write</a></li>
-  <li><a class="reference" href="#mkBufT,T"
-    title="mkBufT*[T](o: T): Buf"><wbr />mk<wbr />Buf<wbr />T</a></li>
   <li><a class="reference" href="#nullTerminated,string"
     title="nullTerminated*(s: string): string"><wbr />null<wbr />Terminated</a></li>
   <li><a class="reference" href="#writeS,Buf,string"
     title="writeS*(self: Buf; s: string)"><wbr />write<wbr />S</a></li>
   <li><a class="reference" href="#parseS,Buf"
     title="parseS*(self: Buf): string"><wbr />parse<wbr />S</a></li>
-  <li><a class="reference" href="#mkBufS,string"
-    title="mkBufS*(s: string): Buf"><wbr />mk<wbr />Buf<wbr />S</a></li>
   <li><a class="reference" href="#read,Buf"
     title="read*[T](self: Buf): T"><wbr />read</a></li>
   <li><a class="reference" href="#pop,Buf"
@@ -2153,17 +2153,22 @@ Get the current pos as the pointer
 Get the [pos,] buffer like slicing
 
 </dd>
+<dt id="mkTIOVecT"><a name="mkTIOVecT,T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mkTIOVecT</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">o</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TIOVec</span></pre></dt>
+<dd>
+
+
+</dd>
+<dt id="mkTIOVecS"><a name="mkTIOVecS,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mkTIOVecS</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TIOVec</span></pre></dt>
+<dd>
+
+
+</dd>
 <dt id="write"><a name="write,Buf,pointer,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">write</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">pointer</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span></pre></dt>
 <dd>
 
 
 </dd>
 <dt id="write"><a name="write,Buf,T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">write</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">obj</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="mkBufT"><a name="mkBufT,T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mkBufT</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">o</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Buf</span></pre></dt>
 <dd>
 
 
@@ -2181,11 +2186,6 @@ Write string <cite>s</cite> (Only the contents. Exclude null terminator)
 <dt id="parseS"><a name="parseS,Buf"></a><pre><span class="Keyword">proc</span> <span class="Identifier">parseS</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
 <dd>
 Parse a null-terminated string in the buffer  
-
-</dd>
-<dt id="mkBufS"><a name="mkBufS,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mkBufS</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Buf</span></pre></dt>
-<dd>
-Make a buffer from a string <cite>s</cite>
 
 </dd>
 <dt id="read"><a name="read,Buf"></a><pre><span class="Keyword">proc</span> <span class="Identifier">read</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
@@ -2430,7 +2430,7 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-06 16:05:11 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-07 08:14:38 UTC</small>
       </div>
     </div>
   </div>

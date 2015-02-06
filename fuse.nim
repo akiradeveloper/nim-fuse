@@ -71,6 +71,24 @@ proc asBuf*(self: Buf): Buf =
     pos: 0,
   )
 
+proc asTIOVec(self: Buf): TIOVec =
+  TIOVec (
+    iov_base: self.asPtr,
+    iov_len: self.size,
+  )
+
+proc mkTIOVecT*[T](o: var T): TIOVec =
+  TIOVec (
+    iov_base: addr(o),
+    iov_len: sizeof(T),
+  )
+
+proc mkTIOVecS*(s: var string): TIOVec =
+  TIOVec (
+    iov_base: addr(s[0]),
+    iov_len: len(s),
+  )
+
 proc write*(self: Buf, p: pointer, size: int) =
   copyMem(self.asPtr, p, size)
 
@@ -79,7 +97,7 @@ proc write*[T](self: Buf, obj: T) =
   var v = obj
   self.write(addr(v), sizeof(T))
 
-proc mkBufT*[T](o: T): Buf =
+proc mkBufT[T](o: T): Buf {.deprecated.} =
   result = mkBuf(sizeof(T))
   result.write(o)
 
@@ -100,7 +118,7 @@ proc parseS*(self: Buf): string =
   ## Parse a null-terminated string in the buffer  
   $cstring(addr(self.data[0]))
 
-proc mkBufS*(s: string): Buf =
+proc mkBufS(s: string): Buf {.deprecated.} =
   ## Make a buffer from a string `s`
   result = mkBuf(len(s))
   result.writeS(s)
@@ -416,7 +434,7 @@ proc fuse_attr_of(at: FileAttr): fuse_attr =
   debug("attr:$1", expr(result))
 
 type Sender = ref object of RootObj
-method send(self: Sender, dataSeq: openArray[Buf]): int =
+method send(self: Sender, iovs: var openArray[TIOVec]): int =
   debug("NULLSender.send")
   0
 
@@ -427,25 +445,24 @@ type Raw = ref object
 proc newRaw(sender: Sender, unique: uint64): Raw =
   Raw(sender: sender, unique: unique)
 
-proc send(self: Raw, err: int, dataSeq: openArray[Buf]) =
-  var bufs = newSeq[Buf](len(dataSeq) + 1)
+proc send(self: Raw, err: int, iovs: openArray[TIOVec]) =
+  var iovL = newSeq[TIOVec](len(iovs) + 1)
   var sumLen = sizeof(fuse_out_header)
-  for i, data in dataSeq:
-    assert(data.pos == 0)
-    bufs[i+1] = data
-    sumLen += data.size
+  for i, iov in iovs:
+    iovL[i+1] = iov
+    sumLen += iov.iov_len
 
   var outH: fuse_out_header
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.uint32
   debug("COMMON OUT:$1", expr(outH))
-  bufs[0] = mkBufT(outH)
+  iovL[0] = mkTIOVecT(outH)
 
-  discard self.sender.send(bufs)
+  discard self.sender.send(iovL)
 
-proc ok(self: Raw, dataSeq: openArray[Buf]) =
-  self.send(0, dataSeq)
+proc ok(self: Raw, iovs: openArray[TIOVec]) =
+  self.send(0, iovs)
 
 proc err(self: Raw, e: int) =
   self.send(e, @[])
@@ -454,11 +471,12 @@ template defWrapper(typ: expr) =
   type `typ`* {. inject .} = ref object
     raw: Raw
   proc sendOk[T](self: `typ`, a: T) =
-    self.raw.ok(@[mkBufT(a)])
+    var aa = a
+    self.raw.ok(@[mkTIOVecT(aa)])
 
 template defOk(typ: typedesc) =
-  proc ok*(self: typ, dataSeq: openArray[Buf]) =
-    self.raw.ok(dataSeq)
+  proc ok*(self: typ, iovs: openArray[TIOVec]) =
+    self.raw.ok(iovs)
 
 template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
@@ -510,8 +528,9 @@ template defAttr(typ: typedesc) =
         attr: fuse_attr_of(at)))
 
 template defReadlink(typ: typedesc) =
-  proc readlink*(self: typ, li: string) =
-    self.raw.ok(@[mkBufS(li)])
+  proc readlink*(self: typ, s: string) =
+    var ss = s
+    self.raw.ok(@[mkTIOVecS(ss)])
 
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, hd: fuse_open_out) =
@@ -522,16 +541,12 @@ template defWrite(typ: typedesc) =
     self.sendOk(hd)
 
 template defBuf(typ: typedesc) =
-  proc buf*(self: `typ`, data: Buf) =
-    self.raw.ok(@[data])
+  proc buf*(self: `typ`, iov: TIOVec) =
+    self.raw.ok(@[iov])
 
 template defIov(typ: typedesc) =
-  proc iov*(self: typ, iov: openArray[TIOVec]) =
-    var dataSeq = newSeq[Buf](len(iov))
-    for i, io in iov:
-      dataSeq[i] = mkBuf(io.iov_len)
-      write(dataSeq[i], io.iov_base, io.iov_len)
-    self.raw.ok(dataSeq)
+  proc iov*(self: typ, iovs: openArray[TIOVec]) =
+    self.raw.ok(iovs)
 
 template defStatfs(typ: typedesc) =
   proc statfs(self: typ, hd: fuse_statfs_out) =
@@ -668,7 +683,7 @@ proc ok*(self: Readdir) =
   ## If nothing is in the buffer it notifies the end of the stream.
   self.data.size = self.data.pos
   self.data.pos = 0
-  self.raw.ok(@[self.data])
+  self.raw.ok(@[self.data.asTIOVec])
 defErr(Readdir)
  
 defWrapper(Releasedir)
@@ -762,17 +777,12 @@ proc fetch(chan: Channel, buf: Buf): int =
 type ChannelSender = ref object of Sender
   chan: Channel
 
-method send(self: ChannelSender, dataSeq: openArray[Buf]): int =
-  let n = dataSeq.len.cint
-  var iov = newSeq[TIOVec](n)
+method send(self: ChannelSender, iovs: var openArray[TIOVec]): int =
+  let n = iovs.len.cint
   var sumLen = 0
-  for i in 0..n-1:
-    let data = dataSeq[i]
-    assert(data.pos == 0)
-    iov[i].iov_base = data.asPtr
-    iov[i].iov_len = data.size
-    sumLen += data.size
-  let bytes = posix.writev(self.chan.fd, addr(iov[0]), n)
+  for iov in iovs:
+    sumLen += iov.iov_len
+  let bytes = posix.writev(self.chan.fd, addr(iovs[0]), n)
   if bytes != sumLen:
     debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4", bytes, sumLen, osLastError(), osErrorMsg())
     result = -posix.EIO
@@ -959,6 +969,7 @@ proc dispatch(req: Request, se: Session) =
   let anyReply = newAny(req, se)
 
   let opcode = req.header.opcode.fuse_opcode
+  debug("opcode:$1", opcode)
 
   # if destroyed, any requests are discarded.
   if se.destroyed:
@@ -1094,7 +1105,8 @@ proc dispatch(req: Request, se: Session) =
     )
     debug("INIT OUT:$1", expr(init))
     se.initialized = true
-    anyReply.ok(@[mkBufT(init)])
+    var initVar = init
+    anyReply.ok(@[mkTIOVecT(initVar)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
     fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))
@@ -1183,7 +1195,7 @@ proc loop(self: Session) =
 var se: Session = nil
 proc handler() {.noconv.} =
   se.destroyed = true
-  # disconnect(se.chan)
+  raiseOsError() # raising error from interrupt context is dangerous?
 
 proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
   var Lc = newConsoleLogger()
