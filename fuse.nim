@@ -780,7 +780,7 @@ method send(self: ChannelSender, dataSeq: openArray[Buf]): int =
     debug("send OK")
     result = 0
 
-proc mkSender*(self: Channel): ChannelSender =
+proc mkSender(self: Channel): ChannelSender =
   ChannelSender(chan: self)
 
 # -----------------------------------------------------------------------------
@@ -895,7 +895,7 @@ method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: ui
 
 # -----------------------------------------------------------------------------
 
-type Session* = ref object 
+type Session = ref object 
   fs: FuseFs
   chan: Channel
   # proto_major: uint32
@@ -1133,7 +1133,7 @@ proc dispatch(req: Request, se: Session) =
     se.destroyed = true
     newAny(req, se).ok(@[])
 
-proc mkSession*(fs: FuseFs, chan: Channel): Session =
+proc mkSession(fs: FuseFs, chan: Channel): Session =
   Session (
     fs: fs,
     chan: chan,
@@ -1158,7 +1158,7 @@ proc processBuf(self: Session, buf: Buf) =
   )
   req.dispatch(self)
 
-proc loop*(self: Session) =
+proc loop(self: Session) =
   # always alloc max sized buffer but 100 bytes as safety mergin
   let initsize = MAX_WRITE_BUFSIZE + 100
   var buf = mkBuf(initsize)
