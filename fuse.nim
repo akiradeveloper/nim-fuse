@@ -790,7 +790,9 @@ type Request* = ref object
   data: Buf
 
 type FuseFs* = ref object of RootObj
-
+  ## Base class for FUSE filesystem
+  ## User needs to implement a subclass
+ 
 method init*(self: FuseFs, req: Request): int =
   0
 
@@ -898,8 +900,6 @@ method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: ui
 type Session = ref object 
   fs: FuseFs
   chan: Channel
-  # proto_major: uint32
-  # proto_minor: uint32
   initialized: bool
   destroyed: bool
 
