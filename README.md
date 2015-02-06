@@ -2,6 +2,10 @@
 
 A FUSE Binding for Nim
 
+### Browse API
+
+https://rawgit.com/akiradeveloper/nim-fuse/develop/fuse.html
+
 ### Design based on Rust-fuse
 
 The design of this binding is based on rust-fuse.
