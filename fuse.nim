@@ -175,13 +175,13 @@ type fuse_file_lock* = object
 
 let
   # Bitmasks for fuse_setattr_in.valid
-  FATTR_MODE* = 1'u32 shl 0
-  FATTR_UID* = 1'u32 shl 1
-  FATTR_GID* = 1'u32 shl 2
-  FATTR_SIZE* = 1'u32 shl 3
-  FATTR_ATIME* = 1'u32 shl 4
-  FATTR_MTIME* = 1'u32 shl 5
-  FATTR_FH* = 1'u32 shl 6
+  FATTR_MODE = 1'u32 shl 0
+  FATTR_UID = 1'u32 shl 1
+  FATTR_GID = 1'u32 shl 2
+  FATTR_SIZE = 1'u32 shl 3
+  FATTR_ATIME = 1'u32 shl 4
+  FATTR_MTIME = 1'u32 shl 5
+  FATTR_FH = 1'u32 shl 6
 
   # Flags returned by the OPEN request
   FOPEN_DIRECT_IO* = 1'u32 shl 0
@@ -192,7 +192,7 @@ let
   FUSE_POSIX_LOCKS* = 1'u32 shl 1
 
   # Release flags
-  FUSE_RELEASE_FLUSH* = 1'u32 shl 0
+  FUSE_RELEASE_FLUSH = 1'u32 shl 0
 
 type fuse_opcode* = enum
   FUSE_LOOKUP = 1

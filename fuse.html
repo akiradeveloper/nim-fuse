@@ -1419,20 +1419,6 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="FUSE_KERNEL_MINOR_VERSION* = 8&#x27;u32"><wbr />FUSE_<wbr />KERNEL_<wbr />MINOR_<wbr />VERSION</a></li>
   <li><a class="reference" href="#FUSE_ROOT_ID"
     title="FUSE_ROOT_ID* = 1"><wbr />FUSE_<wbr />ROOT_<wbr />ID</a></li>
-  <li><a class="reference" href="#FATTR_MODE"
-    title="FATTR_MODE* = 1&#x27;u32 shl 0"><wbr />FATTR_<wbr />MODE</a></li>
-  <li><a class="reference" href="#FATTR_UID"
-    title="FATTR_UID* = 1&#x27;u32 shl 1"><wbr />FATTR_<wbr />UID</a></li>
-  <li><a class="reference" href="#FATTR_GID"
-    title="FATTR_GID* = 1&#x27;u32 shl 2"><wbr />FATTR_<wbr />GID</a></li>
-  <li><a class="reference" href="#FATTR_SIZE"
-    title="FATTR_SIZE* = 1&#x27;u32 shl 3"><wbr />FATTR_<wbr />SIZE</a></li>
-  <li><a class="reference" href="#FATTR_ATIME"
-    title="FATTR_ATIME* = 1&#x27;u32 shl 4"><wbr />FATTR_<wbr />ATIME</a></li>
-  <li><a class="reference" href="#FATTR_MTIME"
-    title="FATTR_MTIME* = 1&#x27;u32 shl 5"><wbr />FATTR_<wbr />MTIME</a></li>
-  <li><a class="reference" href="#FATTR_FH"
-    title="FATTR_FH* = 1&#x27;u32 shl 6"><wbr />FATTR_<wbr />FH</a></li>
   <li><a class="reference" href="#FOPEN_DIRECT_IO"
     title="FOPEN_DIRECT_IO* = 1&#x27;u32 shl 0"><wbr />FOPEN_<wbr />DIRECT_<wbr />IO</a></li>
   <li><a class="reference" href="#FOPEN_KEEP_CACHE"
@@ -1441,8 +1427,6 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="FUSE_ASYNC_READ* = 1&#x27;u32 shl 0"><wbr />FUSE_<wbr />ASYNC_<wbr />READ</a></li>
   <li><a class="reference" href="#FUSE_POSIX_LOCKS"
     title="FUSE_POSIX_LOCKS* = 1&#x27;u32 shl 1"><wbr />FUSE_<wbr />POSIX_<wbr />LOCKS</a></li>
-  <li><a class="reference" href="#FUSE_RELEASE_FLUSH"
-    title="FUSE_RELEASE_FLUSH* = 1&#x27;u32 shl 0"><wbr />FUSE_<wbr />RELEASE_<wbr />FLUSH</a></li>
   <li><a class="reference" href="#FUSE_MIN_READ_BUFFER"
     title="FUSE_MIN_READ_BUFFER* = 8192"><wbr />FUSE_<wbr />MIN_<wbr />READ_<wbr />BUFFER</a></li>
   <li><a class="reference" href="#MAX_WRITE_BUFSIZE"
@@ -2043,41 +2027,6 @@ Base class for FUSE filesystem User needs to implement a subclass
 
 
 </dd>
-<dt id="FATTR_MODE"><a name="FATTR_MODE"></a><pre><span class="Identifier">FATTR_MODE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_UID"><a name="FATTR_UID"></a><pre><span class="Identifier">FATTR_UID</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_GID"><a name="FATTR_GID"></a><pre><span class="Identifier">FATTR_GID</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">2</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_SIZE"><a name="FATTR_SIZE"></a><pre><span class="Identifier">FATTR_SIZE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">3</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_ATIME"><a name="FATTR_ATIME"></a><pre><span class="Identifier">FATTR_ATIME</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">4</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_MTIME"><a name="FATTR_MTIME"></a><pre><span class="Identifier">FATTR_MTIME</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">5</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FATTR_FH"><a name="FATTR_FH"></a><pre><span class="Identifier">FATTR_FH</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">6</span></pre></dt>
-<dd>
-
-
-</dd>
 <dt id="FOPEN_DIRECT_IO"><a name="FOPEN_DIRECT_IO"></a><pre><span class="Identifier">FOPEN_DIRECT_IO</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
 <dd>
 
@@ -2094,11 +2043,6 @@ Base class for FUSE filesystem User needs to implement a subclass
 
 </dd>
 <dt id="FUSE_POSIX_LOCKS"><a name="FUSE_POSIX_LOCKS"></a><pre><span class="Identifier">FUSE_POSIX_LOCKS</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
-<dd>
-
-
-</dd>
-<dt id="FUSE_RELEASE_FLUSH"><a name="FUSE_RELEASE_FLUSH"></a><pre><span class="Identifier">FUSE_RELEASE_FLUSH</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
 <dd>
 
 
@@ -2430,7 +2374,7 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-07 08:14:38 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-07 08:23:38 UTC</small>
       </div>
     </div>
   </div>
