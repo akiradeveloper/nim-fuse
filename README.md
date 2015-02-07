@@ -9,6 +9,7 @@ https://rawgit.com/akiradeveloper/nim-fuse/master/fuse.html
 ### Design based on Rust-fuse
 
 The design of this binding is based on rust-fuse.
+rust-fuse supports Linux and OSX so nim-fuse will catch up too.
 
 ### Why Nim?
 
