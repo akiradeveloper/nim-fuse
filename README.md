@@ -4,7 +4,7 @@ A FUSE Binding for Nim
 
 ### Browse API
 
-https://rawgit.com/akiradeveloper/nim-fuse/develop/fuse.html
+https://rawgit.com/akiradeveloper/nim-fuse/master/fuse.html
 
 ### Design based on Rust-fuse
 
