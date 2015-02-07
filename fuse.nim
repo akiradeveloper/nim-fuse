@@ -446,6 +446,8 @@ proc newRaw(sender: Sender, unique: uint64): Raw =
   Raw(sender: sender, unique: unique)
 
 proc send(self: Raw, err: int, iovs: openArray[TIOVec]) =
+  assert(err <= 0)
+
   var iovL = newSeq[TIOVec](len(iovs) + 1)
   var sumLen = sizeof(fuse_out_header)
   for i, iov in iovs:
@@ -880,8 +882,13 @@ method open*(self: FuseFs, req: Request, ino: uint64, flags: uint32, reply: Open
   ## anything in fh. There are also some flags (direct_io, keep_cache) which the
   ## filesystem may set, to change the way the file is opened. See fuse_file_info
   ## structure in <fuse_common.h> for more details.
-  reply.err(-ENOSYS)
- 
+  reply.open(
+    fuse_open_out (
+      fh: 0,
+      open_flags: 0,
+    )
+  )
+
 method read*(self: FuseFs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
   ## Read data
   ## Read should send exactly the number of bytes requested except on EOF or error,
@@ -923,7 +930,7 @@ method release*(self: FuseFs, req: Request, ino: uint64, fh: uint64, flags: uint
   ## the release. fh will contain the value set by the open method, or will be undefined
   ## if the open method didn't set any value. flags will contain the same flags as for
   ## open.
-  reply.err(-ENOSYS)
+  reply.err(0)
 
 method fsync*(self: FuseFs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsync) =
   ## Synchronize file contents
@@ -939,7 +946,12 @@ method opendir*(self: FuseFs, req: Request, ino: uint64, flags: uint32, reply: O
   ## anything in fh, though that makes it impossible to implement standard conforming
   ## directory stream operations in case the contents of the directory can change
   ## between opendir and releasedir.
-  reply.err(-ENOSYS)
+  reply.open(
+    fuse_open_out (
+      fh: 0,
+      open_flags: 0,
+    )
+  )
 
 method readdir*(self: FuseFs, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
   ## Read directory
@@ -954,7 +966,7 @@ method releasedir*(self: FuseFs, req: Request, fh: uint64, flags: uint32, reply:
   ## For every opendir call there will be exactly one releasedir call. fh will
   ## contain the value set by the opendir method, or will be undefined if the
   ## opendir method didn't set any value.
-  reply.err(-ENOSYS)
+  reply.err(0)
 
 method fsyncdir*(self: FuseFs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsyncdir) =
   ## Synchronize directory contents
@@ -965,7 +977,16 @@ method fsyncdir*(self: FuseFs, req: Request, ino: uint64, fh: uint64, datasync: 
 
 method statfs*(self: FuseFs, req: Request, ino: uint64, reply: Statfs) =
   ## Get file system statistics
-  reply.err(-ENOSYS)
+  reply.statfs(fuse_kstatfs(
+    blocks: 0,
+    bfree: 0,
+    bavail: 0,
+    files: 0,
+    ffree: 0,
+    bsize: 512,
+    namelen: 255,
+    frsize: 0,
+  ))
 
 method setxattr*(self: FuseFs, req: Request, ino: uint64, key: string, value: Buf, flags: uint32, position: uint32, reply: SetXAttr) =
   ## Set an extended attribute
