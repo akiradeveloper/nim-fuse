@@ -802,107 +802,225 @@ type Request* = ref object
 type FuseFs* = ref object of RootObj
   ## Base class for FUSE filesystem
   ## User needs to implement a subclass
- 
+  ## These methods corrospond to fuse_lowlevel_ops in libfuse. Reasonable default
+  ## implementations are provided here to get a mountable filesystem that does
+  ## nothing.
+
 method init*(self: FuseFs, req: Request): int =
+  ## Initialize filesystem
+  ## Called before any other filesystem method.
   0
 
 method destroy*(self: FuseFs, req: Request) =
+  ## Clean up filesystem
+  ## Called on filesystem exit.
   discard
 
 method lookup*(self: FuseFs, req: Request, parent: uint64, name: string, reply: Lookup) =
+  ## Look up a directory entry by name and get its attributes.
   reply.err(-ENOSYS)
 
 method forget*(self: FuseFs, req: Request, ino: uint64, nlookup: uint64) =
+  ## Forget about an inode
+  ## The nlookup parameter indicates the number of lookups previously performed on
+  ## this inode. If the filesystem implements inode lifetimes, it is recommended that
+  ## inodes acquire a single reference on each lookup, and lose nlookup references on
+  ## each forget. The filesystem may ignore forget calls, if the inodes don't need to
+  ## have a limited lifetime. On unmount it is not guaranteed, that all referenced
+  ## inodes will receive a forget message.
   discard
 
 method getattr*(self: FuseFs, req: Request, ino: uint64, reply: GetAttr) =
+  ## Get file attributes
   reply.err(-ENOSYS)
 
 method setattr*(self: FuseFs, req: Request, ino: uint64, mode: Option[uint32], uid: Option[uint32], gid: Option[uint32], size: Option[uint64], atime: Option[Ttimespec], mtime: Option[Ttimespec], fh: Option[uint64], crtime: Option[Ttimespec], chgtime: Option[Ttimespec], bkuptime: Option[Ttimespec], flags: Option[uint32], reply: SetAttr) =
+  ## Set file attributes
   reply.err(-ENOSYS)
 
 method readlink*(self: FuseFs, req: Request, ino: uint64, reply: Readlink) =
+  ## Read symbolic link
   reply.err(-ENOSYS)
 
 method mknod*(self: FuseFs, req: Request, parent: uint64, name: string, mode: uint32, rdev: uint32, reply: Mknod) =
+  ## Create file node
+  ## Create a regular file, character device, block device, fifo or socket node.
   reply.err(-ENOSYS)
 
 method mkdir*(self: FuseFs, req: Request, parent: uint64, name: string, mode: uint32, reply: Mkdir) =
+  ## Create a directory
   reply.err(-ENOSYS)
 
 method unlink*(self: FuseFs, req: Request, parent: uint64, name: string, reply: Unlink) =
+  ## Remove a file
   reply.err(-ENOSYS)
 
 method rmdir*(self: FuseFs, req: Request, parent: uint64, name: string, reply: Rmdir) =
+  ## Remove a directory
   reply.err(-ENOSYS)
 
 method symlink*(self: FuseFs, req: Request, parent: uint64, name: string, link: string, reply: Symlink) =
+  ## Create a symboilc link
   reply.err(-ENOSYS)
 
 method rename*(self: FuseFs, req: Request, parent: uint64, name: string, newdir: uint64, newname: string, reply: Rename) =
+  ## Rename a file
   reply.err(-ENOSYS)
 
 method link*(self: FuseFs, req: Request, ino: uint64, newparent: uint64, newname: string, reply: Link) =
+  ## Create a hard link
   reply.err(-ENOSYS)
 
 method open*(self: FuseFs, req: Request, ino: uint64, flags: uint32, reply: Open) =
+  ## Open a file
+  ## Open flags (with the exception of O_CREAT, O_EXCL, O_NOCTTY and O_TRUNC) are
+  ## available in flags. Filesystem may store an arbitrary file handle (pointer, index,
+  ## etc) in fh, and use this in other all other file operations (read, write, flush,
+  ## release, fsync). Filesystem may also implement stateless file I/O and not store
+  ## anything in fh. There are also some flags (direct_io, keep_cache) which the
+  ## filesystem may set, to change the way the file is opened. See fuse_file_info
+  ## structure in <fuse_common.h> for more details.
   reply.err(-ENOSYS)
  
 method read*(self: FuseFs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
+  ## Read data
+  ## Read should send exactly the number of bytes requested except on EOF or error,
+  ## otherwise the rest of the data will be substituted with zeroes. An exception to
+  ## this is when the file has been opened in 'direct_io' mode, in which case the
+  ## return value of the read system call will reflect the return value of this
+  ## operation. fh will contain the value set by the open method, or will be undefined
+  ## if the open method didn't set any value.
   reply.err(-ENOSYS)
 
 method write*(self: FuseFs, req: Request, ino: uint64, fh: uint64, offset: uint64, data: Buf, flags: uint32, reply: Write) =
+  ## Write data
+  ## Write should return exactly the number of bytes requested except on error. An
+  ## exception to this is when the file has been opened in 'direct_io' mode, in
+  ## which case the return value of the write system call will reflect the return
+  ## value of this operation. fh will contain the value set by the open method, or
+  ## will be undefined if the open method didn't set any value.
   reply.err(-ENOSYS)
 
 method flush*(self: FuseFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, reply: Flush) =
+  ## Flush method
+  ## This is called on each close() of the opened file. Since file descriptors can
+  ## be duplicated (dup, dup2, fork), for one open call there may be many flush
+  ## calls. Filesystems shouldn't assume that flush will always be called after some
+  ## writes, or that if will be called at all. fh will contain the value set by the
+  ## open method, or will be undefined if the open method didn't set any value.
+  ## NOTE: the name of the method is misleading, since (unlike fsync) the filesystem
+  ## is not forced to flush pending writes. One reason to flush data, is if the
+  ## filesystem wants to return write errors. If the filesystem supports file locking
+  ## operations (setlk, getlk) it should remove all locks belonging to 'lock_owner'.
   reply.err(-ENOSYS)
 
 method release*(self: FuseFs, req: Request, ino: uint64, fh: uint64, flags: uint32, lock_owner: uint64, flush: bool, reply: Release) =
+  ## Release an open file
+  ## Release is called when there are no more references to an open file: all file
+  ## descriptors are closed and all memory mappings are unmapped. For every open
+  ## call there will be exactly one release call. The filesystem may reply with an
+  ## error, but error values are not returned to close() or munmap() which triggered
+  ## the release. fh will contain the value set by the open method, or will be undefined
+  ## if the open method didn't set any value. flags will contain the same flags as for
+  ## open.
   reply.err(-ENOSYS)
 
 method fsync*(self: FuseFs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsync) =
+  ## Synchronize file contents
+  ## If the datasync parameter is non-zero, then only the user data should be flushed,
+  ## not the meta data.
   reply.err(-ENOSYS)
 
 method opendir*(self: FuseFs, req: Request, ino: uint64, flags: uint32, reply: Opendir) =
+  ## Open a directory
+  ## Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and
+  ## use this in other all other directory stream operations (readdir, releasedir,
+  ## fsyncdir). Filesystem may also implement stateless directory I/O and not store
+  ## anything in fh, though that makes it impossible to implement standard conforming
+  ## directory stream operations in case the contents of the directory can change
+  ## between opendir and releasedir.
   reply.err(-ENOSYS)
 
 method readdir*(self: FuseFs, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
+  ## Read directory
+  ## Send a buffer filled using buffer.fill(), with size not exceeding the
+  ## requested size. Send an empty buffer on end of stream. fh will contain the
+  ## value set by the opendir method, or will be undefined if the opendir method
+  ## didn't set any value.
   reply.err(-ENOSYS)
 
 method releasedir*(self: FuseFs, req: Request, fh: uint64, flags: uint32, reply: Releasedir) =
+  ## Release an open directory
+  ## For every opendir call there will be exactly one releasedir call. fh will
+  ## contain the value set by the opendir method, or will be undefined if the
+  ## opendir method didn't set any value.
   reply.err(-ENOSYS)
 
 method fsyncdir*(self: FuseFs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsyncdir) =
+  ## Synchronize directory contents
+  ## If the datasync parameter is set, then only the directory contents should
+  ## be flushed, not the meta data. fh will contain the value set by the opendir
+  ## method, or will be undefined if the opendir method didn't set any value.
   reply.err(-ENOSYS)
 
 method statfs*(self: FuseFs, req: Request, ino: uint64, reply: Statfs) =
+  ## Get file system statistics
   reply.err(-ENOSYS)
 
 method setxattr*(self: FuseFs, req: Request, ino: uint64, key: string, value: Buf, flags: uint32, position: uint32, reply: SetXAttr) =
+  ## Set an extended attribute
   reply.err(-ENOSYS)
 
 method getxattr*(self: FuseFs, req: Request, ino: uint64, key: string, reply: GetXAttr) =
+  ## Get an extended attribute
   reply.err(-ENOSYS)
 
 method listxattr*(self: FuseFs, req: Request, ino: uint64, reply: ListXAttr) =
+  ## List extended attribute names
   reply.err(-ENOSYS)
 
 method removexattr*(self: FuseFs, req: Request, ino: uint64, name: string, reply: RemoveXAttr) =
+  ## Remove an extended attribute
   reply.err(-ENOSYS)
 
 method access*(self: FuseFs, req: Request, ino: uint64, mask: uint32, reply: Access) =
+  ## Check file access permissions
+  ## This will be called for the access() system call. If the 'default_permissions'
+  ## mount option is given, this method is not called. This method is not called
+  ## under Linux kernel versions 2.4.x
   reply.err(-ENOSYS)
 
 method create*(self: FuseFs, req: Request, parent: uint64, name: string, mode: uint32, flags: uint32, reply: Create) =
+  ## Create and open a file
+  ## If the file does not exist, first create it with the specified mode, and then
+  ## open it. Open flags (with the exception of O_NOCTTY) are available in flags.
+  ## Filesystem may store an arbitrary file handle (pointer, index, etc) in fh,
+  ## and use this in other all other file operations (read, write, flush, release,
+  ## fsync). There are also some flags (direct_io, keep_cache) which the
+  ## filesystem may set, to change the way the file is opened. See fuse_file_info
+  ## structure in <fuse_common.h> for more details. If this method is not
+  ## implemented or under Linux kernel versions earlier than 2.6.15, the mknod()
+  ## and open() methods will be called instead.
   reply.err(-ENOSYS)
 
 method getlk*(self: FuseFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, start: uint64, theEnd: uint64, theType: uint64, pid: uint32, reply: Getlk) =
+  ## Test for a POSIX file lock
   reply.err(-ENOSYS)
 
 method setlk*(self: FuseFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, start: uint64, theEnd: uint64, theType: uint64, pid: uint32, sleep: bool, reply: Setlk) =
+  ## Acquire, modify or release a POSIX file lock
+  ## For POSIX threads (NPTL) there's a 1-1 relation between pid and owner, but
+  ## otherwise this is not always the case.  For checking lock ownership,
+  ## 'fi->owner' must be used. The l_pid field in 'struct flock' should only be
+  ## used to fill in this field in getlk(). Note: if the locking methods are not
+  ## implemented, the kernel will still allow file locking to work locally.
+  ## Hence these are only interesting for network filesystems and similar.
   reply.err(-ENOSYS)
 
 method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: uint64, reply: Bmap) =
+  ## Map block index within file to block index within device
+  ## Note: This makes sense only for block device backed filesystems mounted
+  ## with the 'blkdev' option
   reply.err(-ENOSYS)
 
 # ------------------------------------------------------------------------------
@@ -1198,6 +1316,7 @@ proc handler() {.noconv.} =
   raiseOsError() # raising error from interrupt context is dangerous?
 
 proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
+  ## Mount the given filesystem `fs` to the given mountpoint `mountpoint`
   var Lc = newConsoleLogger()
   logging.handlers.add(Lc)
 
