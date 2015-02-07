@@ -8,6 +8,7 @@ import posix
 import logging
 import unsigned
 import times
+import strutils
 
 # ------------------------------------------------------------------------------
 
@@ -70,6 +71,9 @@ proc asBuf*(self: Buf): Buf =
     size: self.size - self.pos,
     pos: 0,
   )
+
+proc `$`(self: TIOVec): string =
+  "TIOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
 
 proc asTIOVec(self: Buf): TIOVec =
   TIOVec (
@@ -452,6 +456,7 @@ proc send(self: Raw, err: int, iovs: openArray[TIOVec]) =
   var sumLen = sizeof(fuse_out_header)
   for i, iov in iovs:
     iovL[i+1] = iov
+    debug("iov[$1]:$2", i, iov)
     sumLen += iov.iov_len
 
   var outH: fuse_out_header
@@ -658,6 +663,8 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   if self.data.pos + entsize > self.data.size:
     return false
 
+  let pos0 = self.data.pos
+
   let hd = fuse_dirent(
     ino: ino,
     off: off,
@@ -667,12 +674,20 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   write[fuse_dirent](self.data, hd)
   self.data.pos += sizeof(fuse_dirent)
 
+  let pos1 = self.data.pos
+
   self.data.writeS(name)
   self.data.pos += len(name)
-  let padlen = entsize - entlen
-  if (padlen > 0):
-    zeroMem(self.data.asPtr(), padlen.int)
+  let pos2 = self.data.pos
 
+  let padlen = entsize - entlen
+  if padlen > 0:
+    zeroMem(self.data.asPtr(), padlen.int)
+    self.data.pos += padlen
+
+  let pos3 = self.data.pos
+
+  debug("try add dirent. name:$1 entlen:$2 entsize:$3 pos:$4->$5->$6->$7", name, entlen, entsize, pos0, pos1, pos2, pos3)
   return true
 
 proc tryAdd*(self: Readdir, ino: uint64, idx: uint64, mode: TMode, name: string): bool =
