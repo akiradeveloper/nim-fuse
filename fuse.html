@@ -2004,7 +2004,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <dt id="FuseFs"><a name="FuseFs"></a><pre><span class="Identifier">FuseFs</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <span class="Identifier">RootObj</span>
   </pre></dt>
 <dd>
-Base class for FUSE filesystem User needs to implement a subclass
+Base class for FUSE filesystem User needs to implement a subclass These methods corrospond to fuse_lowlevel_ops in libfuse. Reasonable default implementations are provided here to get a mountable filesystem that does nothing.
 
 </dd>
 
@@ -2154,7 +2154,7 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
 </dd>
 <dt id="mount"><a name="mount,FuseFs,string,openArray[string]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mount</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">fs</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">mountpoint</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">options</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Mount the given filesystem <cite>fs</cite> to the given mountpoint <cite>mountpoint</cite>
 
 </dd>
 
@@ -2164,28 +2164,28 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
 <dl class="item">
 <dt id="init"><a name="init.e,FuseFs,Request"></a><pre><span class="Keyword">method</span> <span class="Identifier">init</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
 <dd>
-
+Initialize filesystem Called before any other filesystem method.
 
 </dd>
 <dt id="destroy"><a name="destroy.e,FuseFs,Request"></a><pre><span class="Keyword">method</span> <span class="Identifier">destroy</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Clean up filesystem Called on filesystem exit.
 
 </dd>
 <dt id="lookup"><a name="lookup.e,FuseFs,Request,uint64,string,Lookup"></a><pre><span class="Keyword">method</span> <span class="Identifier">lookup</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Lookup</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Look up a directory entry by name and get its attributes.
 
 </dd>
 <dt id="forget"><a name="forget.e,FuseFs,Request,uint64,uint64"></a><pre><span class="Keyword">method</span> <span class="Identifier">forget</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">nlookup</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Forget about an inode The nlookup parameter indicates the number of lookups previously performed on this inode. If the filesystem implements inode lifetimes, it is recommended that inodes acquire a single reference on each lookup, and lose nlookup references on each forget. The filesystem may ignore forget calls, if the inodes don't need to have a limited lifetime. On unmount it is not guaranteed, that all referenced inodes will receive a forget message.
 
 </dd>
 <dt id="getattr"><a name="getattr.e,FuseFs,Request,uint64,GetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">GetAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Get file attributes
 
 </dd>
 <dt id="setattr"><a name="setattr.e,FuseFs,Request,uint64,Option[uint32],Option[uint32],Option[uint32],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[Ttimespec],Option[uint32],SetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> 
@@ -2195,173 +2195,173 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
                 <span class="Identifier">chgtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">bkuptime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> 
                 <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Set file attributes
 
 </dd>
 <dt id="readlink"><a name="readlink.e,FuseFs,Request,uint64,Readlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">readlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readlink</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Read symbolic link
 
 </dd>
 <dt id="mknod"><a name="mknod.e,FuseFs,Request,uint64,string,uint32,uint32,Mknod"></a><pre><span class="Keyword">method</span> <span class="Identifier">mknod</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
               <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">rdev</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mknod</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Create file node Create a regular file, character device, block device, fifo or socket node.
 
 </dd>
 <dt id="mkdir"><a name="mkdir.e,FuseFs,Request,uint64,string,uint32,Mkdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">mkdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
               <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mkdir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Create a directory
 
 </dd>
 <dt id="unlink"><a name="unlink.e,FuseFs,Request,uint64,string,Unlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">unlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Unlink</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Remove a file
 
 </dd>
 <dt id="rmdir"><a name="rmdir.e,FuseFs,Request,uint64,string,Rmdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">rmdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
               <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rmdir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Remove a directory
 
 </dd>
 <dt id="symlink"><a name="symlink.e,FuseFs,Request,uint64,string,string,Symlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">symlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                 <span class="Identifier">link</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Symlink</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Create a symboilc link
 
 </dd>
 <dt id="rename"><a name="rename.e,FuseFs,Request,uint64,string,uint64,string,Rename"></a><pre><span class="Keyword">method</span> <span class="Identifier">rename</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">newdir</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rename</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Rename a file
 
 </dd>
 <dt id="link"><a name="link.e,FuseFs,Request,uint64,uint64,string,Link"></a><pre><span class="Keyword">method</span> <span class="Identifier">link</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newparent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
              <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Link</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Create a hard link
 
 </dd>
 <dt id="open"><a name="open.e,FuseFs,Request,uint64,uint32,Open"></a><pre><span class="Keyword">method</span> <span class="Identifier">open</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Open</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Open a file Open flags (with the exception of O_CREAT, O_EXCL, O_NOCTTY and O_TRUNC) are available in flags. Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other file operations (read, write, flush, release, fsync). Filesystem may also implement stateless file I/O and not store anything in fh. There are also some flags (direct_io, keep_cache) which the filesystem may set, to change the way the file is opened. See fuse_file_info structure in &lt;fuse_common.h&gt; for more details.
 
 </dd>
 <dt id="read"><a name="read.e,FuseFs,Request,uint64,uint64,uint64,uint32,Read"></a><pre><span class="Keyword">method</span> <span class="Identifier">read</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
              <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Read</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Read data Read should send exactly the number of bytes requested except on EOF or error, otherwise the rest of the data will be substituted with zeroes. An exception to this is when the file has been opened in 'direct_io' mode, in which case the return value of the read system call will reflect the return value of this operation. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value.
 
 </dd>
 <dt id="write"><a name="write.e,FuseFs,Request,uint64,uint64,uint64,Buf,uint32,Write"></a><pre><span class="Keyword">method</span> <span class="Identifier">write</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Write</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Write data Write should return exactly the number of bytes requested except on error. An exception to this is when the file has been opened in 'direct_io' mode, in which case the return value of the write system call will reflect the return value of this operation. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value.
 
 </dd>
 <dt id="flush"><a name="flush.e,FuseFs,Request,uint64,uint64,uint64,Flush"></a><pre><span class="Keyword">method</span> <span class="Identifier">flush</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Flush</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Flush method This is called on each close() of the opened file. Since file descriptors can be duplicated (dup, dup2, fork), for one open call there may be many flush calls. Filesystems shouldn't assume that flush will always be called after some writes, or that if will be called at all. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value. NOTE: the name of the method is misleading, since (unlike fsync) the filesystem is not forced to flush pending writes. One reason to flush data, is if the filesystem wants to return write errors. If the filesystem supports file locking operations (setlk, getlk) it should remove all locks belonging to 'lock_owner'.
 
 </dd>
 <dt id="release"><a name="release.e,FuseFs,Request,uint64,uint64,uint32,uint64,bool,Release"></a><pre><span class="Keyword">method</span> <span class="Identifier">release</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
                 <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flush</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Release</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Release an open file Release is called when there are no more references to an open file: all file descriptors are closed and all memory mappings are unmapped. For every open call there will be exactly one release call. The filesystem may reply with an error, but error values are not returned to close() or munmap() which triggered the release. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value. flags will contain the same flags as for open.
 
 </dd>
 <dt id="fsync"><a name="fsync.e,FuseFs,Request,uint64,uint64,bool,Fsync"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsync</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">datasync</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Fsync</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Synchronize file contents If the datasync parameter is non-zero, then only the user data should be flushed, not the meta data.
 
 </dd>
 <dt id="opendir"><a name="opendir.e,FuseFs,Request,uint64,uint32,Opendir"></a><pre><span class="Keyword">method</span> <span class="Identifier">opendir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
                 <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Opendir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Open a directory Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other directory stream operations (readdir, releasedir, fsyncdir). Filesystem may also implement stateless directory I/O and not store anything in fh, though that makes it impossible to implement standard conforming directory stream operations in case the contents of the directory can change between opendir and releasedir.
 
 </dd>
 <dt id="readdir"><a name="readdir.e,FuseFs,Request,uint64,uint64,uint64,Readdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">readdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
                 <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Read directory Send a buffer filled using buffer.fill(), with size not exceeding the requested size. Send an empty buffer on end of stream. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
 <dt id="releasedir"><a name="releasedir.e,FuseFs,Request,uint64,uint32,Releasedir"></a><pre><span class="Keyword">method</span> <span class="Identifier">releasedir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
                    <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Releasedir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Release an open directory For every opendir call there will be exactly one releasedir call. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
 <dt id="fsyncdir"><a name="fsyncdir.e,FuseFs,Request,uint64,uint64,bool,Fsyncdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsyncdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
                  <span class="Identifier">datasync</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Fsyncdir</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Synchronize directory contents If the datasync parameter is set, then only the directory contents should be flushed, not the meta data. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
 <dt id="statfs"><a name="statfs.e,FuseFs,Request,uint64,Statfs"></a><pre><span class="Keyword">method</span> <span class="Identifier">statfs</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Statfs</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Get file system statistics
 
 </dd>
 <dt id="setxattr"><a name="setxattr.e,FuseFs,Request,uint64,string,Buf,uint32,uint32,SetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                  <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">position</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Set an extended attribute
 
 </dd>
 <dt id="getxattr"><a name="getxattr.e,FuseFs,Request,uint64,string,GetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                  <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">GetXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Get an extended attribute
 
 </dd>
 <dt id="listxattr"><a name="listxattr.e,FuseFs,Request,uint64,ListXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">listxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">ListXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+List extended attribute names
 
 </dd>
 <dt id="removexattr"><a name="removexattr.e,FuseFs,Request,uint64,string,RemoveXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">removexattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                     <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">RemoveXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Remove an extended attribute
 
 </dd>
 <dt id="access"><a name="access.e,FuseFs,Request,uint64,uint32,Access"></a><pre><span class="Keyword">method</span> <span class="Identifier">access</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">mask</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Access</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Check file access permissions This will be called for the access() system call. If the 'default_permissions' mount option is given, this method is not called. This method is not called under Linux kernel versions 2.4.x
 
 </dd>
 <dt id="create"><a name="create.e,FuseFs,Request,uint64,string,uint32,uint32,Create"></a><pre><span class="Keyword">method</span> <span class="Identifier">create</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Create</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Create and open a file If the file does not exist, first create it with the specified mode, and then open it. Open flags (with the exception of O_NOCTTY) are available in flags. Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other file operations (read, write, flush, release, fsync). There are also some flags (direct_io, keep_cache) which the filesystem may set, to change the way the file is opened. See fuse_file_info structure in &lt;fuse_common.h&gt; for more details. If this method is not implemented or under Linux kernel versions earlier than 2.6.15, the mknod() and open() methods will be called instead.
 
 </dd>
 <dt id="getlk"><a name="getlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,Getlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">getlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Getlk</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Test for a POSIX file lock
 
 </dd>
 <dt id="setlk"><a name="setlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,bool,Setlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">setlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
               <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">sleep</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Setlk</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Acquire, modify or release a POSIX file lock For POSIX threads (NPTL) there's a 1-1 relation between pid and owner, but otherwise this is not always the case.  For checking lock ownership, 'fi-&gt;owner' must be used. The l_pid field in 'struct flock' should only be used to fill in this field in getlk(). Note: if the locking methods are not implemented, the kernel will still allow file locking to work locally. Hence these are only interesting for network filesystems and similar.
 
 </dd>
 <dt id="bmap"><a name="bmap.e,FuseFs,Request,uint64,uint32,uint64,Bmap"></a><pre><span class="Keyword">method</span> <span class="Identifier">bmap</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">blocksize</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
              <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Bmap</span><span class="Other">)</span></pre></dt>
 <dd>
-
+Map block index within file to block index within device Note: This makes sense only for block device backed filesystems mounted with the 'blkdev' option
 
 </dd>
 
@@ -2374,7 +2374,7 @@ Ack by the current buffer contents If nothing is in the buffer it notifies the e
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-07 08:23:38 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-07 09:57:00 UTC</small>
       </div>
     </div>
   </div>
