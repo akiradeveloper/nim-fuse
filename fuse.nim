@@ -75,7 +75,7 @@ proc asBuf*(self: Buf): Buf =
 proc `$`(self: TIOVec): string =
   "TIOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
 
-proc asTIOVec(self: Buf): TIOVec =
+proc asTIOVec*(self: Buf): TIOVec =
   TIOVec (
     iov_base: self.asPtr,
     iov_len: self.size,
@@ -105,7 +105,7 @@ proc mkBufT[T](o: T): Buf {.deprecated.} =
   result = mkBuf(sizeof(T))
   result.write(o)
 
-proc nullTerminated*(s: string): string =
+proc nullTerminated(s: string): string =
   ## Returns null terminated string of `s`
   ## The length is incremented
   ## e.g. mybuf.writeS("hoge".nullTerminated)
@@ -118,7 +118,7 @@ proc writeS*(self: Buf, s: string) =
   var vs = s
   self.write(addr(vs[0]), len(s))
 
-proc parseS*(self: Buf): string =
+proc parseS(self: Buf): string =
   ## Parse a null-terminated string in the buffer  
   $cstring(addr(self.data[0]))
 
@@ -237,7 +237,7 @@ type fuse_opcode* = enum
   FUSE_DESTROY = 38
 
 let
-  FUSE_MIN_READ_BUFFER* = 8192
+  FUSE_MIN_READ_BUFFER = 8192
 
 type fuse_entry_out* = object
   nodeid*: uint64
@@ -1068,7 +1068,7 @@ type Session = ref object
   destroyed: bool
 
 let
-  MAX_WRITE_BUFSIZE* = 16 * 1024 * 1024
+  MAX_WRITE_BUFSIZE = 16 * 1024 * 1024
 
 proc mkRaw(req: Request, se: Session): Raw =
   newRaw(se.chan.mkSender, req.header.unique)
