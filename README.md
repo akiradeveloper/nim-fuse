@@ -24,9 +24,10 @@ That's all. Everyone loves speed.
   this library with high coverage.  
 * I need Option type in the stdlib so that I remove
   handmaded one from this library.  
-* Add this to nimble database.  
 * Send this to upstream stdlib so people can reach
   more easily.  
+* MacOSX test.  
+* Travis setup.  
 
 ### Author
 
