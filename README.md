@@ -29,6 +29,12 @@ That's all. Everyone loves speed.
 * MacOSX test.  
 * Travis setup.  
 
+## Travis
+
+Still stub test 
+
+[![Build Status](https://travis-ci.org/akiradeveloper/nim-fuse.svg)](https://travis-ci.org/akiradeveloper/nim-fuse)
+
 ### Author
 
 Akira Hayakawa
