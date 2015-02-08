@@ -8,7 +8,8 @@ before_install:
 install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install libfuse-dev; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install osxfuse; fi
+  - git clone -b master git://github.com/Araq/Nim.git; cd Nim; git clone -b master --depth 1 git://github.com/nim-lang/csources; cd csources && sh build.sh; cd ..; bin/nim c koch; ./koch boot -d:release; cd ..
 before_script:
-  - echo 0
+  - export PATH=./Nim/bin:$PATH
 script:
-  - echo 0
+  - nim c hello
