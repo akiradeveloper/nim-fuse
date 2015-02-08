@@ -402,7 +402,7 @@ type fuse_getxattr_in* = object
     padding2: uint32
 
 type fuse_getxattr_out* = object
-  size*: uint32
+  size*: uint32 ## request of in-kernel buffer size (byte)
   padding: uint32
 
 type fuse_lk_in* = object
@@ -800,17 +800,42 @@ defErr(Statfs)
 defWrapper(SetXAttr)
 defErr(SetXAttr)
 
-# FIXME
 defWrapper(GetXAttr)
-defBuf(GetXAttr)
 defXAttr(GetXAttr)
 defErr(GetXAttr)
 
-# FIXME
+type GetXAttrData = ref object
+  raw: Raw
+  size: int
+proc ok*(self: GetXAttrData, data: TIOVec) =
+  if self.size < data.iov_len:
+    self.raw.err(-ERANGE)
+    return
+  self.raw.ok(@[data])
+defErr(GetXAttrData)
+
 defWrapper(ListXAttr)
-defBuf(ListXAttr)
 defXAttr(ListXAttr)
 defErr(ListXAttr)
+
+type ListXAttrData = ref object
+  raw: Raw
+  size: int
+proc ok*(self: ListXAttrData, keys: openArray[string]) =
+  var ss = newSeq[string](len(keys))
+  var size = 0
+  for i, k in keys:
+    ss[i] = k.nullTerminated
+    size += len(ss[i])
+  if self.size < size:
+    self.raw.err(-ERANGE)
+    return
+  # TODO Get addr of the strings and use iovec
+  let b = mkBuf(size)
+  for s in ss:
+    b.writeS(s)
+  self.raw.ok(@[b.asTIOVec])
+defErr(ListXAttrData)
 
 defWrapper(RemoveXAttr)
 defErr(RemoveXAttr)
