@@ -12,6 +12,13 @@ import strutils
 
 # ------------------------------------------------------------------------------
 
+# Darwin doesn't allow version < 25
+# It's recommended to set FUSE_USE_VERSION to 26 that's somehow 21 by default.
+{.passC: "-DFUSE_USE_VERSION=26".}
+
+{.passC: gorge("pkg-config --cflags fuse").}
+{.passL: gorge("pkg-config --libs fuse").}
+
 type
   OptionKind = enum
     kSome
@@ -751,8 +758,6 @@ defErr(Bmap)
 
 # ------------------------------------------------------------------------------
 
-{. passC: gorge("pkg-config --cflags fuse") .}
-{. passL: gorge("pkg-config --libs fuse") .}
 
 type fuse_args {. importc:"struct fuse_args", header:"<fuse.h>" .} = object
   argc: cint
