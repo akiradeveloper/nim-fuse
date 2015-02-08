@@ -1,0 +1,14 @@
+os:
+  - linux
+  - osx
+language: bash
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install libfuse-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install osxfuse; fi
+before_script:
+  - echo 0
+script:
+  - echo 0
