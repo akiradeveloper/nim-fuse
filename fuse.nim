@@ -126,7 +126,7 @@ proc writeS*(self: Buf, s: string) =
   self.write(addr(vs[0]), len(s))
 
 proc parseS(self: Buf): string =
-  ## Parse a null-terminated string in the buffer  
+  ## Parse a null-terminated string in the buffer
   $cstring(addr(self.data[0]))
 
 proc mkBufS(s: string): Buf {.deprecated.} =
@@ -171,7 +171,7 @@ type fuse_attr* = object
   rdev*: uint32
   when hostOS == "macosx":
     flags: uint32
-  
+
 type fuse_kstatfs* = object
   blocks*: uint64
   bfree*: uint64
@@ -200,80 +200,120 @@ let
   FATTR_MTIME = 1'u32 shl 5
   FATTR_FH = 1'u32 shl 6
 when hostOS == "macosx":
-  FATTR_CRTIME = 1'u32 shl 28
-  FATTR_CHGTIME = 1'u32 shl 29
-  FATTR_BKUPTIME = 1'u32 shl 30
-  FATTR_FLAGS = 1'u32 shl 31
+  let
+    FATTR_CRTIME = 1'u32 shl 28
+    FATTR_CHGTIME = 1'u32 shl 29
+    FATTR_BKUPTIME = 1'u32 shl 30
+    FATTR_FLAGS = 1'u32 shl 31
 
 let
   # Flags returned by the OPEN request
   FOPEN_DIRECT_IO* = 1'u32 shl 0
   FOPEN_KEEP_CACHE* = 1'u32 shl 1
 when hostOS == "macosx":
-  FOPEN_PURGE_ATTR = 1'u32 shl 30
-  FOPEN_PURGE_UBC = 1'u32 shl 31
+    let
+      FOPEN_PURGE_ATTR = 1'u32 shl 30
+      FOPEN_PURGE_UBC = 1'u32 shl 31
 
 let
   # INIT request/reply flags
   FUSE_ASYNC_READ* = 1'u32 shl 0
   FUSE_POSIX_LOCKS* = 1'u32 shl 1
 when hostOS == "macosx":
-  FUSE_CASE_INSENSITIVE = 1'u32 shl 29
-  FUSE_VOL_RENAME = 1'u32 shl 30
-  FUSE_XTIMES = 1'u32 shl 31
+  let
+    FUSE_CASE_INSENSITIVE = 1'u32 shl 29
+    FUSE_VOL_RENAME = 1'u32 shl 30
+    FUSE_XTIMES = 1'u32 shl 31
 
 let
   # Release flags
   FUSE_RELEASE_FLUSH = 1'u32 shl 0
 
-type fuse_opcode* = enum
-  FUSE_LOOKUP = 1
-  FUSE_FORGET = 2
-  FUSE_GETATTR = 3
-  FUSE_SETATTR = 4
-  FUSE_READLINK = 5
-  FUSE_SYMLINK = 6
-  FUSE_MKNOD = 8
-  FUSE_MKDIR = 9
-  FUSE_UNLINK = 10
-  FUSE_RMDIR = 11
-  FUSE_RENAME = 12
-  FUSE_LINK = 13
-  FUSE_OPEN = 14
-  FUSE_READ = 15
-  FUSE_WRITE = 16
-  FUSE_STATFS = 17
-  FUSE_RELEASE = 18
-  FUSE_FSYNC = 20
-  FUSE_SETXATTR = 21
-  FUSE_GETXATTR = 22
-  FUSE_LISTXATTR = 23
-  FUSE_REMOVEXATTR = 24
-  FUSE_FLUSH = 25
-  FUSE_INIT = 26
-  FUSE_OPENDIR = 27
-  FUSE_READDIR = 28
-  FUSE_RELEASEDIR = 29
-  FUSE_FSYNCDIR = 30
-  FUSE_GETLK = 31
-  FUSE_SETLK = 32
-  FUSE_SETLKW = 33
-  FUSE_ACCESS = 34
-  FUSE_CREATE = 35
-  FUSE_INTERRUPT = 36
-  FUSE_BMAP = 37
-  FUSE_DESTROY = 38
 when hostOS == "macosx":
-  FUSE_SETVOLNAME = 61
-  FUSE_GETXTIMES = 62
-  FUSE_EXCHANGE = 63
+  type fuse_opcode* = enum
+    FUSE_LOOKUP = 1
+    FUSE_FORGET = 2
+    FUSE_GETATTR = 3
+    FUSE_SETATTR = 4
+    FUSE_READLINK = 5
+    FUSE_SYMLINK = 6
+    FUSE_MKNOD = 8
+    FUSE_MKDIR = 9
+    FUSE_UNLINK = 10
+    FUSE_RMDIR = 11
+    FUSE_RENAME = 12
+    FUSE_LINK = 13
+    FUSE_OPEN = 14
+    FUSE_READ = 15
+    FUSE_WRITE = 16
+    FUSE_STATFS = 17
+    FUSE_RELEASE = 18
+    FUSE_FSYNC = 20
+    FUSE_SETXATTR = 21
+    FUSE_GETXATTR = 22
+    FUSE_LISTXATTR = 23
+    FUSE_REMOVEXATTR = 24
+    FUSE_FLUSH = 25
+    FUSE_INIT = 26
+    FUSE_OPENDIR = 27
+    FUSE_READDIR = 28
+    FUSE_RELEASEDIR = 29
+    FUSE_FSYNCDIR = 30
+    FUSE_GETLK = 31
+    FUSE_SETLK = 32
+    FUSE_SETLKW = 33
+    FUSE_ACCESS = 34
+    FUSE_CREATE = 35
+    FUSE_INTERRUPT = 36
+    FUSE_BMAP = 37
+    FUSE_DESTROY = 38
+    FUSE_SETVOLNAME = 61
+    FUSE_GETXTIMES = 62
+    FUSE_EXCHANGE = 63
+else:
+    FUSE_LOOKUP = 1
+    FUSE_FORGET = 2
+    FUSE_GETATTR = 3
+    FUSE_SETATTR = 4
+    FUSE_READLINK = 5
+    FUSE_SYMLINK = 6
+    FUSE_MKNOD = 8
+    FUSE_MKDIR = 9
+    FUSE_UNLINK = 10
+    FUSE_RMDIR = 11
+    FUSE_RENAME = 12
+    FUSE_LINK = 13
+    FUSE_OPEN = 14
+    FUSE_READ = 15
+    FUSE_WRITE = 16
+    FUSE_STATFS = 17
+    FUSE_RELEASE = 18
+    FUSE_FSYNC = 20
+    FUSE_SETXATTR = 21
+    FUSE_GETXATTR = 22
+    FUSE_LISTXATTR = 23
+    FUSE_REMOVEXATTR = 24
+    FUSE_FLUSH = 25
+    FUSE_INIT = 26
+    FUSE_OPENDIR = 27
+    FUSE_READDIR = 28
+    FUSE_RELEASEDIR = 29
+    FUSE_FSYNCDIR = 30
+    FUSE_GETLK = 31
+    FUSE_SETLK = 32
+    FUSE_SETLKW = 33
+    FUSE_ACCESS = 34
+    FUSE_CREATE = 35
+    FUSE_INTERRUPT = 36
+    FUSE_BMAP = 37
+    FUSE_DESTROY = 38
 
 let
   FUSE_MIN_READ_BUFFER = 8192
 
 type fuse_entry_out* = object
   nodeid*: uint64
-  generation*: uint64 
+  generation*: uint64
   entry_valid*: uint64
   attr_valid*: uint64
   entry_valid_nsec*: uint32
@@ -299,7 +339,7 @@ when hostOS == "macosx":
 type fuse_mknod_in* = object
   mode*: uint32
   rdev*: uint32
-  
+
 type fuse_mkdir_in* = object
   mode*: uint32
   padding: uint32
@@ -775,7 +815,7 @@ proc tryAdd(self: Readdir, ino: uint64, off: uint64, st_mode: uint32, name: stri
   return true
 
 proc tryAdd*(self: Readdir, ino: uint64, idx: uint64, mode: TMode, name: string): bool =
-  ## Try to add the entry 
+  ## Try to add the entry
   ## If the buffer is too small for the entry then it returns false
   tryAdd(self, ino, idx, mode.uint32, name)
 
@@ -786,7 +826,7 @@ proc ok*(self: Readdir) =
   self.data.pos = 0
   self.raw.ok(@[self.data.asTIOVec])
 defErr(Readdir)
- 
+
 defWrapper(Releasedir)
 defErr(Releasedir)
 
@@ -866,12 +906,24 @@ when hostOS == "macosx":
   defErr(Exchange)
 
   defWrapper(GetXTimes)
+
+  discard """
+    ERROR: proc getxtimes() does not compile on OSX!
+
+    fuse.nim(911, 12) Error: type mismatch: got (Raw, fuse_getxtimes_out)
+      but expected one of:
+      fuse.ok(self: Raw, iovs: openarray[TIOVec])
+      fuse.ok(self: Any, iovs: openarray[TIOVec])
+      fuse.ok(self: Readdir)
+      fuse.ok(self: GetXAttrData, data: TIOVec)
+      fuse.ok(self: ListXAttrData, keys: openarray[string])
+  """
   proc getxtimes(self: GetXTimes, bkuptime: Ttimespec, crtime: Ttimespec) =
     self.raw.ok(fuse_get_xtimes_out (
-      bkuptimes: bkuptime.tv_sec,
-      crtime: crtime.tv_sec,
-      bkuptimensec: bkuptime.tv_nsec,
-      crtimensec: crtime.tv_nsec
+      bkuptime: bkuptime.tv_sec.uint64,
+      crtime: crtime.tv_sec.uint64,
+      bkuptimensec: bkuptime.tv_nsec.uint32,
+      crtimensec: crtime.tv_nsec.uint32
     ))
   defErr(GetXTimes)
 
@@ -886,7 +938,7 @@ type fuse_args {. importc:"struct fuse_args", header:"<fuse.h>" .} = object
 proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {. importc, header:"<fuse.h>" .}
 proc fuse_unmount_compat22(mountpoint: cstring) {. importc, header: "<fuse.h>" .}
 
-type Channel = ref object 
+type Channel = ref object
   mount_point: string
   fd: cint
 
@@ -1188,15 +1240,16 @@ when hostOS == "macosx":
   method setvolume(self: FuseFs, req: Request, name: string, reply: SetVolname) =
     reply.err(-ENOSYS)
 
-  method exchange(self: FuseFs, req: Request, parent: uint64, name: string, newparent: uint64, options: u64, reply: Exchange) =
+  method exchange(self: FuseFs, req: Request, parent: uint64, name: string, newparent: uint64, options: uint64, reply: Exchange) =
     reply.err(-ENOSYS)
 
+  # ERROR ON OSX: `XTimes` is unknown!
   method getxtimes(self: FuseFs, req: Request, ino: uint64, reply: XTimes) =
     reply.err(-ENOSYS)
 
 # ------------------------------------------------------------------------------
 
-type Session = ref object 
+type Session = ref object
   fs: FuseFs
   chan: Channel
   initialized: bool
@@ -1491,7 +1544,7 @@ proc loop(self: Session) =
   var buf = mkBuf(initsize)
   while not self.destroyed:
     # reset for the next fetch
-    buf.pos = 0  
+    buf.pos = 0
     buf.size = initsize
     let err = self.chan.fetch(buf)
     if err == 0:
