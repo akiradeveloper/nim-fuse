@@ -56,7 +56,7 @@ proc unwrap*[T](o: Option[T]): T =
 type Buf* = ref object
   data: seq[char]
   size*: int
-  pos*: int # TODO rename to cursor
+  pos*: int
 
 proc mkBuf*(size: int): Buf =
   ## Make a buf object of `size` bytes
@@ -157,14 +157,20 @@ type fuse_attr* = object
   atime*: uint64
   mtime*: uint64
   ctime*: uint64
+  when hostOS == "macosx":
+    crtime*: uint64
   atimensec*: uint32
   mtimensec*: uint32
   ctimensec*: uint32
+  when hostOS == "macosx":
+    crtimensec*: uint32
   mode*: uint32
   nlink*: uint32
   uid*: uint32
   gid*: uint32
   rdev*: uint32
+  when hostOS == "macosx":
+    flags: uint32
   
 type fuse_kstatfs* = object
   blocks*: uint64
@@ -193,15 +199,30 @@ let
   FATTR_ATIME = 1'u32 shl 4
   FATTR_MTIME = 1'u32 shl 5
   FATTR_FH = 1'u32 shl 6
+when hostOS == "macosx":
+  FATTR_CRTIME = 1'u32 shl 28
+  FATTR_CHGTIME = 1'u32 shl 29
+  FATTR_BKUPTIME = 1'u32 shl 30
+  FATTR_FLAGS = 1'u32 shl 31
 
+let
   # Flags returned by the OPEN request
   FOPEN_DIRECT_IO* = 1'u32 shl 0
   FOPEN_KEEP_CACHE* = 1'u32 shl 1
+when hostOS == "macosx":
+  FOPEN_PURGE_ATTR = 1'u32 shl 30
+  FOPEN_PURGE_UBC = 1'u32 shl 31
 
+let
   # INIT request/reply flags
   FUSE_ASYNC_READ* = 1'u32 shl 0
   FUSE_POSIX_LOCKS* = 1'u32 shl 1
+when hostOS == "macosx":
+  FUSE_CASE_INSENSITIVE = 1'u32 shl 29
+  FUSE_VOL_RENAME = 1'u32 shl 30
+  FUSE_XTIMES = 1'u32 shl 31
 
+let
   # Release flags
   FUSE_RELEASE_FLUSH = 1'u32 shl 0
 
@@ -242,6 +263,10 @@ type fuse_opcode* = enum
   FUSE_INTERRUPT = 36
   FUSE_BMAP = 37
   FUSE_DESTROY = 38
+when hostOS == "macosx":
+  FUSE_SETVOLNAME = 61
+  FUSE_GETXTIMES = 62
+  FUSE_EXCHANGE = 63
 
 let
   FUSE_MIN_READ_BUFFER = 8192
@@ -264,6 +289,13 @@ type fuse_attr_out* = object
   dummy: uint32
   attr*: fuse_attr
 
+when hostOS == "macosx":
+  type fuse_getxtimes_out = object
+    bkuptime: uint64
+    crtime: uint64
+    bkuptimensec: uint32
+    crtimensec: uint32
+
 type fuse_mknod_in* = object
   mode*: uint32
   rdev*: uint32
@@ -274,6 +306,12 @@ type fuse_mkdir_in* = object
 
 type fuse_rename_in* = object
   newdir*: uint64
+
+when hostOS == "macosx":
+  type fuse_exchange_in = object
+    olddir: uint64
+    newdir: uint64
+    options: uint64
 
 type fuse_link_in* = object
   oldnodeid*: uint64
@@ -295,6 +333,14 @@ type fuse_setattr_in* = object
   uid*: uint32
   gid*: uint32
   unused5: uint32
+  when hostOS == "macosx":
+    bkuptime: uint64
+    chgtime: uint64
+    crttime: uint64
+    bkuptimensec: uint32
+    chgtimensec: uint32
+    crtimensec: uint32
+    flags: uint32
 
 type fuse_open_in* = object
   flags*: uint32
@@ -344,10 +390,16 @@ type fuse_fsync_in* = object
 type fuse_setxattr_in* = object
   size*: uint32
   flags*: uint32
+  when hostOS == "macosx":
+    position: uint32
+    padding: uint32
 
 type fuse_getxattr_in* = object
   size*: uint32
   padding: uint32
+  when hostOS == "macosx":
+    position: uint32
+    padding2: uint32
 
 type fuse_getxattr_out* = object
   size*: uint32
@@ -420,29 +472,54 @@ type FileAttr* = ref object
   atime*: Ttimespec
   mtime*: Ttimespec
   ctime*: Ttimespec
+  crtime*: Ttimespec ## macosx
   mode*: TMode
   nlink*: uint32
   uid*: uint32
   gid*: uint32
   rdev*: uint32
+  flags*: uint32 ## macosx
 
-proc fuse_attr_of(at: FileAttr): fuse_attr =
-  result = fuse_attr(
-    ino: at.ino,
-    size: at.size,
-    atime: at.atime.tv_sec.uint64,
-    atimensec: at.atime.tv_nsec.uint32,
-    mtime: at.mtime.tv_sec.uint64,
-    mtimensec: at.mtime.tv_nsec.uint32,
-    ctime: at.ctime.tv_sec.uint64,
-    ctimensec: at.ctime.tv_nsec.uint32,
-    mode: at.mode.uint32,
-    nlink: at.nlink,
-    uid: at.uid,
-    gid: at.gid,
-    rdev: at.rdev,
-  )
-  debug("attr:$1", expr(result))
+when hostOS == "macosx":
+  proc fuse_attr_of(at: FileAttr): fuse_attr =
+    result = fuse_attr (
+      ino: at.ino,
+      size: at.size,
+      blocks: at.blocks,
+      atime: at.atime.tv_sec.uint64,
+      mtime: at.mtime.tv_sec.uint64,
+      ctime: at.ctime.tv_sec.uint64,
+      crtime: at.crtime.tv_sec.uint64,
+      atimensec: at.atime.tv_nsec.uint32,
+      mtimensec: at.mtime.tv_nsec.uint32,
+      ctimensec: at.ctime.tv_nsec.uint32,
+      crtimensec: at.crtime.tv_nsec.uint32,
+      nlink: at.nlink,
+      uid: at.uid,
+      gid: at.gid,
+      rdev: at.rdev,
+      flags: at.flags,
+    )
+    debug("attr:$1", expr(result))
+else:
+  proc fuse_attr_of(at: FileAttr): fuse_attr =
+    result = fuse_attr(
+      ino: at.ino,
+      size: at.size,
+      blocks: at.blocks,
+      atime: at.atime.tv_sec.uint64,
+      mtime: at.mtime.tv_sec.uint64,
+      ctime: at.ctime.tv_sec.uint64,
+      atimensec: at.atime.tv_nsec.uint32,
+      mtimensec: at.mtime.tv_nsec.uint32,
+      ctimensec: at.ctime.tv_nsec.uint32,
+      mode: at.mode.uint32,
+      nlink: at.nlink,
+      uid: at.uid,
+      gid: at.gid,
+      rdev: at.rdev,
+    )
+    debug("attr:$1", expr(result))
 
 type Sender = ref object of RootObj
 method send(self: Sender, iovs: var openArray[TIOVec]): int =
@@ -756,6 +833,23 @@ defWrapper(Bmap)
 defBmap(Bmap)
 defErr(Bmap)
 
+when hostOS == "macosx":
+  defWrapper(SetVolname)
+  defErr(SetVolname)
+
+  defWrapper(Exchange)
+  defErr(Exchange)
+
+  defWrapper(GetXTimes)
+  proc getxtimes(self: GetXTimes, bkuptime: Ttimespec, crtime: Ttimespec) =
+    self.raw.ok(fuse_get_xtimes_out (
+      bkuptimes: bkuptime.tv_sec,
+      crtime: crtime.tv_sec,
+      bkuptimensec: bkuptime.tv_nsec,
+      crtimensec: crtime.tv_nsec
+    ))
+  defErr(GetXTimes)
+
 # ------------------------------------------------------------------------------
 
 
@@ -782,6 +876,7 @@ proc connect(mount_point: string, mount_options: openArray[string]): Channel =
   Channel(mount_point:mount_point, fd:fd)
 
 proc disconnect(chan: Channel) =
+  # FIXME only linux
   fuse_unmount_compat22(chan.mount_point)
 
 proc fetch(chan: Channel, buf: Buf): int =
@@ -1064,6 +1159,16 @@ method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: ui
   ## with the 'blkdev' option
   reply.err(-ENOSYS)
 
+when hostOS == "macosx":
+  method setvolume(self: FuseFs, req: Request, name: string, reply: SetVolname) =
+    reply.err(-ENOSYS)
+
+  method exchange(self: FuseFs, req: Request, parent: uint64, name: string, newparent: uint64, options: u64, reply: Exchange) =
+    reply.err(-ENOSYS)
+
+  method getxtimes(self: FuseFs, req: Request, ino: uint64, reply: XTimes) =
+    reply.err(-ENOSYS)
+
 # ------------------------------------------------------------------------------
 
 type Session = ref object 
@@ -1124,6 +1229,11 @@ defNew(Getlk)
 defNew(Setlk)
 defNew(Bmap)
 
+when hostOS == "macosx":
+  defNew(SetVolname)
+  defNew(Exchange)
+  defNew(GetXTimes)
+
 proc dispatch(req: Request, se: Session) =
   let anyReply = newAny(req, se)
 
@@ -1167,9 +1277,14 @@ proc dispatch(req: Request, se: Session) =
     let atime = if (arg.valid and FATTR_ATIME) != 0: Some(Ttimespec(tv_sec:arg.atime.Time, tv_nsec:arg.atimensec.int)) else: None[Ttimespec]()
     let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Ttimespec(tv_sec:arg.mtime.Time, tv_nsec:arg.mtimensec.int)) else: None[Ttimespec]()
     let fh = if (arg.valid and FATTR_FH) != 0: Some(arg.fh) else: None[uint64]()
-
-    # FIXME this is linux only
-    fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, None[Ttimespec](), None[Ttimespec](), None[Ttimespec](), None[uint32](), newSetAttr(req, se))
+    when hostOS == "macosx":
+      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Ttimespec(tv_sec:arg.crtime, tv_nsec:arg.crtimensec.int)) else: None[Ttimespec]()
+      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Ttimespec(tv_sec:arg.chgtime, tv_nsec:arg.chgtimensec.int)) else: None[Ttimespec]()
+      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Ttimespec(tv_sec:arg.bkuptime, tv_nsec:arg.bkuptimensec.int)) else: None[Ttimespec]()
+      let flags = if (arg.valid and FATTR_FLAGS) != 0: Some(arg.flags) else: None[uint32]()
+      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime, bkuptime, flags, newSetAttr(req, se))
+    else:
+      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, None[Ttimespec](), None[Ttimespec](), None[Ttimespec](), None[uint32](), newSetAttr(req, se))
 
   of FUSE_READLINK:
     fs.readlink(req, hd.nodeid, newReadlink(req, se))
@@ -1227,7 +1342,10 @@ proc dispatch(req: Request, se: Session) =
     let key = req.data.parseS
     req.data.pos += (len(key) + 1)
     let value = req.data.asBuf
-    let pos = 0'u32
+    when hostOS == "macosx":
+      let pos = arg.position.uint32
+    else:
+      let pos = 0'u32
     fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(req, se))
   of FUSE_GETXATTR:
     # FIXME
@@ -1303,6 +1421,19 @@ proc dispatch(req: Request, se: Session) =
     fs.destroy(req)
     se.destroyed = true
     newAny(req, se).ok(@[])
+  when hostOS == "macosx":
+    case opcode:
+    of FUSE_SETVOLNAME:
+      let name = data.parseS
+      fs.setvolname(req, name, newSetVolname(req, se))
+    of FUSE_GETXTIMES:
+      fs.getxtimes(req, hd.nodeid, newGetXTimes(req, se))
+    of FUSE_EXCHANGE:
+      let arg = read[fuse_exchange_in](data)
+      let oldname = data.parseS
+      data.pos += (len(oldname) + 1)
+      let newname = data.parseS
+      fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options, newExchange)
 
 proc mkSession(fs: FuseFs, chan: Channel): Session =
   Session (
