@@ -271,6 +271,7 @@ when hostOS == "macosx":
     FUSE_GETXTIMES = 62
     FUSE_EXCHANGE = 63
 else:
+  type fuse_opcode* = enum
     FUSE_LOOKUP = 1
     FUSE_FORGET = 2
     FUSE_GETATTR = 3

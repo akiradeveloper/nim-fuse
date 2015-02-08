@@ -1175,14 +1175,22 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   atime*: uint64
   mtime*: uint64
   ctime*: uint64
+  when hostOS == &quot;macosx&quot;: 
+      crtime*: uint64
+
   atimensec*: uint32
   mtimensec*: uint32
   ctimensec*: uint32
+  when hostOS == &quot;macosx&quot;: 
+      crtimensec*: uint32
+
   mode*: uint32
   nlink*: uint32
   uid*: uint32
   gid*: uint32
-  rdev*: uint32"><wbr />fuse_<wbr />attr</a></li>
+  rdev*: uint32
+  when hostOS == &quot;macosx&quot;: 
+      flags: uint32"><wbr />fuse_<wbr />attr</a></li>
   <li><a class="reference" href="#fuse_kstatfs"
     title="fuse_kstatfs* = object 
   blocks*: uint64
@@ -1212,7 +1220,8 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   FUSE_OPENDIR = 27, FUSE_READDIR = 28, FUSE_RELEASEDIR = 29, 
   FUSE_FSYNCDIR = 30, FUSE_GETLK = 31, FUSE_SETLK = 32, FUSE_SETLKW = 33, 
   FUSE_ACCESS = 34, FUSE_CREATE = 35, FUSE_INTERRUPT = 36, FUSE_BMAP = 37, 
-  FUSE_DESTROY = 38"><wbr />fuse_<wbr />opcode</a></li>
+  FUSE_DESTROY = 38, FUSE_SETVOLNAME = 61, FUSE_GETXTIMES = 62, 
+  FUSE_EXCHANGE = 63"><wbr />fuse_<wbr />opcode</a></li>
   <li><a class="reference" href="#fuse_entry_out"
     title="fuse_entry_out* = object 
   nodeid*: uint64
@@ -1262,7 +1271,15 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   unused4: uint32
   uid*: uint32
   gid*: uint32
-  unused5: uint32"><wbr />fuse_<wbr />setattr_<wbr />in</a></li>
+  unused5: uint32
+  when hostOS == &quot;macosx&quot;: 
+      bkuptime: uint64
+      chgtime: uint64
+      crttime: uint64
+      bkuptimensec: uint32
+      chgtimensec: uint32
+      crtimensec: uint32
+      flags: uint32"><wbr />fuse_<wbr />setattr_<wbr />in</a></li>
   <li><a class="reference" href="#fuse_open_in"
     title="fuse_open_in* = object 
   flags*: uint32
@@ -1311,11 +1328,17 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <li><a class="reference" href="#fuse_setxattr_in"
     title="fuse_setxattr_in* = object 
   size*: uint32
-  flags*: uint32"><wbr />fuse_<wbr />setxattr_<wbr />in</a></li>
+  flags*: uint32
+  when hostOS == &quot;macosx&quot;: 
+      position: uint32
+      padding: uint32"><wbr />fuse_<wbr />setxattr_<wbr />in</a></li>
   <li><a class="reference" href="#fuse_getxattr_in"
     title="fuse_getxattr_in* = object 
   size*: uint32
-  padding: uint32"><wbr />fuse_<wbr />getxattr_<wbr />in</a></li>
+  padding: uint32
+  when hostOS == &quot;macosx&quot;: 
+      position: uint32
+      padding2: uint32"><wbr />fuse_<wbr />getxattr_<wbr />in</a></li>
   <li><a class="reference" href="#fuse_getxattr_out"
     title="fuse_getxattr_out* = object 
   size*: uint32
@@ -1386,11 +1409,13 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   atime*: Ttimespec
   mtime*: Ttimespec
   ctime*: Ttimespec
+  crtime*: Ttimespec
   mode*: TMode
   nlink*: uint32
   uid*: uint32
   gid*: uint32
-  rdev*: uint32"><wbr />File<wbr />Attr</a></li>
+  rdev*: uint32
+  flags*: uint32              ## macosx"><wbr />File<wbr />Attr</a></li>
   <li><a class="reference" href="#TEntryOut"
     title="TEntryOut* = ref object 
   generation*: uint64
@@ -1467,6 +1492,10 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="tryAdd*(self: Readdir; ino: uint64; idx: uint64; mode: TMode; name: string): bool"><wbr />try<wbr />Add</a></li>
   <li><a class="reference" href="#ok,Readdir"
     title="ok*(self: Readdir)"><wbr />ok</a></li>
+  <li><a class="reference" href="#ok,GetXAttrData,TIOVec"
+    title="ok*(self: GetXAttrData; data: TIOVec)"><wbr />ok</a></li>
+  <li><a class="reference" href="#ok,ListXAttrData,openArray[string]"
+    title="ok*(self: ListXAttrData; keys: openArray[string])"><wbr />ok</a></li>
   <li><a class="reference" href="#mount,FuseFs,string,openArray[string]"
     title="mount*(fs: FuseFs; mountpoint: string; options: openArray[string])"><wbr />mount</a></li>
 
@@ -1609,15 +1638,24 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <span class="Identifier">atime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
   <span class="Identifier">mtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
   <span class="Identifier">ctime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">crtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+
   <span class="Identifier">atimensec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">mtimensec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">ctimensec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">crtimensec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+
   <span class="Identifier">mode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">nlink</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">rdev</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-</pre></dt>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+
+  </pre></dt>
 <dd>
 
 
@@ -1658,7 +1696,8 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <span class="Identifier">FUSE_OPENDIR</span> <span class="Other">=</span> <span class="DecNumber">27</span><span class="Other">,</span> <span class="Identifier">FUSE_READDIR</span> <span class="Other">=</span> <span class="DecNumber">28</span><span class="Other">,</span> <span class="Identifier">FUSE_RELEASEDIR</span> <span class="Other">=</span> <span class="DecNumber">29</span><span class="Other">,</span> 
   <span class="Identifier">FUSE_FSYNCDIR</span> <span class="Other">=</span> <span class="DecNumber">30</span><span class="Other">,</span> <span class="Identifier">FUSE_GETLK</span> <span class="Other">=</span> <span class="DecNumber">31</span><span class="Other">,</span> <span class="Identifier">FUSE_SETLK</span> <span class="Other">=</span> <span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">FUSE_SETLKW</span> <span class="Other">=</span> <span class="DecNumber">33</span><span class="Other">,</span> 
   <span class="Identifier">FUSE_ACCESS</span> <span class="Other">=</span> <span class="DecNumber">34</span><span class="Other">,</span> <span class="Identifier">FUSE_CREATE</span> <span class="Other">=</span> <span class="DecNumber">35</span><span class="Other">,</span> <span class="Identifier">FUSE_INTERRUPT</span> <span class="Other">=</span> <span class="DecNumber">36</span><span class="Other">,</span> <span class="Identifier">FUSE_BMAP</span> <span class="Other">=</span> <span class="DecNumber">37</span><span class="Other">,</span> 
-  <span class="Identifier">FUSE_DESTROY</span> <span class="Other">=</span> <span class="DecNumber">38</span></pre></dt>
+  <span class="Identifier">FUSE_DESTROY</span> <span class="Other">=</span> <span class="DecNumber">38</span><span class="Other">,</span> <span class="Identifier">FUSE_SETVOLNAME</span> <span class="Other">=</span> <span class="DecNumber">61</span><span class="Other">,</span> <span class="Identifier">FUSE_GETXTIMES</span> <span class="Other">=</span> <span class="DecNumber">62</span><span class="Other">,</span> 
+  <span class="Identifier">FUSE_EXCHANGE</span> <span class="Other">=</span> <span class="DecNumber">63</span></pre></dt>
 <dd>
 
 
@@ -1740,7 +1779,16 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">unused5</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-</pre></dt>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">bkuptime</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+      <span class="Identifier">chgtime</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+      <span class="Identifier">crttime</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+      <span class="Identifier">bkuptimensec</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+      <span class="Identifier">chgtimensec</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+      <span class="Identifier">crtimensec</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+      <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+
+  </pre></dt>
 <dd>
 
 
@@ -1829,7 +1877,11 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <dt id="fuse_setxattr_in"><a name="fuse_setxattr_in"></a><pre><span class="Identifier">fuse_setxattr_in</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
   <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-</pre></dt>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">position</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+      <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+
+  </pre></dt>
 <dd>
 
 
@@ -1837,7 +1889,11 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <dt id="fuse_getxattr_in"><a name="fuse_getxattr_in"></a><pre><span class="Identifier">fuse_getxattr_in</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
   <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-</pre></dt>
+  <span class="Keyword">when</span> <span class="Identifier">hostOS</span> <span class="Operator">==</span> <span class="StringLit">&quot;macosx&quot;</span><span class="Other">:</span> 
+      <span class="Identifier">position</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+      <span class="Identifier">padding2</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+
+  </pre></dt>
 <dd>
 
 
@@ -1847,7 +1903,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
 </pre></dt>
 <dd>
-
+request of in-kernel buffer size (byte)
 
 </dd>
 <dt id="fuse_lk_in"><a name="fuse_lk_in"></a><pre><span class="Identifier">fuse_lk_in</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
@@ -1959,14 +2015,16 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <span class="Identifier">atime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
   <span class="Identifier">mtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
   <span class="Identifier">ctime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
+  <span class="Identifier">crtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
   <span class="Identifier">mode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TMode</span>
   <span class="Identifier">nlink</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">rdev</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-</pre></dt>
+  <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>              <span class="Comment">## macosx</span>
+  </pre></dt>
 <dd>
-
+macosx
 
 </dd>
 <dt id="TEntryOut"><a name="TEntryOut"></a><pre><span class="Identifier">TEntryOut</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
@@ -2129,6 +2187,16 @@ Try to add the entry If the buffer is too small for the entry then it returns fa
 <dt id="ok"><a name="ok,Readdir"></a><pre><span class="Keyword">proc</span> <span class="Identifier">ok</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">)</span></pre></dt>
 <dd>
 Ack by the current buffer contents If nothing is in the buffer it notifies the end of the stream.
+
+</dd>
+<dt id="ok"><a name="ok,GetXAttrData,TIOVec"></a><pre><span class="Keyword">proc</span> <span class="Identifier">ok</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">GetXAttrData</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">TIOVec</span><span class="Other">)</span></pre></dt>
+<dd>
+
+
+</dd>
+<dt id="ok"><a name="ok,ListXAttrData,openArray[string]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">ok</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ListXAttrData</span><span class="Other">;</span> <span class="Identifier">keys</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
+<dd>
+
 
 </dd>
 <dt id="mount"><a name="mount,FuseFs,string,openArray[string]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mount</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">fs</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">mountpoint</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">options</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
@@ -2353,7 +2421,7 @@ Map block index within file to block index within device Note: This makes sense 
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-07 19:30:35 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-09 08:47:42 UTC</small>
       </div>
     </div>
   </div>
