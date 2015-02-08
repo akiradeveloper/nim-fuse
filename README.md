@@ -2,6 +2,8 @@
 
 A FUSE Binding for Nim
 
+[![Build Status](https://travis-ci.org/akiradeveloper/nim-fuse.svg)](https://travis-ci.org/akiradeveloper/nim-fuse)
+
 ### Browse API
 
 https://rawgit.com/akiradeveloper/nim-fuse/master/fuse.html
@@ -29,16 +31,10 @@ That's all. Everyone loves speed.
 * MacOSX test.  
 * Travis setup.  
 
-## Travis
-
-Still stub test 
-
-[![Build Status](https://travis-ci.org/akiradeveloper/nim-fuse.svg)](https://travis-ci.org/akiradeveloper/nim-fuse)
-
-### Author
-
-Akira Hayakawa
-
 This is my first nim project.
 I think there are lot of things remained to improve.
 Feel free to comment or send pull request.
+
+### Author
+
+Akira Hayakawa (ruby.wktk@gmail.com)
