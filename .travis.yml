@@ -16,6 +16,7 @@ before_script:
   - export PATH=./Nim/bin:$PATH
 script:
   - set -e
+  - set -x
   - nim c hello
   # Travis CI doesn't support fuse.
   # Running the test on UML is a workaround but only in Linux.
