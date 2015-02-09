@@ -7,6 +7,7 @@ def mount(cmd, &block)
   # p `pwd`
   s "rm -rf mnt; mkdir mnt"
   pid = fork do
+    p `ls`
     s cmd
   end
   sleep 5 # FIXME not always work
