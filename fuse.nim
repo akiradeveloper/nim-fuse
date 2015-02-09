@@ -1463,7 +1463,6 @@ proc dispatch(req: Request, se: Session) =
     se.initialized = true
     var initVar = init
     anyReply.ok(@[mkTIOVecT(initVar)])
-    echo "nim-fuse: init"
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
     fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))

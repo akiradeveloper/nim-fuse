@@ -10,7 +10,7 @@ def mount(cmd, &block)
     p `ls`
     s cmd
   end
-  sleep 5 # FIXME not always work
+  sleep 10 # FIXME not always work
   block.call
   # p `pwd`
   # s "fusermount -u mnt"
@@ -20,7 +20,7 @@ end
 def t(cmd, &block)
   result = s cmd
   e = `echo $?`.to_i
-  # p result
+  p result
   exit false unless e == 0
   return unless block
   exit false unless block.call(result)
