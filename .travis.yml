@@ -1,7 +1,7 @@
 os:
   - linux
   - osx
-language: objective-c
+language: go
 env:
   - BRANCH="master"
   - BRANCH="devel"
@@ -15,5 +15,5 @@ install:
 before_script:
   - export PATH=./Nim/bin:$PATH
 script:
-  - nim c --os:linux --compile_only hello
   - nim c hello
+  - ruby test_hello.rb
