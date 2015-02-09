@@ -1,5 +1,6 @@
 def s(cmd)
   # `sudo #{cmd}`
+  p cmd
   `#{cmd}`
 end
 
@@ -9,6 +10,7 @@ def mount(cmd, &block)
   pid = fork do
     s cmd
   end
+  p pid
   block.call
   s "kill -9 #{pid}"
 end
