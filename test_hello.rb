@@ -33,5 +33,8 @@ mount "./hello mnt" do
     result.split.size == 3
   end
   Dir.chdir "mnt"
+  t "cat hello.txt" do |result|
+    result.chomp == "Hello World"
+  end
   Dir.chdir ".."
 end
