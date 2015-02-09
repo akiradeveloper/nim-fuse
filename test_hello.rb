@@ -1,38 +1,37 @@
 def s(cmd)
-  # `sudo #{cmd}`
   p cmd
   `#{cmd}`
 end
 
 def mount(cmd, &block)
-  # s "modprobe fuse"
-  # ENV['mounted'] = "false"
-  s "mkdir mnt"
+  # p `pwd`
+  s "rm -rf mnt; mkdir mnt"
   pid = fork do
     s cmd
-    # ENV['mounted'] = "true"
   end
-  sleep 10
-  # next until ENV['mounted'] == "true" # busy loop
-  p pid
+  sleep 5 # FIXME not always work
   block.call
+  # p `pwd`
+  # s "fusermount -u mnt"
   s "kill -9 #{pid}"
 end
 
 def t(cmd, &block)
   result = s cmd
-  p result
-  exit false unless `$?` == 0
+  e = `echo $?`.to_i
+  # p result
+  exit false unless e == 0
   return unless block
   exit false unless block.call(result)
 end
 
 mount "./hello mnt" do
   t "ls mnt" do |result|
-    result.len == 1
+    result.split.size == 1
   end
   t "ls -a mnt" do |result|
-    result.len == 3
+    result.split.size == 3
   end
-  t "cd mnt"
+  Dir.chdir "mnt"
+  Dir.chdir ".."
 end
