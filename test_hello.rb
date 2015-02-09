@@ -1,9 +1,10 @@
 def s(cmd)
-  `sudo #{cmd}`
+  # `sudo #{cmd}`
+  `#{cmd}`
 end
 
 def mount(cmd, &block)
-  s "modprobe fuse"
+  # s "modprobe fuse"
   s "mkdir mnt"
   pid = fork do
     s cmd

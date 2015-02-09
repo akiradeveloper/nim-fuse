@@ -9,11 +9,11 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
 install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install libfuse-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install libfuse-dev pkg-config fuse user-mode-linux; sudo mknod /dev/fuse c 10 229; sudo chmod 666 /dev/fuse; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install osxfuse; fi
   - git clone -b $BRANCH git://github.com/Araq/Nim.git; cd Nim; git clone -b $BRANCH --depth 1 git://github.com/nim-lang/csources; cd csources && sh build.sh; cd ..; bin/nim c koch; ./koch boot -d:release; cd ..
 before_script:
   - export PATH=./Nim/bin:$PATH
 script:
   - nim c hello
-  - ruby test_hello.rb
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./uml_bridge.sh hello; fi
