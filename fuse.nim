@@ -211,9 +211,9 @@ let
   FOPEN_DIRECT_IO* = 1'u32 shl 0
   FOPEN_KEEP_CACHE* = 1'u32 shl 1
 when hostOS == "macosx":
-    let
-      FOPEN_PURGE_ATTR = 1'u32 shl 30
-      FOPEN_PURGE_UBC = 1'u32 shl 31
+  let
+    FOPEN_PURGE_ATTR = 1'u32 shl 30
+    FOPEN_PURGE_UBC = 1'u32 shl 31
 
 let
   # INIT request/reply flags
