@@ -377,7 +377,7 @@ type fuse_setattr_in* = object
   when hostOS == "macosx":
     bkuptime: uint64
     chgtime: uint64
-    crttime: uint64
+    crtime: uint64
     bkuptimensec: uint32
     chgtimensec: uint32
     crtimensec: uint32
@@ -920,7 +920,7 @@ when hostOS == "macosx":
       fuse.ok(self: ListXAttrData, keys: openarray[string])
   """
   proc getxtimes(self: GetXTimes, bkuptime: Ttimespec, crtime: Ttimespec) =
-    self.raw.ok(fuse_get_xtimes_out (
+    self.sendOk(fuse_get_xtimes_out (
       bkuptime: bkuptime.tv_sec.uint64,
       crtime: crtime.tv_sec.uint64,
       bkuptimensec: bkuptime.tv_nsec.uint32,
@@ -1238,14 +1238,14 @@ method bmap*(self: FuseFs, req: Request, ino: uint64, blocksize: uint32, idx: ui
   reply.err(-ENOSYS)
 
 when hostOS == "macosx":
-  method setvolume(self: FuseFs, req: Request, name: string, reply: SetVolname) =
+  method setvolname(self: FuseFs, req: Request, name: string, reply: SetVolname) =
     reply.err(-ENOSYS)
 
-  method exchange(self: FuseFs, req: Request, parent: uint64, name: string, newparent: uint64, options: uint64, reply: Exchange) =
+  method exchange(self: FuseFs, req: Request, parent: uint64, name: string, newparent: uint64, newname: string, options: uint64, reply: Exchange) =
     reply.err(-ENOSYS)
 
   # ERROR ON OSX: `XTimes` is unknown!
-  method getxtimes(self: FuseFs, req: Request, ino: uint64, reply: XTimes) =
+  method getxtimes(self: FuseFs, req: Request, ino: uint64, reply: GetXTimes) =
     reply.err(-ENOSYS)
 
 # ------------------------------------------------------------------------------
@@ -1357,9 +1357,9 @@ proc dispatch(req: Request, se: Session) =
     let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Ttimespec(tv_sec:arg.mtime.Time, tv_nsec:arg.mtimensec.int)) else: None[Ttimespec]()
     let fh = if (arg.valid and FATTR_FH) != 0: Some(arg.fh) else: None[uint64]()
     when hostOS == "macosx":
-      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Ttimespec(tv_sec:arg.crtime, tv_nsec:arg.crtimensec.int)) else: None[Ttimespec]()
-      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Ttimespec(tv_sec:arg.chgtime, tv_nsec:arg.chgtimensec.int)) else: None[Ttimespec]()
-      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Ttimespec(tv_sec:arg.bkuptime, tv_nsec:arg.bkuptimensec.int)) else: None[Ttimespec]()
+      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Ttimespec(tv_sec:arg.crtime.Time, tv_nsec:arg.crtimensec.int)) else: None[Ttimespec]()
+      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Ttimespec(tv_sec:arg.chgtime.Time, tv_nsec:arg.chgtimensec.int)) else: None[Ttimespec]()
+      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Ttimespec(tv_sec:arg.bkuptime.Time, tv_nsec:arg.bkuptimensec.int)) else: None[Ttimespec]()
       let flags = if (arg.valid and FATTR_FLAGS) != 0: Some(arg.flags) else: None[uint32]()
       fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime, bkuptime, flags, newSetAttr(req, se))
     else:
@@ -1500,6 +1500,7 @@ proc dispatch(req: Request, se: Session) =
     fs.destroy(req)
     se.destroyed = true
     newAny(req, se).ok(@[])
+  # FIXME not all case are covered! (macosx)
   when hostOS == "macosx":
     case opcode:
     of FUSE_SETVOLNAME:
@@ -1512,7 +1513,7 @@ proc dispatch(req: Request, se: Session) =
       let oldname = data.parseS
       data.pos += (len(oldname) + 1)
       let newname = data.parseS
-      fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options, newExchange)
+      fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options, newExchange(req, se))
 
 proc mkSession(fs: FuseFs, chan: Channel): Session =
   Session (

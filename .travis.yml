@@ -15,4 +15,5 @@ install:
 before_script:
   - export PATH=./Nim/bin:$PATH
 script:
+  - nim c --os:linux --compile_only hello
   - nim c hello
