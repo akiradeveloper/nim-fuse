@@ -10,6 +10,7 @@ cat > umltest.inner.sh <<EOF
    set -e
    set -x
    insmod /usr/lib/uml/modules/\`uname -r\`/kernel/fs/fuse/fuse.ko
+   lsmod | grep fuse
    cd "$CURDIR"
    ruby test_$PROGNAME.rb
    echo Success

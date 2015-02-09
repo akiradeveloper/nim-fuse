@@ -1,7 +1,7 @@
 os:
   - linux
   - osx
-language: go
+language: c
 env:
   - BRANCH="master"
   - BRANCH="devel"
@@ -16,9 +16,10 @@ before_script:
   - set -e
   - set -x
   - export PATH=./Nim/bin:$PATH
-  - ls -l /dev/fuse
 script:
   - nim c hello
   # Travis CI doesn't support fuse.
   # Running the test on UML is a workaround but only in Linux.
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./uml_bridge.sh hello; fi
+notifications:
+  email: false # noisy

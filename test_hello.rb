@@ -12,6 +12,7 @@ def mount(cmd, &block)
   p Time.new
   pid = fork do
     p `ls`
+    p `ls -l mnt`
     s cmd
   end
   sleep 10 # FIXME not always work
