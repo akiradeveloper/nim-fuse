@@ -28,8 +28,6 @@ That's all. Everyone loves speed.
   handmaded one from this library.  
 * Send this to upstream stdlib so people can reach
   more easily.  
-* MacOSX test.  
-* Travis setup.  
 
 This is my first nim project.
 I think there are lot of things remained to improve.
