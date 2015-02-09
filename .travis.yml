@@ -1,7 +1,7 @@
 os:
   - linux
   - osx
-language: go
+language: objective-c
 env:
   - BRANCH="master"
   - BRANCH="devel"
