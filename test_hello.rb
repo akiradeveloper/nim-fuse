@@ -6,13 +6,13 @@ end
 
 def mount(cmd, &block)
   # s "modprobe fuse"
-  mounted = false
+  ENV['mounted'] = false
   s "mkdir mnt"
   pid = fork do
     s cmd
-    mounted = true
+    ENV['mounted'] = true
   end
-  next until mounted # busy loop
+  next until ENV['mounted'] # busy loop
   p pid
   block.call
   s "kill -9 #{pid}"
