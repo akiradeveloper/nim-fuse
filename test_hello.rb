@@ -1,16 +1,21 @@
+require "time"
+
 def s(cmd)
   p cmd
   `#{cmd}`
 end
 
 def mount(cmd, &block)
+  p `ls -l /dev/fuse`
   # p `pwd`
   s "rm -rf mnt; mkdir mnt"
+  p Time.new
   pid = fork do
     p `ls`
     s cmd
   end
   sleep 10 # FIXME not always work
+  p Time.new
   block.call
   # p `pwd`
   # s "fusermount -u mnt"
