@@ -513,13 +513,13 @@ type FileAttr* = ref object
   atime*: Ttimespec
   mtime*: Ttimespec
   ctime*: Ttimespec
-  crtime*: Ttimespec ## macosx
+  crtime*: Ttimespec # macosx
   mode*: TMode
   nlink*: uint32
   uid*: uint32
   gid*: uint32
   rdev*: uint32
-  flags*: uint32 ## macosx
+  flags*: uint32 # macosx
 
 when hostOS == "macosx":
   proc fuse_attr_of(at: FileAttr): fuse_attr =
@@ -871,11 +871,12 @@ proc ok*(self: ListXAttrData, keys: openArray[string]) =
   if self.size < size:
     self.raw.err(-ERANGE)
     return
-  # TODO Get addr of the strings and use iovec
-  let b = mkBuf(size)
-  for s in ss:
-    b.writeS(s)
-  self.raw.ok(@[b.asTIOVec])
+
+  var iovs = newSeq[TIOVec](len(ss))
+  for i, s in ss:
+    iovs[i] = ss[i].mkTIOVecS
+  self.raw.ok(iovs)
+
 defErr(ListXAttrData)
 
 defWrapper(RemoveXAttr)
