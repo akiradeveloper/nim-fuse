@@ -6,8 +6,8 @@ def s(cmd)
 end
 
 def mount(cmd, &block)
-  p `ls -l /dev/fuse`
-  p `lsmod | grep fuse`
+  # p `ls -l /dev/fuse`
+  # p `lsmod | grep fuse`
   # p `pwd`
   s "rm -rf mnt; mkdir mnt"
   p Time.new

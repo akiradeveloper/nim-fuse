@@ -150,25 +150,25 @@ let
   FUSE_KERNEL_MINOR_VERSION* = 8'u32
   FUSE_ROOT_ID* = 1
 
-type fuse_attr* = object
-  ino*: uint64
-  size*: uint64
-  blocks*: uint64
-  atime*: uint64
-  mtime*: uint64
-  ctime*: uint64
+type fuse_attr = object
+  ino: uint64
+  size: uint64
+  blocks: uint64
+  atime: uint64
+  mtime: uint64
+  ctime: uint64
   when hostOS == "macosx":
-    crtime*: uint64
-  atimensec*: uint32
-  mtimensec*: uint32
-  ctimensec*: uint32
+    crtime: uint64
+  atimensec: uint32
+  mtimensec: uint32
+  ctimensec: uint32
   when hostOS == "macosx":
-    crtimensec*: uint32
-  mode*: uint32
-  nlink*: uint32
-  uid*: uint32
-  gid*: uint32
-  rdev*: uint32
+    crtimensec: uint32
+  mode: uint32
+  nlink: uint32
+  uid: uint32
+  gid: uint32
+  rdev: uint32
   when hostOS == "macosx":
     flags: uint32
 
@@ -212,8 +212,8 @@ let
   FOPEN_KEEP_CACHE* = 1'u32 shl 1
 when hostOS == "macosx":
   let
-    FOPEN_PURGE_ATTR = 1'u32 shl 30
-    FOPEN_PURGE_UBC = 1'u32 shl 31
+    FOPEN_PURGE_ATTR* = 1'u32 shl 30
+    FOPEN_PURGE_UBC* = 1'u32 shl 31
 
 let
   # INIT request/reply flags
@@ -221,16 +221,16 @@ let
   FUSE_POSIX_LOCKS* = 1'u32 shl 1
 when hostOS == "macosx":
   let
-    FUSE_CASE_INSENSITIVE = 1'u32 shl 29
-    FUSE_VOL_RENAME = 1'u32 shl 30
-    FUSE_XTIMES = 1'u32 shl 31
+    FUSE_CASE_INSENSITIVE* = 1'u32 shl 29
+    FUSE_VOL_RENAME* = 1'u32 shl 30
+    FUSE_XTIMES* = 1'u32 shl 31
 
 let
   # Release flags
   FUSE_RELEASE_FLUSH = 1'u32 shl 0
 
 when hostOS == "macosx":
-  type fuse_opcode* = enum
+  type fuse_opcode = enum
     FUSE_LOOKUP = 1
     FUSE_FORGET = 2
     FUSE_GETATTR = 3
@@ -271,7 +271,7 @@ when hostOS == "macosx":
     FUSE_GETXTIMES = 62
     FUSE_EXCHANGE = 63
 else:
-  type fuse_opcode* = enum
+  type fuse_opcode = enum
     FUSE_LOOKUP = 1
     FUSE_FORGET = 2
     FUSE_GETATTR = 3
@@ -312,23 +312,23 @@ else:
 let
   FUSE_MIN_READ_BUFFER = 8192
 
-type fuse_entry_out* = object
-  nodeid*: uint64
-  generation*: uint64
-  entry_valid*: uint64
-  attr_valid*: uint64
-  entry_valid_nsec*: uint32
-  attr_valid_nsec*: uint32
-  attr*: fuse_attr
+type fuse_entry_out = object
+  nodeid: uint64
+  generation: uint64
+  entry_valid: uint64
+  attr_valid: uint64
+  entry_valid_nsec: uint32
+  attr_valid_nsec: uint32
+  attr: fuse_attr
 
-type fuse_forget_in* = object
-  nlookup*: uint64
+type fuse_forget_in = object
+  nlookup: uint64
 
-type fuse_attr_out* = object
-  attr_valid*: uint64
-  attr_valid_nsec*: uint32
+type fuse_attr_out = object
+  attr_valid: uint64
+  attr_valid_nsec: uint32
   dummy: uint32
-  attr*: fuse_attr
+  attr: fuse_attr
 
 when hostOS == "macosx":
   type fuse_getxtimes_out = object
@@ -337,16 +337,16 @@ when hostOS == "macosx":
     bkuptimensec: uint32
     crtimensec: uint32
 
-type fuse_mknod_in* = object
-  mode*: uint32
-  rdev*: uint32
+type fuse_mknod_in = object
+  mode: uint32
+  rdev: uint32
 
-type fuse_mkdir_in* = object
-  mode*: uint32
+type fuse_mkdir_in = object
+  mode: uint32
   padding: uint32
 
-type fuse_rename_in* = object
-  newdir*: uint64
+type fuse_rename_in = object
+  newdir: uint64
 
 when hostOS == "macosx":
   type fuse_exchange_in = object
@@ -354,25 +354,25 @@ when hostOS == "macosx":
     newdir: uint64
     options: uint64
 
-type fuse_link_in* = object
-  oldnodeid*: uint64
+type fuse_link_in = object
+  oldnodeid: uint64
 
-type fuse_setattr_in* = object
-  valid*: uint32
+type fuse_setattr_in = object
+  valid: uint32
   padding: uint32
-  fh*: uint64
-  size*: uint64
+  fh: uint64
+  size: uint64
   unused1: uint64
-  atime*: uint64
-  mtime*: uint64
+  atime: uint64
+  mtime: uint64
   unused2: uint64
-  atimensec*: uint32
-  mtimensec*: uint32
+  atimensec: uint32
+  mtimensec: uint32
   unused3: uint32
-  mode*: uint32
+  mode: uint32
   unused4: uint32
-  uid*: uint32
-  gid*: uint32
+  uid: uint32
+  gid: uint32
   unused5: uint32
   when hostOS == "macosx":
     bkuptime: uint64
@@ -383,60 +383,60 @@ type fuse_setattr_in* = object
     crtimensec: uint32
     flags: uint32
 
-type fuse_open_in* = object
-  flags*: uint32
-  mode*: uint32
+type fuse_open_in = object
+  flags: uint32
+  mode: uint32
 
 type fuse_open_out* = object
   fh*: uint64
   open_flags*: uint32
   padding: uint32
 
-type fuse_release_in* = object
-  fh*: uint64
-  flags*: uint32
-  release_flags*: uint32
-  lock_owner*: uint64
+type fuse_release_in = object
+  fh: uint64
+  flags: uint32
+  release_flags: uint32
+  lock_owner: uint64
 
-type fuse_flush_in* = object
-  fh*: uint64
+type fuse_flush_in = object
+  fh: uint64
   unused: uint32
   padding: uint32
-  lock_owner*: uint64
+  lock_owner: uint64
 
-type fuse_read_in* = object
-  fh*: uint64
-  offset*: uint64
-  size*: uint32
+type fuse_read_in = object
+  fh: uint64
+  offset: uint64
+  size: uint32
   padding: uint32
 
-type fuse_write_in* = object
-  fh*: uint64
-  offset*: uint64
-  size*: uint32
-  write_flags*: uint32
+type fuse_write_in = object
+  fh: uint64
+  offset: uint64
+  size: uint32
+  write_flags: uint32
 
 type fuse_write_out* = object
   size*: uint32
   padding: uint32
 
-type fuse_statfs_out* = object
-  st*: fuse_kstatfs
+type fuse_statfs_out = object
+  st: fuse_kstatfs
 
-type fuse_fsync_in* = object
-  fh*: uint64
-  fsync_flags*: uint32
+type fuse_fsync_in = object
+  fh: uint64
+  fsync_flags: uint32
   padding: uint32
 
-type fuse_setxattr_in* = object
-  size*: uint32
-  flags*: uint32
+type fuse_setxattr_in = object
+  size: uint32
+  flags: uint32
   when hostOS == "macosx":
     position: uint32
     padding: uint32
 
-type fuse_getxattr_in* = object
-  size*: uint32
+type fuse_getxattr_in = object
+  size: uint32
   padding: uint32
   when hostOS == "macosx":
     position: uint32
@@ -446,38 +446,38 @@ type fuse_getxattr_out* = object
   size*: uint32 ## request of in-kernel buffer size (byte)
   padding: uint32
 
-type fuse_lk_in* = object
-  fh*: uint64
-  owner*: uint64
-  lk*: fuse_file_lock
+type fuse_lk_in = object
+  fh: uint64
+  owner: uint64
+  lk: fuse_file_lock
 
-type fuse_lk_out* = object
-  lk*: fuse_file_lock
+type fuse_lk_out = object
+  lk: fuse_file_lock
 
-type fuse_access_in* = object
-  mask*: uint32
+type fuse_access_in = object
+  mask: uint32
   padding: uint32
 
-type fuse_init_in* = object
-  major*: uint32
-  minor*: uint32
-  max_readahead*: uint32
-  flags*: uint32
+type fuse_init_in = object
+  major: uint32
+  minor: uint32
+  max_readahead: uint32
+  flags: uint32
 
-type fuse_init_out* = object
-  major*: uint32
-  minor*: uint32
-  max_readahead*: uint32
-  flags*: uint32
+type fuse_init_out = object
+  major: uint32
+  minor: uint32
+  max_readahead: uint32
+  flags: uint32
   unused: uint32
-  max_write*: uint32
+  max_write: uint32
 
-type fuse_interrupt_in* = object
-  unique*: uint64
+type fuse_interrupt_in = object
+  unique: uint64
 
-type fuse_bmap_in* = object
-  theBlock*: uint64
-  blocksize*: uint32
+type fuse_bmap_in = object
+  theBlock: uint64
+  blocksize: uint32
   padding: uint32
 
 type fuse_bmap_out* = object
@@ -493,16 +493,16 @@ type fuse_in_header* = object
   pid*: uint32
   padding: uint32
 
-type fuse_out_header* = object
-  len*: uint32
-  error*: int32
-  unique*: uint64
+type fuse_out_header = object
+  len: uint32
+  error: int32
+  unique: uint64
 
-type fuse_dirent* = object
-  ino*: uint64
-  off*: uint64
-  namelen*: uint32
-  theType*: uint32
+type fuse_dirent = object
+  ino: uint64
+  off: uint64
+  namelen: uint32
+  theType: uint32
 
 # ------------------------------------------------------------------------------
 
