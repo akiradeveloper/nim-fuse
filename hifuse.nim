@@ -20,6 +20,11 @@ type TFuseFileInfo {.importc:"struct fuse_file_info", header:"<fuse.h>".} = obje
   fh: uint64
   lock_owner: uint64
 
+type TFuseFillDir {.importc:"fuse_fill_dir_t", header:"<fuse.h>"} = proc (buf: pointer, name: cstring, st: ptr TStat, off: TOff): cint
+
+proc nim_bridge_readdir(id: cint, name: pointer, buf: pointer, filler: TFuseFillDir, off: TOff, fi: TFuseFileInfo): cint {.exportc.} =
+  discard
+
 proc nim_bridge_releasedir(id: cint, name: cstring, fi: ptr TFuseFileInfo): cint {.exportc.} =
   discard
 
