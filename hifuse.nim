@@ -9,7 +9,7 @@ import posix
 
 {.compile: "c_bridge.c".}
 
-type TFuseFileInfo {.importc:"struct fuse_file_info", header:"<fuse.h>".} = object
+type TFuseFileInfo* {.importc:"struct fuse_file_info", header:"<fuse.h>".} = object
   flags: cint
   fh_old: culong
   writepage: cint
@@ -20,7 +20,7 @@ type TFuseFileInfo {.importc:"struct fuse_file_info", header:"<fuse.h>".} = obje
   fh: uint64
   lock_owner: uint64
 
-type TFuseConnInfo {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = object
+type TFuseConnInfo* {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = object
   proto_major: cuint
   proto_minor: cuint
   async_read: cuint
@@ -28,11 +28,11 @@ type TFuseConnInfo {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = obje
   max_readahead: cuint
   reserved: array[27, cuint]
 
-type TFuseFillDir {.importc:"fuse_fill_dir_t", header:"<fuse.h>"} = proc (buf: pointer, name: cstring, st: ptr TStat, off: TOff): cint
+type TFuseFillDir* {.importc:"fuse_fill_dir_t", header:"<fuse.h>"} = proc (buf: pointer, name: cstring, st: ptr TStat, off: TOff): cint
 
 # ------------------------------------------------------------------------------
 
-type HiFuseFs = ref object of RootObj
+type HiFuseFs* = ref object of RootObj
 
 method getattr(fs: HiFuseFs, a: cstring, b: ptr TStat): cint =
   discard
@@ -292,7 +292,7 @@ proc nim_bridge_bmap(id: cint, a: cstring, b: int, c: ptr uint64): cint {.export
   fs.bmap(a, b, c)
 
 proc c_bridge_main(id: cint, argc: cint, argv: cstringArray) {.importc:"c_bridge_main".}
-proc mount(fs: HiFuseFs, options: openArray[string]) =
+proc mount*(fs: HiFuseFs, options: openArray[string]) =
   let id = 0
   var argv = allocCStringArray(options)
   c_bridge_main(id.cint, options.len.cint, argv)

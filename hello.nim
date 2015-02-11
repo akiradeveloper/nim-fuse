@@ -2,6 +2,7 @@ import fuse
 import posix
 import times
 
+import os
 import unsigned
 import logging
 
@@ -79,4 +80,6 @@ method readdir*(self: HelloFs, req: Request, ino: uint64, fh: uint64, offset: ui
 
 if isMainModule:
   var fs = HelloFs()
-  mount(fs, "mnt", @[])
+  let cl = commandLineParams()
+  let mp = cl[0]
+  mount(fs, mp, cl[1..mp.high])
