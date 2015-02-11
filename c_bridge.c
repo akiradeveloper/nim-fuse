@@ -99,7 +99,7 @@ static int c_bridge_chmod(const char * a, mode_t b)
 
 static int c_bridge_chown(const char * a, uid_t b, gid_t c)
 {
-	return nim_bridge_chwon(fsId(), a, b, c);
+	return nim_bridge_chown(fsId(), a, b, c);
 }
 
 static int c_bridge_truncate(const char * a, off_t b)
@@ -273,4 +273,3 @@ int c_bridge_main(int id, int argc, char *argv[])
 	};
 	return fuse_main(argc, argv, &c_bridge_ops, &user_data);
 }
-
