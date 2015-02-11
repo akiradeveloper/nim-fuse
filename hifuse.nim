@@ -30,9 +30,6 @@ type TFuseConnInfo {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = obje
 
 type TFuseFillDir {.importc:"fuse_fill_dir_t", header:"<fuse.h>"} = proc (buf: pointer, name: cstring, st: ptr TStat, off: TOff): cint
 
-# FIXME why defined? use int directly?
-type TSize {.importc: "size_t"} = int
-
 # ------------------------------------------------------------------------------
 
 type HiFuseFs = ref object of RootObj
@@ -40,10 +37,10 @@ type HiFuseFs = ref object of RootObj
 method getattr(fs: HiFuseFs, a: cstring, b: ptr TStat): cint =
   discard
 
-method readlink(fs: HiFuseFs, a: cstring, b: TSize): cint =
+method readlink(fs: HiFuseFs, a: cstring, b: int): cint =
   discard
 
-method mknod(fs: HiFuseFs, a: cstring, b: TSize): cint =
+method mknod(fs: HiFuseFs, a: cstring, b: int): cint =
   discard
 
 method mkdir(fs: HiFuseFs, a: cstring, b: TMode): cint =
@@ -76,11 +73,10 @@ method truncate(fs: HiFuseFs, a: cstring, b: TOff): cint =
 method open(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
   discard
 
-# FIXME b: pointer? (char *)
-method read(fs: HiFuseFs, a: cstring, b: pointer, c: TSize, d: TOff, e: ptr TFuseFileInfo): cint =
+method read(fs: HiFuseFs, a: cstring, b: pointer, c: int, d: TOff, e: ptr TFuseFileInfo): cint =
   discard
 
-method write(fs: HiFuseFs, a: cstring, b: cstring, c: TSize, d: TOff, e: ptr TFuseFileInfo): cint =
+method write(fs: HiFuseFs, a: cstring, b: cstring, c: int, d: TOff, e: ptr TFuseFileInfo): cint =
   discard
 
 method statfs(fs: HiFuseFs, a: cstring, b: ptr TStatvfs): cint =
@@ -95,14 +91,13 @@ method release(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
 method fsync(fs: HiFuseFs, a: cstring, b: cint, c: ptr TFuseFileInfo): cint =
   discard
 
-method setxattr(fs: HiFuseFs, a: cstring, b: cstring, c: TSize, d: cint): cint =
+method setxattr(fs: HiFuseFs, a: cstring, b: cstring, c: int, d: cint): cint =
   discard
 
-method getxattr(fs: HiFuseFs, a: cstring, b: cstring, c: TSize): cint =
+method getxattr(fs: HiFuseFs, a: cstring, b: cstring, c: int): cint =
   discard
 
-# FIXME b: pointer? (char *)
-method listxattr(fs: HiFuseFs, a: cstring, b: pointer, c: TSize): cint =
+method listxattr(fs: HiFuseFs, a: cstring, b: pointer, c: int): cint =
   discard
 
 method removexattr(fs: HiFuseFs, a: cstring, b: cstring): cint =
@@ -144,7 +139,7 @@ method lock(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo, c: cint, d: ptr Tflo
 method utimens(fs: HiFuseFs, a: cstring, b: array[2, Ttimespec]): cint =
   discard
 
-method bmap(fs: HiFuseFs, a: cstring, b: TSize, c: ptr uint64): cint =
+method bmap(fs: HiFuseFs, a: cstring, b: int, c: ptr uint64): cint =
   discard
 
 # ------------------------------------------------------------------------------
@@ -156,11 +151,11 @@ proc nim_bridge_getattr(id: cint, a: cstring, b: ptr TStat): cint {.exportc.} =
   var fs = getFs(id)
   fs.getattr(a, b)
 
-proc nim_bridge_readlink(id: cint, a: cstring, b: TSize): cint {.exportc.} =
+proc nim_bridge_readlink(id: cint, a: cstring, b: int): cint {.exportc.} =
   var fs = getFs(id)
   fs.readlink(a, b)
 
-proc nim_bridge_mknod(id: cint, a: cstring, b: TSize): cint {.exportc.} =
+proc nim_bridge_mknod(id: cint, a: cstring, b: int): cint {.exportc.} =
   var fs = getFs(id)
   fs.mknod(a, b)
 
@@ -204,11 +199,11 @@ proc nim_bridge_open(id: cint, a: cstring, b: ptr TFuseFileInfo): cint {.exportc
   var fs = getFs(id)
   fs.open(a, b)
 
-proc nim_bridge_read(id: cint, a: cstring, b: pointer, c: TSize, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_read(id: cint, a: cstring, b: pointer, c: int, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.read(a, b, c, d, e)
 
-proc nim_bridge_write(id: cint, a: cstring, b: cstring, c: TSize, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_write(id: cint, a: cstring, b: cstring, c: int, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.write(a, b, c, d, e)
 
@@ -228,15 +223,15 @@ proc nim_bridge_fsync(id: cint, a: cstring, b: cint, c: ptr TFuseFileInfo): cint
   var fs = getFs(id)
   fs.fsync(a, b, c)
 
-proc nim_bridge_setxattr(id: cint, a: cstring, b: cstring, c: TSize, d: cint): cint {.exportc.} =
+proc nim_bridge_setxattr(id: cint, a: cstring, b: cstring, c: int, d: cint): cint {.exportc.} =
   var fs = getFs(id)
   fs.setxattr(a, b, c, d)
 
-proc nim_bridge_getxattr(id: cint, a: cstring, b: cstring, c: TSize): cint {.exportc.} =
+proc nim_bridge_getxattr(id: cint, a: cstring, b: cstring, c: int): cint {.exportc.} =
   var fs = getFs(id)
   fs.getxattr(a, b, c)
 
-proc nim_bridge_listxattr(id: cint, a: cstring, b: pointer, c: TSize): cint {.exportc.} =
+proc nim_bridge_listxattr(id: cint, a: cstring, b: pointer, c: int): cint {.exportc.} =
   var fs = getFs(id)
   fs.listxattr(a, b, c)
 
@@ -292,6 +287,13 @@ proc nim_bridge_utimens(id: cint, a: cstring, b: array[2, Ttimespec]): cint {.ex
   var fs = getFs(id)
   fs.utimens(a, b)
 
-proc nim_bridge_bmap(id: cint, a: cstring, b: TSize, c: ptr uint64): cint {.exportc.} =
+proc nim_bridge_bmap(id: cint, a: cstring, b: int, c: ptr uint64): cint {.exportc.} =
   var fs = getFs(id)
   fs.bmap(a, b, c)
+
+proc c_bridge_main(id: cint, argc: cint, argv: cstringArray) {.importc:"c_bridge_main".}
+proc mount(fs: HiFuseFs, options: openArray[string]) =
+  let id = 0
+  var argv = allocCStringArray(options)
+  c_bridge_main(id.cint, options.len.cint, argv)
+  deallocCStringArray(argv)
