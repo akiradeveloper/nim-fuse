@@ -18,6 +18,7 @@ before_script:
   - export PATH=./Nim/bin:$PATH
 script:
   - nim c hello
+  - nim c hello_hi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh hello; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./test_osx.sh hello; fi
 notifications:
