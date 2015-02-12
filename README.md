@@ -2,6 +2,8 @@
 
 A FUSE Binding for Nim
 
+![Architecture](https://raw.github.com/akiradeveloper/nim-fuse/master/arch.svg)
+
 [![Build Status](https://travis-ci.org/akiradeveloper/nim-fuse.svg)](https://travis-ci.org/akiradeveloper/nim-fuse)
 
 ### Browse API
