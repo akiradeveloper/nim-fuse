@@ -2,38 +2,23 @@
 
 A FUSE Binding for Nim
 
-![Architecture](https://rawgit.com/akiradeveloper/nim-fuse/master/arch.svg)
-
 [![Build Status](https://travis-ci.org/akiradeveloper/nim-fuse.svg)](https://travis-ci.org/akiradeveloper/nim-fuse)
+
+The aim of nim-fuse is to provide the fast, safe and portable
+fuse implementation and to show a real-world application of Nim language.
+
+![Architecture](https://rawgit.com/akiradeveloper/nim-fuse/master/arch.svg)
 
 ### Browse API
 
 https://rawgit.com/akiradeveloper/nim-fuse/master/fuse.html
 
-### Design based on Rust-fuse
-
-The design of this binding is based on rust-fuse.
-rust-fuse supports Linux and OSX so nim-fuse will catch up too.
-
 ### Why Nim?
 
-Nim is high-performance but even safer than C.
-That's all. Everyone loves speed.
-
-### Todo
-
-* Make a filesystem just backed by an other mountpoint
-  (usage: backedfs ./mntA ./mntB) that only sends request 
-  to the backing fs. Testing on the filesystem can test 
-  this library with high coverage.  
-* I need Option type in the stdlib so that I remove
-  handmaded one from this library.  
-* Send this to upstream stdlib so people can reach
-  more easily.  
-
-This is my first nim project.
-I think there are lot of things remained to improve.
-Feel free to comment or send pull request.
+* Nim is high-performance but much safer than C.
+Now you don't have a reason to write your filesystem in C fuse.  
+* nim-fuse isn't just a rewrite of C fuse but a real improvement
+with the cutting edge feature that Nim provides (e.g. concurrency)  
 
 ### Author
 
