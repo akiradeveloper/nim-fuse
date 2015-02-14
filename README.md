@@ -18,8 +18,14 @@ https://rawgit.com/akiradeveloper/nim-fuse/master/fuse.html
 * Nim is high-performance but much safer than C.
 Now you don't have a reason to write your filesystem in C fuse.  
 * nim-fuse isn't just a rewrite of C fuse but a real improvement
-with the cutting edge feature that Nim provides (e.g. concurrency)  
+with the cutting edge features that Nim provides (e.g. concurrency)  
 
+### Todo
+
+* Implement XML-backed filesystem for testing FuseFs (low-level interface)  
+* Port fusexmp.c for testing HiFuseFs (high-level interface)  
+* Implement Log-structured filesystem atop FuseFs  
+ 
 ### Author
 
 Akira Hayakawa (ruby.wktk@gmail.com)
