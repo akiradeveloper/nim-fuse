@@ -1225,7 +1225,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   uid*: uint32
   gid*: uint32
   rdev*: uint32
-  flags*: uint32              ## macosx"><wbr />File<wbr />Attr</a></li>
+  flags*: uint32"><wbr />File<wbr />Attr</a></li>
   <li><a class="reference" href="#TEntryOut"
     title="TEntryOut* = ref object 
   generation*: uint64
@@ -1352,8 +1352,8 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="unlink*(self: FuseFs; req: Request; parent: uint64; name: string; reply: Unlink)"><wbr />unlink</a></li>
   <li><a class="reference" href="#rmdir.e,FuseFs,Request,uint64,string,Rmdir"
     title="rmdir*(self: FuseFs; req: Request; parent: uint64; name: string; reply: Rmdir)"><wbr />rmdir</a></li>
-  <li><a class="reference" href="#symlink.e,FuseFs,Request,uint64,string,string,Symlink"
-    title="symlink*(self: FuseFs; req: Request; parent: uint64; name: string; link: string; 
+  <li><a class="reference" href="#symlink.e,FuseFs,Request,string,uint64,string,Symlink"
+    title="symlink*(self: FuseFs; req: Request; link: string; parent: uint64; name: string; 
          reply: Symlink)"><wbr />symlink</a></li>
   <li><a class="reference" href="#rename.e,FuseFs,Request,uint64,string,uint64,string,Rename"
     title="rename*(self: FuseFs; req: Request; parent: uint64; name: string; 
@@ -1536,10 +1536,10 @@ request of in-kernel buffer size (byte)
   <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">rdev</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>              <span class="Comment">## macosx</span>
-  </pre></dt>
+  <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+</pre></dt>
 <dd>
-macosx
+
 
 </dd>
 <dt id="TEntryOut"><a name="TEntryOut"></a><pre><span class="Identifier">TEntryOut</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
@@ -1814,22 +1814,22 @@ Remove a file
 Remove a directory
 
 </dd>
-<dt id="symlink"><a name="symlink.e,FuseFs,Request,uint64,string,string,Symlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">symlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-                <span class="Identifier">link</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Symlink</span><span class="Other">)</span></pre></dt>
+<dt id="symlink"><a name="symlink.e,FuseFs,Request,string,uint64,string,Symlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">symlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">link</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
+                <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Symlink</span><span class="Other">)</span></pre></dt>
 <dd>
-Create a symboilc link
+Create a symboilc link (<cite>parent</cite>, <cite>name</cite>) which, when evaluated, will lead to <cite>link</cite> ~= ln -s <cite>link</cite> (<cite>parent</cite>, <cite>name</cite>)
 
 </dd>
 <dt id="rename"><a name="rename.e,FuseFs,Request,uint64,string,uint64,string,Rename"></a><pre><span class="Keyword">method</span> <span class="Identifier">rename</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">newdir</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rename</span><span class="Other">)</span></pre></dt>
 <dd>
-Rename a file
+Rename a file (<cite>parent</cite>, <cite>name</cite>) to (<cite>newdir</cite>, <cite>newname</cite>)
 
 </dd>
 <dt id="link"><a name="link.e,FuseFs,Request,uint64,uint64,string,Link"></a><pre><span class="Keyword">method</span> <span class="Identifier">link</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newparent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
              <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Link</span><span class="Other">)</span></pre></dt>
 <dd>
-Create a hard link
+Create a hard link (<cite>newparent</cite>, <cite>newname</cite>) to <cite>ino</cite> ~= ln <cite>ino</cite> (<cite>newparent</cite>, <cite>newname</cite>) Hard links aren't required for a working filesystem, and many successful filesystems don't support them.
 
 </dd>
 <dt id="open"><a name="open.e,FuseFs,Request,uint64,uint32,Open"></a><pre><span class="Keyword">method</span> <span class="Identifier">open</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Open</span><span class="Other">)</span></pre></dt>
@@ -1961,7 +1961,7 @@ Map block index within file to block index within device Note: This makes sense 
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-10 10:03:48 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-14 09:57:05 UTC</small>
       </div>
     </div>
   </div>

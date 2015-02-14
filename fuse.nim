@@ -1055,16 +1055,19 @@ method rmdir*(self: FuseFs, req: Request, parent: uint64, name: string, reply: R
   ## Remove a directory
   reply.err(-ENOSYS)
 
-method symlink*(self: FuseFs, req: Request, parent: uint64, name: string, link: string, reply: Symlink) =
-  ## Create a symboilc link
+method symlink*(self: FuseFs, req: Request, link: string, parent: uint64, name: string, reply: Symlink) =
+  ## Create a symboilc link (`parent`, `name`) which, when evaluated, will lead to `link`
+  ## ~= ln -s `link` (`parent`, `name`)
   reply.err(-ENOSYS)
 
 method rename*(self: FuseFs, req: Request, parent: uint64, name: string, newdir: uint64, newname: string, reply: Rename) =
-  ## Rename a file
+  ## Rename a file (`parent`, `name`) to (`newdir`, `newname`)
   reply.err(-ENOSYS)
 
 method link*(self: FuseFs, req: Request, ino: uint64, newparent: uint64, newname: string, reply: Link) =
-  ## Create a hard link
+  ## Create a hard link (`newparent`, `newname`) to `ino`
+  ## ~= ln `ino` (`newparent`, `newname`)
+  ## Hard links aren't required for a working filesystem, and many successful filesystems don't support them.
   reply.err(-ENOSYS)
 
 method open*(self: FuseFs, req: Request, ino: uint64, flags: uint32, reply: Open) =
@@ -1372,7 +1375,7 @@ proc dispatch(req: Request, se: Session) =
     let name = data.parseS
     data.pos += (len(name) + 1)
     let link = data.parseS
-    se.fs.symlink(req, hd.nodeid, name, link, newSymlink(req, se))
+    se.fs.symlink(req, link, hd.nodeid, name, newSymlink(req, se))
   of FUSE_MKNOD:
     let arg = pop[fuse_mknod_in](data)
     let name = data.parseS
