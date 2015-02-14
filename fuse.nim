@@ -515,7 +515,7 @@ type FileAttr* = ref object
   ctime*: Ttimespec
   crtime*: Ttimespec # macosx
   mode*: TMode
-  nlink*: uint32
+  nlink*: uint32 ## number of hard links
   uid*: uint32
   gid*: uint32
   rdev*: uint32
@@ -612,12 +612,13 @@ template defOk(typ: typedesc) =
 
 template defErr(typ: typedesc) =
   proc err*(self: `typ`, e: int) =
+    assert(e <= 0)
     self.raw.err(e)
 
 type TEntryOut* = ref object
-  generation*: uint64
-  entry_timeout*: Ttimespec
-  attr_timeout*: Ttimespec
+  generation*: uint64 ## (`ino`, `generation`) should be unique for the filesystem's lifetime.
+  entry_timeout*: Ttimespec ## Validity timeout for the name.
+  attr_timeout*: Ttimespec ## Validity timeout for the attributes.
   attr*: FileAttr
 
 proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =

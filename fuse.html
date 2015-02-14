@@ -1229,8 +1229,8 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <li><a class="reference" href="#TEntryOut"
     title="TEntryOut* = ref object 
   generation*: uint64
-  entry_timeout*: Ttimespec
-  attr_timeout*: Ttimespec
+  entry_timeout*: Ttimespec   ## Validity timeout for the name.
+  attr_timeout*: Ttimespec    ## Validity timeout for the attributes.
   attr*: FileAttr"><wbr />TEntry<wbr />Out</a></li>
   <li><a class="reference" href="#Readdir"
     title="Readdir* = ref object 
@@ -1539,17 +1539,17 @@ request of in-kernel buffer size (byte)
   <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
 </pre></dt>
 <dd>
-
+number of hard links
 
 </dd>
 <dt id="TEntryOut"><a name="TEntryOut"></a><pre><span class="Identifier">TEntryOut</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
   <span class="Identifier">generation</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">entry_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
-  <span class="Identifier">attr_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
+  <span class="Identifier">entry_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>   <span class="Comment">## Validity timeout for the name.</span>
+  <span class="Identifier">attr_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>    <span class="Comment">## Validity timeout for the attributes.</span>
   <span class="Identifier">attr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">FileAttr</span>
 </pre></dt>
 <dd>
-
+(<cite>ino</cite>, <cite>generation</cite>) should be unique for the filesystem's lifetime.
 
 </dd>
 <dt id="Readdir"><a name="Readdir"></a><pre><span class="Identifier">Readdir</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
@@ -1961,7 +1961,7 @@ Map block index within file to block index within device Note: This makes sense 
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-14 09:57:05 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-14 10:35:53 UTC</small>
       </div>
     </div>
   </div>
