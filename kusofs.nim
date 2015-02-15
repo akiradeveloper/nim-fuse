@@ -6,6 +6,7 @@ import fuse
 import posix
 import tables
 import times
+import logging
 
 let TTL = Ttimespec(tv_sec: 1.Time, tv_nsec: 0)
 let GEN = 0'u64
@@ -27,6 +28,14 @@ proc getNewId(self: KusoFs): int =
   self.id += 1
   self.id
 
+template getDir(self: KusoFs, id: uint64): Dir =
+  # TODO is this correct?
+  if not self.dirs.hasKey(id.int):
+    debug("directory not found $1", id.int)
+    reply.err(-ENOENT)
+    return
+  self.dirs[id.int]
+
 method init*(self: KusoFs, req: Request): int =
   0
 
@@ -34,8 +43,8 @@ method destroy*(self: KusoFs, req: Request) =
   discard
 
 method lookup*(self: KusoFs, req: Request, parent: uint64, name: string, reply: Lookup) =
-  let pnode = self.dirs[parent.int]
-  let ino = pnode.children[name]
+  let dir = self.getDir(parent)
+  let ino = dir.children[name]
   if self.files.hasKey(ino):
     let found = self.files[ino]
     reply.entry(TEntryOut (
@@ -72,7 +81,7 @@ method readlink*(self: KusoFs, req: Request, ino: uint64, reply: Readlink) =
   reply.readlink(found.contents.parseS)
 
 method mknod*(self: KusoFs, req: Request, parent: uint64, name: string, mode: uint32, rdev: uint32, reply: Mknod) =
-  let dir = self.dirs[parent.int]
+  let dir = self.getDir(parent)
   let newIno = self.getNewId
   dir.children[name] = newIno
   let newf = File (
@@ -92,7 +101,7 @@ method mknod*(self: KusoFs, req: Request, parent: uint64, name: string, mode: ui
   ))
 
 method mkdir*(self: KusoFs, req: Request, parent: uint64, name: string, mode: uint32, reply: Mkdir) =
-  let dir = self.dirs[parent.int]
+  let dir = self.getDir(parent)
   let newIno = self.getNewId()
   let newDir = Dir (
     attr: FileAttr (
@@ -110,17 +119,17 @@ method mkdir*(self: KusoFs, req: Request, parent: uint64, name: string, mode: ui
   ))
 
 method unlink*(self: KusoFs, req: Request, parent: uint64, name: string, reply: Unlink) =
-  let dir = self.dirs[parent.int]
+  let dir = self.getDir(parent)
   dir.children.del(name)
   reply.err(0)
 
 method rmdir*(self: KusoFs, req: Request, parent: uint64, name: string, reply: Rmdir) =
-  let dir = self.dirs[parent.int]
+  let dir = self.getDir(parent)
   dir.children.del(name)
   reply.err(0)
 
 method symlink*(self: KusoFs, req: Request, link: string, parent: uint64, name: string, reply: Symlink) =
-  let dir = self.dirs[parent.int]
+  let dir = self.getDir(parent)
   let newIno = self.getNewId()
   let newf = File (
     attr: FileAttr (
@@ -140,11 +149,11 @@ method symlink*(self: KusoFs, req: Request, link: string, parent: uint64, name: 
   ))
 
 method rename*(self: KusoFs, req: Request, parent: uint64, name: string, newdir: uint64, newname: string, reply: Rename) =
-  let fromDir = self.dirs[parent.int]
+  let fromDir = self.getDir(parent)
   let ino = fromDir.children[name]
   fromDir.children.del(name)
 
-  let toDir = self.dirs[newdir.int]
+  let toDir = self.getDir(newDir)
   toDir.children[newname] = ino
 
 method link*(self: KusoFs, req: Request, ino: uint64, newparent: uint64, newname: string, reply: Link) =
