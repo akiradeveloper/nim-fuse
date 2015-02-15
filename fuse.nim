@@ -73,6 +73,9 @@ proc extend*(self: Buf, size: int) =
   var newData = newSeq[char](size)
   copyMem(addr(newData[0]), addr(self.data[0]), self.size)
 
+proc asPtr*(self: Buf, at: int): pointer =
+  addr(self.data[at])
+
 proc asPtr*(self: Buf): pointer =
   ## Get the current pos as the pointer
   addr(self.data[self.pos])

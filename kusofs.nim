@@ -160,10 +160,19 @@ method open*(self: KusoFs, req: Request, ino: uint64, flags: uint32, reply: Open
   )
 
 method read*(self: KusoFs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
-  reply.err(-ENOSYS)
+  let file = self.files[ino.int]
+  reply.buf(TIOVec(
+    iov_base: file.contents.asPtr(offset.int),
+    iov_len: size.int))
 
+# FIXME what's in flags?
 method write*(self: KusoFs, req: Request, ino: uint64, fh: uint64, offset: uint64, data: Buf, flags: uint32, reply: Write) =
-  reply.err(-ENOSYS)
+  let file = self.files[ino.int]
+  file.contents.extend(data.size + offset.int)
+  copyMem(file.contents.asPtr(offset.int), data.asPtr(0), data.size)
+  reply.write(fuse_write_out(
+    size: data.size.uint32
+  ))
 
 method flush*(self: KusoFs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, reply: Flush) =
   reply.err(-ENOSYS)
