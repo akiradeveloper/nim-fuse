@@ -112,7 +112,7 @@ proc mkBufT[T](o: T): Buf {.deprecated.} =
   result = mkBuf(sizeof(T))
   result.write(o)
 
-proc nullTerminated(s: string): string =
+proc nullTerminated*(s: string): string =
   ## Returns null terminated string of `s`
   ## The length is incremented
   ## e.g. mybuf.writeS("hoge".nullTerminated)
@@ -125,7 +125,7 @@ proc writeS*(self: Buf, s: string) =
   var vs = s
   self.write(addr(vs[0]), len(s))
 
-proc parseS(self: Buf): string =
+proc parseS*(self: Buf): string =
   ## Parse a null-terminated string in the buffer
   $cstring(addr(self.data[0]))
 
