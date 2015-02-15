@@ -201,7 +201,12 @@ method opendir*(self: KusoFs, req: Request, ino: uint64, flags: uint32, reply: O
   )
 
 method readdir*(self: KusoFs, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
-  reply.err(-ENOSYS)
+  let dir = self.getDir(ino)
+  discard reply.tryAdd(ino, 0, S_IFDIR, ".")
+  discard reply.tryAdd(1, 1, S_IFDIR, "..") # FIXME (ino)
+  for i, name, ino in dir.children: # FIXME (iterator)
+    discard reply.tryAdd(ino, 2+i, S_IFREG, name) # FIXME (type)
+  reply.ok
 
 method releasedir*(self: KusoFs, req: Request, fh: uint64, flags: uint32, reply: Releasedir) =
   reply.err(0)
