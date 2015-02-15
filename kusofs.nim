@@ -92,7 +92,22 @@ method mknod*(self: KusoFs, req: Request, parent: uint64, name: string, mode: ui
   ))
 
 method mkdir*(self: KusoFs, req: Request, parent: uint64, name: string, mode: uint32, reply: Mkdir) =
-  reply.err(-ENOSYS)
+  let dir = self.dirs[parent.int]
+  let newIno = self.getNewId()
+  let newDir = Dir (
+    attr: FileAttr (
+      ino: newIno.uint64,
+      mode: mode.TMode,
+    ),
+    children: newTable[string, int](0)
+  )
+  dir.children[name] = newIno
+  reply.entry(TEntryOut(
+    generation: GEN,
+    entry_timeout: TTL,
+    attr_timeout: TTL,
+    attr: newDir.attr
+  ))
 
 method unlink*(self: KusoFs, req: Request, parent: uint64, name: string, reply: Unlink) =
   let dir = self.dirs[parent.int]
