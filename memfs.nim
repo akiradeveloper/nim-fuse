@@ -38,16 +38,26 @@ type Memfs = ref object of FuseFs
   files: TableRef[int, File]
   dirs: TableRef[int, Dir]
 
+proc getNewId(self: Memfs): int =
+  self.id += 1
+  self.id
+
 proc mkMemfs(): Memfs =
-  Memfs(
+  result = Memfs(
     id: 0,
     files: newTable[int, File](),
     dirs: newTable[int, Dir](),
   )
-
-proc getNewId(self: Memfs): int =
-  self.id += 1
-  self.id
+  let rootId = result.getNewId() # get root id
+  let rootDir = Dir(
+    attr: FileAttr (
+      ino: rootId.uint64,
+      size: 4096,
+      nlink: 0,
+    ),
+    children: newTable[string, int]()
+  )
+  result.dirs.add(rootId, rootDir)
 
 template checkFile(self: Memfs, id: uint64) =
   if not self.files.hasKey(id.int):
@@ -141,10 +151,12 @@ method mknod*(self: Memfs, req: Request, parent: uint64, name: string, mode: uin
   let dir = self.dirs[parent.int]
   let newIno = self.getNewId()
   dir.children[name] = newIno
+  echo mode
+  let mo = mode.TMode
   let newFile = File (
     attr: FileAttr (
       ino: newIno.uint64,
-      mode: mode.TMode,
+      mode: mo,
       rdev: rdev
     ),
     contents: mkBuf(0)
@@ -213,6 +225,7 @@ method open*(self: Memfs, req: Request, ino: uint64, flags: uint32, reply: Open)
 method read*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
   self.checkFile(ino)
   let file = self.files[ino.int]
+  # TODO error if the range isn't included
   reply.buf(TIOVec(
     iov_base: file.contents.asPtr(offset.int),
     iov_len: size.int))
