@@ -1393,6 +1393,7 @@ proc dispatch(req: Request, se: Session) =
   of FUSE_MKDIR:
     let arg = pop[fuse_mkdir_in](data)
     let name = data.parseS
+    fs.mkdir(req, hd.nodeid, name, arg.mode, newMkdir(req, se))
   of FUSE_UNLINK:
     let name = data.parseS
     se.fs.unlink(req, hd.nodeid, name, newUnlink(req, se))
