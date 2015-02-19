@@ -516,18 +516,18 @@ type fuse_dirent = object
 # ------------------------------------------------------------------------------
 
 type FileAttr* = ref object
-  ino*: uint64
-  size*: uint64
-  blocks*: uint64
+  ino*: uint64 # Tino?
+  size*: uint64 # int? Tblksize?
+  blocks*: uint64 # Tblkcnt?
   atime*: Ttimespec
   mtime*: Ttimespec
   ctime*: Ttimespec
   crtime*: Ttimespec # macosx
   mode*: TMode
-  nlink*: uint32 ## number of hard links
-  uid*: uint32
-  gid*: uint32
-  rdev*: uint32
+  nlink*: uint32 ## number of hard links. TNlink?
+  uid*: uint32 # T
+  gid*: uint32 # TGid?
+  rdev*: uint32 # TDev?
   flags*: uint32 # macosx
 
 when hostOS == "macosx":
