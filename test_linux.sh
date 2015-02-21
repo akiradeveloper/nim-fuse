@@ -20,6 +20,6 @@ EOF
 
 chmod +x umltest.inner.sh
 
-/usr/bin/linux.uml init=`pwd`/umltest.inner.sh rootfstype=hostfs rw
+/usr/bin/linux.uml mem=256M init=`pwd`/umltest.inner.sh rootfstype=hostfs rw
 
 exit $(<umltest.status)

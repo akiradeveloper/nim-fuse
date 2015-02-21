@@ -23,7 +23,7 @@ script:
   # - nim c hello_hi
   # - nim c memfs
   # - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh test_hello_ez.sh; fi
-  # - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh test_hello.rb; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh test_hello.rb; fi
   # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./test_osx.sh test_hello.rb; fi
 notifications:
   email: false # noisy
