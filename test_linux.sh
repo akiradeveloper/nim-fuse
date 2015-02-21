@@ -11,7 +11,7 @@ cat > umltest.inner.sh <<EOF
    set -x
    insmod /usr/lib/uml/modules/\`uname -r\`/kernel/fs/fuse/fuse.ko
    cd "$CURDIR"
-   ruby test_$PROGNAME.rb
+   ./$PROGNAME
    echo Success
 )
 echo "\$?" > "$CURDIR"/umltest.status

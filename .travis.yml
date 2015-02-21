@@ -9,10 +9,12 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
 install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install libfuse-dev pkg-config fuse user-mode-linux; sudo mknod /dev/fuse c 10 229; sudo chmod 666 /dev/fuse; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -qq libfuse-dev pkg-config fuse user-mode-linux; sudo mknod /dev/fuse c 10 229; sudo chmod 666 /dev/fuse; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install osxfuse; sudo /bin/cp -RfX /usr/local/opt/osxfuse/Library/Filesystems/osxfusefs.fs /Library/Filesystems; sudo chmod +s /Library/Filesystems/osxfusefs.fs/Support/load_osxfusefs; fi
   - git clone -b $BRANCH git://github.com/Araq/Nim.git; cd Nim; git clone -b $BRANCH --depth 1 git://github.com/nim-lang/csources; cd csources && sh build.sh; cd ..; bin/nim c koch; ./koch boot -d:release; cd ..
 before_script:
+  # - ls -l /dev/fuse
+  # - ruby -v
   - set -e
   - set -x
   - export PATH=./Nim/bin:$PATH
@@ -20,7 +22,8 @@ script:
   - nim c hello
   # - nim c hello_hi
   # - nim c memfs
-  # - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh hello; fi
-  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./test_osx.sh hello; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh test_hello_ez.sh; fi
+  # - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./test_linux.sh test_hello.rb; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./test_osx.sh test_hello.rb; fi
 notifications:
   email: false # noisy
