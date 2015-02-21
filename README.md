@@ -22,9 +22,8 @@ with the cutting edge features that Nim provides (e.g. concurrency)
 
 ### Todo
 
-* Implement XML-backed filesystem for testing FuseFs (low-level interface)  
+* Implement in-memory filesystem for testing FuseFs (low-level interface)  
 * Port fusexmp.c for testing HiFuseFs (high-level interface)  
-* Implement Log-structured filesystem atop FuseFs  
  
 ### Author
 

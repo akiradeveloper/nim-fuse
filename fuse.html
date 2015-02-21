@@ -1169,68 +1169,72 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   pos*: int"><wbr />Buf</a></li>
   <li><a class="reference" href="#fuse_kstatfs"
     title="fuse_kstatfs* = object 
-  blocks*: uint64
-  bfree*: uint64
-  bavail*: uint64
-  files*: uint64
-  ffree*: uint64
-  bsize*: uint32
-  namelen*: uint32
-  frsize*: uint32
-  padding: uint32
-  spare: array[6, uint32]"><wbr />fuse_<wbr />kstatfs</a></li>
+  blocks*: int64
+  bfree*: int64
+  bavail*: int64
+  files*: int64
+  ffree*: int64
+  bsize*: int32
+  namelen*: int32
+  frsize*: int32
+  padding: int32
+  spare: array[6, int32]"><wbr />fuse_<wbr />kstatfs</a></li>
   <li><a class="reference" href="#fuse_file_lock"
     title="fuse_file_lock* = object 
-  start*: uint64
-  theEnd*: uint64
-  theType*: uint32
-  pid*: uint32"><wbr />fuse_<wbr />file_<wbr />lock</a></li>
+  start*: int64
+  theEnd*: int64
+  theType*: int32
+  pid*: int32"><wbr />fuse_<wbr />file_<wbr />lock</a></li>
   <li><a class="reference" href="#fuse_open_out"
     title="fuse_open_out* = object 
-  fh*: uint64
-  open_flags*: uint32
-  padding: uint32"><wbr />fuse_<wbr />open_<wbr />out</a></li>
+  fh*: int64
+  open_flags*: int32
+  padding: int32"><wbr />fuse_<wbr />open_<wbr />out</a></li>
   <li><a class="reference" href="#fuse_write_out"
     title="fuse_write_out* = object 
-  size*: uint32
-  padding: uint32"><wbr />fuse_<wbr />write_<wbr />out</a></li>
+  size*: int32
+  padding: int32"><wbr />fuse_<wbr />write_<wbr />out</a></li>
   <li><a class="reference" href="#fuse_getxattr_out"
     title="fuse_getxattr_out* = object 
-  size*: uint32
-  padding: uint32"><wbr />fuse_<wbr />getxattr_<wbr />out</a></li>
+  size*: int32
+  padding: int32"><wbr />fuse_<wbr />getxattr_<wbr />out</a></li>
   <li><a class="reference" href="#fuse_bmap_out"
     title="fuse_bmap_out* = object 
-  theBlock*: uint64"><wbr />fuse_<wbr />bmap_<wbr />out</a></li>
+  theBlock*: int64"><wbr />fuse_<wbr />bmap_<wbr />out</a></li>
   <li><a class="reference" href="#fuse_in_header"
     title="fuse_in_header* = object 
-  len*: uint32
-  opcode*: uint32
-  unique*: uint64
-  nodeid*: uint64
-  uid*: uint32
-  gid*: uint32
-  pid*: uint32
-  padding: uint32"><wbr />fuse_<wbr />in_<wbr />header</a></li>
+  len*: int32
+  opcode*: int32
+  unique*: int64
+  nodeid*: int64
+  uid*: int32
+  gid*: int32
+  pid*: int32
+  padding: int32"><wbr />fuse_<wbr />in_<wbr />header</a></li>
+  <li><a class="reference" href="#Timespec"
+    title="Timespec* = object 
+  sec*: int64
+  nsec*: int32"><wbr />Timespec</a></li>
   <li><a class="reference" href="#FileAttr"
     title="FileAttr* = ref object 
-  ino*: uint64
-  size*: uint64
-  blocks*: uint64
-  atime*: Ttimespec
-  mtime*: Ttimespec
-  ctime*: Ttimespec
-  crtime*: Ttimespec
-  mode*: TMode
-  nlink*: uint32
-  uid*: uint32
-  gid*: uint32
-  rdev*: uint32
-  flags*: uint32"><wbr />File<wbr />Attr</a></li>
+  ino*: int64
+  size*: int64
+  blocks*: int64
+  atime*: Timespec
+  mtime*: Timespec
+  ctime*: Timespec
+  crtime*: Timespec
+  mode*: int32
+  nlink*: int32
+  uid*: int32
+  gid*: int32
+  rdev*: int32
+  flags*: int32"><wbr />File<wbr />Attr</a></li>
   <li><a class="reference" href="#TEntryOut"
     title="TEntryOut* = ref object 
-  generation*: uint64
-  entry_timeout*: Ttimespec   ## Validity timeout for the name.
-  attr_timeout*: Ttimespec    ## Validity timeout for the attributes.
+  generation*: int64
+  entry_timeout*: Timespec    ## Validity timeout for the name.
+  attr_timeout*: Timespec     ## Validity timeout for the attributes.
   attr*: FileAttr"><wbr />TEntry<wbr />Out</a></li>
   <li><a class="reference" href="#Readdir"
     title="Readdir* = ref object 
@@ -1249,29 +1253,29 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <a class="reference reference-toplevel" href="#9" id="59">Lets</a>
   <ul class="simple simple-toc-section">
       <li><a class="reference" href="#FUSE_KERNEL_VERSION"
-    title="FUSE_KERNEL_VERSION* = 7&#x27;u32"><wbr />FUSE_<wbr />KERNEL_<wbr />VERSION</a></li>
+    title="FUSE_KERNEL_VERSION* = 7&#x27;i32"><wbr />FUSE_<wbr />KERNEL_<wbr />VERSION</a></li>
   <li><a class="reference" href="#FUSE_KERNEL_MINOR_VERSION"
-    title="FUSE_KERNEL_MINOR_VERSION* = 8&#x27;u32"><wbr />FUSE_<wbr />KERNEL_<wbr />MINOR_<wbr />VERSION</a></li>
+    title="FUSE_KERNEL_MINOR_VERSION* = 8&#x27;i32"><wbr />FUSE_<wbr />KERNEL_<wbr />MINOR_<wbr />VERSION</a></li>
   <li><a class="reference" href="#FUSE_ROOT_ID"
     title="FUSE_ROOT_ID* = 1"><wbr />FUSE_<wbr />ROOT_<wbr />ID</a></li>
   <li><a class="reference" href="#FOPEN_DIRECT_IO"
-    title="FOPEN_DIRECT_IO* = 1&#x27;u32 shl 0"><wbr />FOPEN_<wbr />DIRECT_<wbr />IO</a></li>
+    title="FOPEN_DIRECT_IO* = 1 shl 0"><wbr />FOPEN_<wbr />DIRECT_<wbr />IO</a></li>
   <li><a class="reference" href="#FOPEN_KEEP_CACHE"
-    title="FOPEN_KEEP_CACHE* = 1&#x27;u32 shl 1"><wbr />FOPEN_<wbr />KEEP_<wbr />CACHE</a></li>
+    title="FOPEN_KEEP_CACHE* = 1 shl 1"><wbr />FOPEN_<wbr />KEEP_<wbr />CACHE</a></li>
   <li><a class="reference" href="#FOPEN_PURGE_ATTR"
-    title="FOPEN_PURGE_ATTR* = 1&#x27;u32 shl 30"><wbr />FOPEN_<wbr />PURGE_<wbr />ATTR</a></li>
+    title="FOPEN_PURGE_ATTR* = 1 shl 30"><wbr />FOPEN_<wbr />PURGE_<wbr />ATTR</a></li>
   <li><a class="reference" href="#FOPEN_PURGE_UBC"
-    title="FOPEN_PURGE_UBC* = 1&#x27;u32 shl 31"><wbr />FOPEN_<wbr />PURGE_<wbr />UBC</a></li>
+    title="FOPEN_PURGE_UBC* = 1 shl 31"><wbr />FOPEN_<wbr />PURGE_<wbr />UBC</a></li>
   <li><a class="reference" href="#FUSE_ASYNC_READ"
-    title="FUSE_ASYNC_READ* = 1&#x27;u32 shl 0"><wbr />FUSE_<wbr />ASYNC_<wbr />READ</a></li>
+    title="FUSE_ASYNC_READ* = 1 shl 0"><wbr />FUSE_<wbr />ASYNC_<wbr />READ</a></li>
   <li><a class="reference" href="#FUSE_POSIX_LOCKS"
-    title="FUSE_POSIX_LOCKS* = 1&#x27;u32 shl 1"><wbr />FUSE_<wbr />POSIX_<wbr />LOCKS</a></li>
+    title="FUSE_POSIX_LOCKS* = 1 shl 1"><wbr />FUSE_<wbr />POSIX_<wbr />LOCKS</a></li>
   <li><a class="reference" href="#FUSE_CASE_INSENSITIVE"
-    title="FUSE_CASE_INSENSITIVE* = 1&#x27;u32 shl 29"><wbr />FUSE_<wbr />CASE_<wbr />INSENSITIVE</a></li>
+    title="FUSE_CASE_INSENSITIVE* = 1 shl 29"><wbr />FUSE_<wbr />CASE_<wbr />INSENSITIVE</a></li>
   <li><a class="reference" href="#FUSE_VOL_RENAME"
-    title="FUSE_VOL_RENAME* = 1&#x27;u32 shl 30"><wbr />FUSE_<wbr />VOL_<wbr />RENAME</a></li>
+    title="FUSE_VOL_RENAME* = 1 shl 30"><wbr />FUSE_<wbr />VOL_<wbr />RENAME</a></li>
   <li><a class="reference" href="#FUSE_XTIMES"
-    title="FUSE_XTIMES* = 1&#x27;u32 shl 31"><wbr />FUSE_<wbr />XTIMES</a></li>
+    title="FUSE_XTIMES* = 1 shl 31"><wbr />FUSE_<wbr />XTIMES</a></li>
 
   </ul>
 </li>
@@ -1288,6 +1292,10 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="unwrap*[T](o: Option[T]): T"><wbr />unwrap</a></li>
   <li><a class="reference" href="#mkBuf,int"
     title="mkBuf*(size: int): Buf"><wbr />mk<wbr />Buf</a></li>
+  <li><a class="reference" href="#extend,Buf,int"
+    title="extend*(self: Buf; size: int)"><wbr />extend</a></li>
+  <li><a class="reference" href="#asPtr,Buf,int"
+    title="asPtr*(self: Buf; at: int): pointer"><wbr />as<wbr />Ptr</a></li>
   <li><a class="reference" href="#asPtr,Buf"
     title="asPtr*(self: Buf): pointer"><wbr />as<wbr />Ptr</a></li>
   <li><a class="reference" href="#asBuf,Buf"
@@ -1302,14 +1310,18 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="write*(self: Buf; p: pointer; size: int)"><wbr />write</a></li>
   <li><a class="reference" href="#write,Buf,T"
     title="write*[T](self: Buf; obj: T)"><wbr />write</a></li>
+  <li><a class="reference" href="#nullTerminated,string"
+    title="nullTerminated*(s: string): string"><wbr />null<wbr />Terminated</a></li>
   <li><a class="reference" href="#writeS,Buf,string"
     title="writeS*(self: Buf; s: string)"><wbr />write<wbr />S</a></li>
+  <li><a class="reference" href="#parseS,Buf"
+    title="parseS*(self: Buf): string"><wbr />parse<wbr />S</a></li>
   <li><a class="reference" href="#read,Buf"
     title="read*[T](self: Buf): T"><wbr />read</a></li>
   <li><a class="reference" href="#pop,Buf"
     title="pop*[T](self: Buf): T"><wbr />pop</a></li>
-  <li><a class="reference" href="#tryAdd,Readdir,uint64,uint64,TMode,string"
-    title="tryAdd*(self: Readdir; ino: uint64; idx: uint64; mode: TMode; name: string): bool"><wbr />try<wbr />Add</a></li>
+  <li><a class="reference" href="#tryAdd,Readdir,int64,int64,int32,string"
+    title="tryAdd*(self: Readdir; ino: int64; off: int64; st_mode: int32; name: string): bool"><wbr />try<wbr />Add</a></li>
   <li><a class="reference" href="#ok,Readdir"
     title="ok*(self: Readdir)"><wbr />ok</a></li>
   <li><a class="reference" href="#ok,GetXAttrData,TIOVec"
@@ -1328,93 +1340,93 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="init*(self: FuseFs; req: Request): int"><wbr />init</a></li>
   <li><a class="reference" href="#destroy.e,FuseFs,Request"
     title="destroy*(self: FuseFs; req: Request)"><wbr />destroy</a></li>
-  <li><a class="reference" href="#lookup.e,FuseFs,Request,uint64,string,Lookup"
-    title="lookup*(self: FuseFs; req: Request; parent: uint64; name: string; reply: Lookup)"><wbr />lookup</a></li>
-  <li><a class="reference" href="#forget.e,FuseFs,Request,uint64,uint64"
-    title="forget*(self: FuseFs; req: Request; ino: uint64; nlookup: uint64)"><wbr />forget</a></li>
-  <li><a class="reference" href="#getattr.e,FuseFs,Request,uint64,GetAttr"
-    title="getattr*(self: FuseFs; req: Request; ino: uint64; reply: GetAttr)"><wbr />getattr</a></li>
-  <li><a class="reference" href="#setattr.e,FuseFs,Request,uint64,Option[uint32],Option[uint32],Option[uint32],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[Ttimespec],Option[uint32],SetAttr"
-    title="setattr*(self: FuseFs; req: Request; ino: uint64; mode: Option[uint32]; 
-         uid: Option[uint32]; gid: Option[uint32]; size: Option[uint64]; 
-         atime: Option[Ttimespec]; mtime: Option[Ttimespec]; fh: Option[uint64]; 
-         crtime: Option[Ttimespec]; chgtime: Option[Ttimespec]; 
-         bkuptime: Option[Ttimespec]; flags: Option[uint32]; reply: SetAttr)"><wbr />setattr</a></li>
-  <li><a class="reference" href="#readlink.e,FuseFs,Request,uint64,Readlink"
-    title="readlink*(self: FuseFs; req: Request; ino: uint64; reply: Readlink)"><wbr />readlink</a></li>
-  <li><a class="reference" href="#mknod.e,FuseFs,Request,uint64,string,uint32,uint32,Mknod"
-    title="mknod*(self: FuseFs; req: Request; parent: uint64; name: string; mode: uint32; 
-       rdev: uint32; reply: Mknod)"><wbr />mknod</a></li>
-  <li><a class="reference" href="#mkdir.e,FuseFs,Request,uint64,string,uint32,Mkdir"
-    title="mkdir*(self: FuseFs; req: Request; parent: uint64; name: string; mode: uint32; 
+  <li><a class="reference" href="#lookup.e,FuseFs,Request,int64,string,Lookup"
+    title="lookup*(self: FuseFs; req: Request; parent: int64; name: string; reply: Lookup)"><wbr />lookup</a></li>
+  <li><a class="reference" href="#forget.e,FuseFs,Request,int64,int64"
+    title="forget*(self: FuseFs; req: Request; ino: int64; nlookup: int64)"><wbr />forget</a></li>
+  <li><a class="reference" href="#getattr.e,FuseFs,Request,int64,GetAttr"
+    title="getattr*(self: FuseFs; req: Request; ino: int64; reply: GetAttr)"><wbr />getattr</a></li>
+  <li><a class="reference" href="#setattr.e,FuseFs,Request,int64,Option[int32],Option[int32],Option[int32],Option[int64],Option[Timespec],Option[Timespec],Option[int64],Option[Timespec],Option[Timespec],Option[Timespec],Option[int32],SetAttr"
+    title="setattr*(self: FuseFs; req: Request; ino: int64; mode: Option[int32]; 
+         uid: Option[int32]; gid: Option[int32]; size: Option[int64]; 
+         atime: Option[Timespec]; mtime: Option[Timespec]; fh: Option[int64]; 
+         crtime: Option[Timespec]; chgtime: Option[Timespec]; 
+         bkuptime: Option[Timespec]; flags: Option[int32]; reply: SetAttr)"><wbr />setattr</a></li>
+  <li><a class="reference" href="#readlink.e,FuseFs,Request,int64,Readlink"
+    title="readlink*(self: FuseFs; req: Request; ino: int64; reply: Readlink)"><wbr />readlink</a></li>
+  <li><a class="reference" href="#mknod.e,FuseFs,Request,int64,string,int32,int32,Mknod"
+    title="mknod*(self: FuseFs; req: Request; parent: int64; name: string; mode: int32; 
+       rdev: int32; reply: Mknod)"><wbr />mknod</a></li>
+  <li><a class="reference" href="#mkdir.e,FuseFs,Request,int64,string,int32,Mkdir"
+    title="mkdir*(self: FuseFs; req: Request; parent: int64; name: string; mode: int32; 
        reply: Mkdir)"><wbr />mkdir</a></li>
-  <li><a class="reference" href="#unlink.e,FuseFs,Request,uint64,string,Unlink"
-    title="unlink*(self: FuseFs; req: Request; parent: uint64; name: string; reply: Unlink)"><wbr />unlink</a></li>
-  <li><a class="reference" href="#rmdir.e,FuseFs,Request,uint64,string,Rmdir"
-    title="rmdir*(self: FuseFs; req: Request; parent: uint64; name: string; reply: Rmdir)"><wbr />rmdir</a></li>
-  <li><a class="reference" href="#symlink.e,FuseFs,Request,string,uint64,string,Symlink"
-    title="symlink*(self: FuseFs; req: Request; link: string; parent: uint64; name: string; 
+  <li><a class="reference" href="#unlink.e,FuseFs,Request,int64,string,Unlink"
+    title="unlink*(self: FuseFs; req: Request; parent: int64; name: string; reply: Unlink)"><wbr />unlink</a></li>
+  <li><a class="reference" href="#rmdir.e,FuseFs,Request,int64,string,Rmdir"
+    title="rmdir*(self: FuseFs; req: Request; parent: int64; name: string; reply: Rmdir)"><wbr />rmdir</a></li>
+  <li><a class="reference" href="#symlink.e,FuseFs,Request,string,int64,string,Symlink"
+    title="symlink*(self: FuseFs; req: Request; link: string; parent: int64; name: string; 
          reply: Symlink)"><wbr />symlink</a></li>
-  <li><a class="reference" href="#rename.e,FuseFs,Request,uint64,string,uint64,string,Rename"
-    title="rename*(self: FuseFs; req: Request; parent: uint64; name: string; 
-        newdir: uint64; newname: string; reply: Rename)"><wbr />rename</a></li>
-  <li><a class="reference" href="#link.e,FuseFs,Request,uint64,uint64,string,Link"
-    title="link*(self: FuseFs; req: Request; ino: uint64; newparent: uint64; 
-      newname: string; reply: Link)"><wbr />link</a></li>
-  <li><a class="reference" href="#open.e,FuseFs,Request,uint64,uint32,Open"
-    title="open*(self: FuseFs; req: Request; ino: uint64; flags: uint32; reply: Open)"><wbr />open</a></li>
-  <li><a class="reference" href="#read.e,FuseFs,Request,uint64,uint64,uint64,uint32,Read"
-    title="read*(self: FuseFs; req: Request; ino: uint64; fh: uint64; offset: uint64; 
-      size: uint32; reply: Read)"><wbr />read</a></li>
-  <li><a class="reference" href="#write.e,FuseFs,Request,uint64,uint64,uint64,Buf,uint32,Write"
-    title="write*(self: FuseFs; req: Request; ino: uint64; fh: uint64; offset: uint64; 
-       data: Buf; flags: uint32; reply: Write)"><wbr />write</a></li>
-  <li><a class="reference" href="#flush.e,FuseFs,Request,uint64,uint64,uint64,Flush"
-    title="flush*(self: FuseFs; req: Request; ino: uint64; fh: uint64; lock_owner: uint64; 
+  <li><a class="reference" href="#rename.e,FuseFs,Request,int64,string,int64,string,Rename"
+    title="rename*(self: FuseFs; req: Request; parent: int64; name: string; newdir: int64; 
+        newname: string; reply: Rename)"><wbr />rename</a></li>
+  <li><a class="reference" href="#link.e,FuseFs,Request,int64,int64,string,Link"
+    title="link*(self: FuseFs; req: Request; ino: int64; newparent: int64; newname: string; 
+      reply: Link)"><wbr />link</a></li>
+  <li><a class="reference" href="#open.e,FuseFs,Request,int64,int32,Open"
+    title="open*(self: FuseFs; req: Request; ino: int64; flags: int32; reply: Open)"><wbr />open</a></li>
+  <li><a class="reference" href="#read.e,FuseFs,Request,int64,int64,int64,int32,Read"
+    title="read*(self: FuseFs; req: Request; ino: int64; fh: int64; offset: int64; 
+      size: int32; reply: Read)"><wbr />read</a></li>
+  <li><a class="reference" href="#write.e,FuseFs,Request,int64,int64,int64,Buf,int32,Write"
+    title="write*(self: FuseFs; req: Request; ino: int64; fh: int64; offset: int64; 
+       data: Buf; flags: int32; reply: Write)"><wbr />write</a></li>
+  <li><a class="reference" href="#flush.e,FuseFs,Request,int64,int64,int64,Flush"
+    title="flush*(self: FuseFs; req: Request; ino: int64; fh: int64; lock_owner: int64; 
        reply: Flush)"><wbr />flush</a></li>
-  <li><a class="reference" href="#release.e,FuseFs,Request,uint64,uint64,uint32,uint64,bool,Release"
-    title="release*(self: FuseFs; req: Request; ino: uint64; fh: uint64; flags: uint32; 
-         lock_owner: uint64; flush: bool; reply: Release)"><wbr />release</a></li>
-  <li><a class="reference" href="#fsync.e,FuseFs,Request,uint64,uint64,bool,Fsync"
-    title="fsync*(self: FuseFs; req: Request; ino: uint64; fh: uint64; datasync: bool; 
+  <li><a class="reference" href="#release.e,FuseFs,Request,int64,int64,int32,int64,bool,Release"
+    title="release*(self: FuseFs; req: Request; ino: int64; fh: int64; flags: int32; 
+         lock_owner: int64; flush: bool; reply: Release)"><wbr />release</a></li>
+  <li><a class="reference" href="#fsync.e,FuseFs,Request,int64,int64,bool,Fsync"
+    title="fsync*(self: FuseFs; req: Request; ino: int64; fh: int64; datasync: bool; 
        reply: Fsync)"><wbr />fsync</a></li>
-  <li><a class="reference" href="#opendir.e,FuseFs,Request,uint64,uint32,Opendir"
-    title="opendir*(self: FuseFs; req: Request; ino: uint64; flags: uint32; reply: Opendir)"><wbr />opendir</a></li>
-  <li><a class="reference" href="#readdir.e,FuseFs,Request,uint64,uint64,uint64,Readdir"
-    title="readdir*(self: FuseFs; req: Request; ino: uint64; fh: uint64; offset: uint64; 
+  <li><a class="reference" href="#opendir.e,FuseFs,Request,int64,int32,Opendir"
+    title="opendir*(self: FuseFs; req: Request; ino: int64; flags: int32; reply: Opendir)"><wbr />opendir</a></li>
+  <li><a class="reference" href="#readdir.e,FuseFs,Request,int64,int64,int64,Readdir"
+    title="readdir*(self: FuseFs; req: Request; ino: int64; fh: int64; offset: int64; 
          reply: Readdir)"><wbr />readdir</a></li>
-  <li><a class="reference" href="#releasedir.e,FuseFs,Request,uint64,uint32,Releasedir"
-    title="releasedir*(self: FuseFs; req: Request; fh: uint64; flags: uint32; 
+  <li><a class="reference" href="#releasedir.e,FuseFs,Request,int64,int32,Releasedir"
+    title="releasedir*(self: FuseFs; req: Request; fh: int64; flags: int32; 
             reply: Releasedir)"><wbr />releasedir</a></li>
-  <li><a class="reference" href="#fsyncdir.e,FuseFs,Request,uint64,uint64,bool,Fsyncdir"
-    title="fsyncdir*(self: FuseFs; req: Request; ino: uint64; fh: uint64; datasync: bool; 
+  <li><a class="reference" href="#fsyncdir.e,FuseFs,Request,int64,int64,bool,Fsyncdir"
+    title="fsyncdir*(self: FuseFs; req: Request; ino: int64; fh: int64; datasync: bool; 
           reply: Fsyncdir)"><wbr />fsyncdir</a></li>
-  <li><a class="reference" href="#statfs.e,FuseFs,Request,uint64,Statfs"
-    title="statfs*(self: FuseFs; req: Request; ino: uint64; reply: Statfs)"><wbr />statfs</a></li>
-  <li><a class="reference" href="#setxattr.e,FuseFs,Request,uint64,string,Buf,uint32,uint32,SetXAttr"
-    title="setxattr*(self: FuseFs; req: Request; ino: uint64; key: string; value: Buf; 
-          flags: uint32; position: uint32; reply: SetXAttr)"><wbr />setxattr</a></li>
-  <li><a class="reference" href="#getxattr.e,FuseFs,Request,uint64,string,GetXAttr"
-    title="getxattr*(self: FuseFs; req: Request; ino: uint64; key: string; reply: GetXAttr)"><wbr />getxattr</a></li>
-  <li><a class="reference" href="#listxattr.e,FuseFs,Request,uint64,ListXAttr"
-    title="listxattr*(self: FuseFs; req: Request; ino: uint64; reply: ListXAttr)"><wbr />listxattr</a></li>
-  <li><a class="reference" href="#removexattr.e,FuseFs,Request,uint64,string,RemoveXAttr"
-    title="removexattr*(self: FuseFs; req: Request; ino: uint64; name: string; 
+  <li><a class="reference" href="#statfs.e,FuseFs,Request,int64,Statfs"
+    title="statfs*(self: FuseFs; req: Request; ino: int64; reply: Statfs)"><wbr />statfs</a></li>
+  <li><a class="reference" href="#setxattr.e,FuseFs,Request,int64,string,Buf,int32,int32,SetXAttr"
+    title="setxattr*(self: FuseFs; req: Request; ino: int64; key: string; value: Buf; 
+          flags: int32; position: int32; reply: SetXAttr)"><wbr />setxattr</a></li>
+  <li><a class="reference" href="#getxattr.e,FuseFs,Request,int64,string,GetXAttr"
+    title="getxattr*(self: FuseFs; req: Request; ino: int64; key: string; reply: GetXAttr)"><wbr />getxattr</a></li>
+  <li><a class="reference" href="#listxattr.e,FuseFs,Request,int64,ListXAttr"
+    title="listxattr*(self: FuseFs; req: Request; ino: int64; reply: ListXAttr)"><wbr />listxattr</a></li>
+  <li><a class="reference" href="#removexattr.e,FuseFs,Request,int64,string,RemoveXAttr"
+    title="removexattr*(self: FuseFs; req: Request; ino: int64; name: string; 
              reply: RemoveXAttr)"><wbr />removexattr</a></li>
-  <li><a class="reference" href="#access.e,FuseFs,Request,uint64,uint32,Access"
-    title="access*(self: FuseFs; req: Request; ino: uint64; mask: uint32; reply: Access)"><wbr />access</a></li>
-  <li><a class="reference" href="#create.e,FuseFs,Request,uint64,string,uint32,uint32,Create"
-    title="create*(self: FuseFs; req: Request; parent: uint64; name: string; mode: uint32; 
-        flags: uint32; reply: Create)"><wbr />create</a></li>
-  <li><a class="reference" href="#getlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,Getlk"
-    title="getlk*(self: FuseFs; req: Request; ino: uint64; fh: uint64; lock_owner: uint64; 
-       start: uint64; theEnd: uint64; theType: uint64; pid: uint32; reply: Getlk)"><wbr />getlk</a></li>
-  <li><a class="reference" href="#setlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,bool,Setlk"
-    title="setlk*(self: FuseFs; req: Request; ino: uint64; fh: uint64; lock_owner: uint64; 
-       start: uint64; theEnd: uint64; theType: uint64; pid: uint32; sleep: bool; 
+  <li><a class="reference" href="#access.e,FuseFs,Request,int64,int32,Access"
+    title="access*(self: FuseFs; req: Request; ino: int64; mask: int32; reply: Access)"><wbr />access</a></li>
+  <li><a class="reference" href="#create.e,FuseFs,Request,int64,string,int32,int32,Create"
+    title="create*(self: FuseFs; req: Request; parent: int64; name: string; mode: int32; 
+        flags: int32; reply: Create)"><wbr />create</a></li>
+  <li><a class="reference" href="#getlk.e,FuseFs,Request,int64,int64,int64,int64,int64,int64,int32,Getlk"
+    title="getlk*(self: FuseFs; req: Request; ino: int64; fh: int64; lock_owner: int64; 
+       start: int64; theEnd: int64; theType: int64; pid: int32; reply: Getlk)"><wbr />getlk</a></li>
+  <li><a class="reference" href="#setlk.e,FuseFs,Request,int64,int64,int64,int64,int64,int64,int32,bool,Setlk"
+    title="setlk*(self: FuseFs; req: Request; ino: int64; fh: int64; lock_owner: int64; 
+       start: int64; theEnd: int64; theType: int64; pid: int32; sleep: bool; 
        reply: Setlk)"><wbr />setlk</a></li>
-  <li><a class="reference" href="#bmap.e,FuseFs,Request,uint64,uint32,uint64,Bmap"
-    title="bmap*(self: FuseFs; req: Request; ino: uint64; blocksize: uint32; idx: uint64; 
+  <li><a class="reference" href="#bmap.e,FuseFs,Request,int64,int32,int64,Bmap"
+    title="bmap*(self: FuseFs; req: Request; ino: int64; blocksize: int32; idx: int64; 
       reply: Bmap)"><wbr />bmap</a></li>
 
   </ul>
@@ -1428,7 +1440,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="os.html">os</a>, <a class="reference external" href="posix.html">posix</a>, <a class="reference external" href="logging.html">logging</a>, <a class="reference external" href="unsigned.html">unsigned</a>, <a class="reference external" href="times.html">times</a>, <a class="reference external" href="strutils.html">strutils</a>
+<a class="reference external" href="os.html">os</a>, <a class="reference external" href="posix.html">posix</a>, <a class="reference external" href="logging.html">logging</a>, <a class="reference external" href="strutils.html">strutils</a>
 </dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
@@ -1452,100 +1464,108 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 
 </dd>
 <dt id="fuse_kstatfs"><a name="fuse_kstatfs"></a><pre><span class="Identifier">fuse_kstatfs</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">blocks</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">bfree</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">bavail</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">files</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">ffree</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">bsize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">namelen</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">frsize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">spare</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">6</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span>
+  <span class="Identifier">blocks</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">bfree</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">bavail</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">files</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">ffree</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">bsize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">namelen</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">frsize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">spare</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">6</span><span class="Other">,</span> <span class="Identifier">int32</span><span class="Other">]</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="fuse_file_lock"><a name="fuse_file_lock"></a><pre><span class="Identifier">fuse_file_lock</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">start</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">theEnd</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">theType</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">pid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">start</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">theEnd</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">theType</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">pid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="fuse_open_out"><a name="fuse_open_out"></a><pre><span class="Identifier">fuse_open_out</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">fh</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">open_flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">fh</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">open_flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="fuse_write_out"><a name="fuse_write_out"></a><pre><span class="Identifier">fuse_write_out</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="fuse_getxattr_out"><a name="fuse_getxattr_out"></a><pre><span class="Identifier">fuse_getxattr_out</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
 request of in-kernel buffer size (byte)
 
 </dd>
 <dt id="fuse_bmap_out"><a name="fuse_bmap_out"></a><pre><span class="Identifier">fuse_bmap_out</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">theBlock</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
+  <span class="Identifier">theBlock</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="fuse_in_header"><a name="fuse_in_header"></a><pre><span class="Identifier">fuse_in_header</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
-  <span class="Identifier">len</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">opcode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">unique</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">nodeid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">pid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">len</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">opcode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">unique</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">nodeid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">pid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">padding</span><span class="Other">:</span> <span class="Identifier">int32</span>
+</pre></dt>
+<dd>
+
+
+</dd>
+<dt id="Timespec"><a name="Timespec"></a><pre><span class="Identifier">Timespec</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> 
+  <span class="Identifier">sec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">nsec</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
 
 
 </dd>
 <dt id="FileAttr"><a name="FileAttr"></a><pre><span class="Identifier">FileAttr</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
-  <span class="Identifier">ino</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">blocks</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">atime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
-  <span class="Identifier">mtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
-  <span class="Identifier">ctime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
-  <span class="Identifier">crtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>
-  <span class="Identifier">mode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TMode</span>
-  <span class="Identifier">nlink</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">rdev</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
-  <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">ino</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">size</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">blocks</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">atime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>
+  <span class="Identifier">mtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>
+  <span class="Identifier">ctime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>
+  <span class="Identifier">crtime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>
+  <span class="Identifier">mode</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">nlink</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">uid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">gid</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">rdev</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
+  <span class="Identifier">flags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int32</span>
 </pre></dt>
 <dd>
-number of hard links
+number of hard links. TNlink?
 
 </dd>
 <dt id="TEntryOut"><a name="TEntryOut"></a><pre><span class="Identifier">TEntryOut</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> 
-  <span class="Identifier">generation</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span>
-  <span class="Identifier">entry_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>   <span class="Comment">## Validity timeout for the name.</span>
-  <span class="Identifier">attr_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Ttimespec</span>    <span class="Comment">## Validity timeout for the attributes.</span>
+  <span class="Identifier">generation</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int64</span>
+  <span class="Identifier">entry_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>    <span class="Comment">## Validity timeout for the name.</span>
+  <span class="Identifier">attr_timeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Timespec</span>     <span class="Comment">## Validity timeout for the attributes.</span>
   <span class="Identifier">attr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">FileAttr</span>
 </pre></dt>
 <dd>
@@ -1579,12 +1599,12 @@ Base class for FUSE filesystem User needs to implement a subclass These methods 
 <div class="section" id="9">
 <h1><a class="toc-backref" href="#9">Lets</a></h1>
 <dl class="item">
-<dt id="FUSE_KERNEL_VERSION"><a name="FUSE_KERNEL_VERSION"></a><pre><span class="Identifier">FUSE_KERNEL_VERSION</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">7'u32</span></pre></dt>
+<dt id="FUSE_KERNEL_VERSION"><a name="FUSE_KERNEL_VERSION"></a><pre><span class="Identifier">FUSE_KERNEL_VERSION</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">7'i32</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_KERNEL_MINOR_VERSION"><a name="FUSE_KERNEL_MINOR_VERSION"></a><pre><span class="Identifier">FUSE_KERNEL_MINOR_VERSION</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">8'u32</span></pre></dt>
+<dt id="FUSE_KERNEL_MINOR_VERSION"><a name="FUSE_KERNEL_MINOR_VERSION"></a><pre><span class="Identifier">FUSE_KERNEL_MINOR_VERSION</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">8'i32</span></pre></dt>
 <dd>
 
 
@@ -1594,47 +1614,47 @@ Base class for FUSE filesystem User needs to implement a subclass These methods 
 
 
 </dd>
-<dt id="FOPEN_DIRECT_IO"><a name="FOPEN_DIRECT_IO"></a><pre><span class="Identifier">FOPEN_DIRECT_IO</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
+<dt id="FOPEN_DIRECT_IO"><a name="FOPEN_DIRECT_IO"></a><pre><span class="Identifier">FOPEN_DIRECT_IO</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FOPEN_KEEP_CACHE"><a name="FOPEN_KEEP_CACHE"></a><pre><span class="Identifier">FOPEN_KEEP_CACHE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
+<dt id="FOPEN_KEEP_CACHE"><a name="FOPEN_KEEP_CACHE"></a><pre><span class="Identifier">FOPEN_KEEP_CACHE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FOPEN_PURGE_ATTR"><a name="FOPEN_PURGE_ATTR"></a><pre><span class="Identifier">FOPEN_PURGE_ATTR</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">30</span></pre></dt>
+<dt id="FOPEN_PURGE_ATTR"><a name="FOPEN_PURGE_ATTR"></a><pre><span class="Identifier">FOPEN_PURGE_ATTR</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">30</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FOPEN_PURGE_UBC"><a name="FOPEN_PURGE_UBC"></a><pre><span class="Identifier">FOPEN_PURGE_UBC</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">31</span></pre></dt>
+<dt id="FOPEN_PURGE_UBC"><a name="FOPEN_PURGE_UBC"></a><pre><span class="Identifier">FOPEN_PURGE_UBC</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">31</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_ASYNC_READ"><a name="FUSE_ASYNC_READ"></a><pre><span class="Identifier">FUSE_ASYNC_READ</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
+<dt id="FUSE_ASYNC_READ"><a name="FUSE_ASYNC_READ"></a><pre><span class="Identifier">FUSE_ASYNC_READ</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">0</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_POSIX_LOCKS"><a name="FUSE_POSIX_LOCKS"></a><pre><span class="Identifier">FUSE_POSIX_LOCKS</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
+<dt id="FUSE_POSIX_LOCKS"><a name="FUSE_POSIX_LOCKS"></a><pre><span class="Identifier">FUSE_POSIX_LOCKS</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">1</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_CASE_INSENSITIVE"><a name="FUSE_CASE_INSENSITIVE"></a><pre><span class="Identifier">FUSE_CASE_INSENSITIVE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">29</span></pre></dt>
+<dt id="FUSE_CASE_INSENSITIVE"><a name="FUSE_CASE_INSENSITIVE"></a><pre><span class="Identifier">FUSE_CASE_INSENSITIVE</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">29</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_VOL_RENAME"><a name="FUSE_VOL_RENAME"></a><pre><span class="Identifier">FUSE_VOL_RENAME</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">30</span></pre></dt>
+<dt id="FUSE_VOL_RENAME"><a name="FUSE_VOL_RENAME"></a><pre><span class="Identifier">FUSE_VOL_RENAME</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">30</span></pre></dt>
 <dd>
 
 
 </dd>
-<dt id="FUSE_XTIMES"><a name="FUSE_XTIMES"></a><pre><span class="Identifier">FUSE_XTIMES</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1'u32</span> <span class="Keyword">shl</span> <span class="DecNumber">31</span></pre></dt>
+<dt id="FUSE_XTIMES"><a name="FUSE_XTIMES"></a><pre><span class="Identifier">FUSE_XTIMES</span><span class="Operator">*</span> <span class="Other">=</span> <span class="DecNumber">1</span> <span class="Keyword">shl</span> <span class="DecNumber">31</span></pre></dt>
 <dd>
 
 
@@ -1667,6 +1687,16 @@ Base class for FUSE filesystem User needs to implement a subclass These methods 
 <dt id="mkBuf"><a name="mkBuf,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">mkBuf</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Buf</span></pre></dt>
 <dd>
 Make a buf object of <cite>size</cite> bytes
+
+</dd>
+<dt id="extend"><a name="extend,Buf,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">extend</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span></pre></dt>
+<dd>
+
+
+</dd>
+<dt id="asPtr"><a name="asPtr,Buf,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">asPtr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">at</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">pointer</span></pre></dt>
+<dd>
+
 
 </dd>
 <dt id="asPtr"><a name="asPtr,Buf"></a><pre><span class="Keyword">proc</span> <span class="Identifier">asPtr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">pointer</span></pre></dt>
@@ -1704,9 +1734,19 @@ Get the [pos,] buffer like slicing
 
 
 </dd>
+<dt id="nullTerminated"><a name="nullTerminated,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">nullTerminated</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<dd>
+Returns null terminated string of <cite>s</cite> The length is incremented e.g. mybuf.writeS(&quot;hoge&quot;.nullTerminated)
+
+</dd>
 <dt id="writeS"><a name="writeS,Buf,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">writeS</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">s</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span></pre></dt>
 <dd>
 Write string <cite>s</cite> (Only the contents. Exclude null terminator)
+
+</dd>
+<dt id="parseS"><a name="parseS,Buf"></a><pre><span class="Keyword">proc</span> <span class="Identifier">parseS</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<dd>
+Parse a null-terminated string in the buffer
 
 </dd>
 <dt id="read"><a name="read,Buf"></a><pre><span class="Keyword">proc</span> <span class="Identifier">read</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
@@ -1719,7 +1759,7 @@ Read a value of type T from the buffer
 Read and advance the position
 
 </dd>
-<dt id="tryAdd"><a name="tryAdd,Readdir,uint64,uint64,TMode,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">tryAdd</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">TMode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<dt id="tryAdd"><a name="tryAdd,Readdir,int64,int64,int32,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">tryAdd</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">off</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">st_mode</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
 <dd>
 Try to add the entry If the buffer is too small for the entry then it returns false
 
@@ -1759,194 +1799,194 @@ Initialize filesystem Called before any other filesystem method.
 Clean up filesystem Called on filesystem exit.
 
 </dd>
-<dt id="lookup"><a name="lookup.e,FuseFs,Request,uint64,string,Lookup"></a><pre><span class="Keyword">method</span> <span class="Identifier">lookup</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="lookup"><a name="lookup.e,FuseFs,Request,int64,string,Lookup"></a><pre><span class="Keyword">method</span> <span class="Identifier">lookup</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Lookup</span><span class="Other">)</span></pre></dt>
 <dd>
 Look up a directory entry by name and get its attributes.
 
 </dd>
-<dt id="forget"><a name="forget.e,FuseFs,Request,uint64,uint64"></a><pre><span class="Keyword">method</span> <span class="Identifier">forget</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">nlookup</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">)</span></pre></dt>
+<dt id="forget"><a name="forget.e,FuseFs,Request,int64,int64"></a><pre><span class="Keyword">method</span> <span class="Identifier">forget</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">nlookup</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">)</span></pre></dt>
 <dd>
 Forget about an inode The nlookup parameter indicates the number of lookups previously performed on this inode. If the filesystem implements inode lifetimes, it is recommended that inodes acquire a single reference on each lookup, and lose nlookup references on each forget. The filesystem may ignore forget calls, if the inodes don't need to have a limited lifetime. On unmount it is not guaranteed, that all referenced inodes will receive a forget message.
 
 </dd>
-<dt id="getattr"><a name="getattr.e,FuseFs,Request,uint64,GetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">GetAttr</span><span class="Other">)</span></pre></dt>
+<dt id="getattr"><a name="getattr.e,FuseFs,Request,int64,GetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">GetAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 Get file attributes
 
 </dd>
-<dt id="setattr"><a name="setattr.e,FuseFs,Request,uint64,Option[uint32],Option[uint32],Option[uint32],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[uint64],Option[Ttimespec],Option[Ttimespec],Option[Ttimespec],Option[uint32],SetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> 
-                <span class="Identifier">uid</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">gid</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint64</span><span class="Other">]</span><span class="Other">;</span> 
-                <span class="Identifier">atime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">mtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> 
-                <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint64</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">crtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> 
-                <span class="Identifier">chgtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">bkuptime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Ttimespec</span><span class="Other">]</span><span class="Other">;</span> 
-                <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetAttr</span><span class="Other">)</span></pre></dt>
+<dt id="setattr"><a name="setattr.e,FuseFs,Request,int64,Option[int32],Option[int32],Option[int32],Option[int64],Option[Timespec],Option[Timespec],Option[int64],Option[Timespec],Option[Timespec],Option[Timespec],Option[int32],SetAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span><span class="Other">;</span> 
+                <span class="Identifier">uid</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">gid</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int64</span><span class="Other">]</span><span class="Other">;</span> 
+                <span class="Identifier">atime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Timespec</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">mtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Timespec</span><span class="Other">]</span><span class="Other">;</span> 
+                <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int64</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">crtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Timespec</span><span class="Other">]</span><span class="Other">;</span> 
+                <span class="Identifier">chgtime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Timespec</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">bkuptime</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">Timespec</span><span class="Other">]</span><span class="Other">;</span> 
+                <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 Set file attributes
 
 </dd>
-<dt id="readlink"><a name="readlink.e,FuseFs,Request,uint64,Readlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">readlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readlink</span><span class="Other">)</span></pre></dt>
+<dt id="readlink"><a name="readlink.e,FuseFs,Request,int64,Readlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">readlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readlink</span><span class="Other">)</span></pre></dt>
 <dd>
 Read symbolic link
 
 </dd>
-<dt id="mknod"><a name="mknod.e,FuseFs,Request,uint64,string,uint32,uint32,Mknod"></a><pre><span class="Keyword">method</span> <span class="Identifier">mknod</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-              <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">rdev</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mknod</span><span class="Other">)</span></pre></dt>
+<dt id="mknod"><a name="mknod.e,FuseFs,Request,int64,string,int32,int32,Mknod"></a><pre><span class="Keyword">method</span> <span class="Identifier">mknod</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+              <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">rdev</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mknod</span><span class="Other">)</span></pre></dt>
 <dd>
 Create file node Create a regular file, character device, block device, fifo or socket node.
 
 </dd>
-<dt id="mkdir"><a name="mkdir.e,FuseFs,Request,uint64,string,uint32,Mkdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">mkdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-              <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mkdir</span><span class="Other">)</span></pre></dt>
+<dt id="mkdir"><a name="mkdir.e,FuseFs,Request,int64,string,int32,Mkdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">mkdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+              <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Mkdir</span><span class="Other">)</span></pre></dt>
 <dd>
 Create a directory
 
 </dd>
-<dt id="unlink"><a name="unlink.e,FuseFs,Request,uint64,string,Unlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">unlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="unlink"><a name="unlink.e,FuseFs,Request,int64,string,Unlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">unlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Unlink</span><span class="Other">)</span></pre></dt>
 <dd>
 Remove a file
 
 </dd>
-<dt id="rmdir"><a name="rmdir.e,FuseFs,Request,uint64,string,Rmdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">rmdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="rmdir"><a name="rmdir.e,FuseFs,Request,int64,string,Rmdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">rmdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
               <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rmdir</span><span class="Other">)</span></pre></dt>
 <dd>
 Remove a directory
 
 </dd>
-<dt id="symlink"><a name="symlink.e,FuseFs,Request,string,uint64,string,Symlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">symlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">link</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
+<dt id="symlink"><a name="symlink.e,FuseFs,Request,string,int64,string,Symlink"></a><pre><span class="Keyword">method</span> <span class="Identifier">symlink</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">link</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
                 <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Symlink</span><span class="Other">)</span></pre></dt>
 <dd>
 Create a symboilc link (<cite>parent</cite>, <cite>name</cite>) which, when evaluated, will lead to <cite>link</cite> ~= ln -s <cite>link</cite> (<cite>parent</cite>, <cite>name</cite>)
 
 </dd>
-<dt id="rename"><a name="rename.e,FuseFs,Request,uint64,string,uint64,string,Rename"></a><pre><span class="Keyword">method</span> <span class="Identifier">rename</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-               <span class="Identifier">newdir</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rename</span><span class="Other">)</span></pre></dt>
+<dt id="rename"><a name="rename.e,FuseFs,Request,int64,string,int64,string,Rename"></a><pre><span class="Keyword">method</span> <span class="Identifier">rename</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+               <span class="Identifier">newdir</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Rename</span><span class="Other">)</span></pre></dt>
 <dd>
 Rename a file (<cite>parent</cite>, <cite>name</cite>) to (<cite>newdir</cite>, <cite>newname</cite>)
 
 </dd>
-<dt id="link"><a name="link.e,FuseFs,Request,uint64,uint64,string,Link"></a><pre><span class="Keyword">method</span> <span class="Identifier">link</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">newparent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
+<dt id="link"><a name="link.e,FuseFs,Request,int64,int64,string,Link"></a><pre><span class="Keyword">method</span> <span class="Identifier">link</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">newparent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
              <span class="Identifier">newname</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Link</span><span class="Other">)</span></pre></dt>
 <dd>
 Create a hard link (<cite>newparent</cite>, <cite>newname</cite>) to <cite>ino</cite> ~= ln <cite>ino</cite> (<cite>newparent</cite>, <cite>newname</cite>) Hard links aren't required for a working filesystem, and many successful filesystems don't support them.
 
 </dd>
-<dt id="open"><a name="open.e,FuseFs,Request,uint64,uint32,Open"></a><pre><span class="Keyword">method</span> <span class="Identifier">open</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Open</span><span class="Other">)</span></pre></dt>
+<dt id="open"><a name="open.e,FuseFs,Request,int64,int32,Open"></a><pre><span class="Keyword">method</span> <span class="Identifier">open</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Open</span><span class="Other">)</span></pre></dt>
 <dd>
 Open a file Open flags (with the exception of O_CREAT, O_EXCL, O_NOCTTY and O_TRUNC) are available in flags. Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other file operations (read, write, flush, release, fsync). Filesystem may also implement stateless file I/O and not store anything in fh. There are also some flags (direct_io, keep_cache) which the filesystem may set, to change the way the file is opened. See fuse_file_info structure in &lt;fuse_common.h&gt; for more details.
 
 </dd>
-<dt id="read"><a name="read.e,FuseFs,Request,uint64,uint64,uint64,uint32,Read"></a><pre><span class="Keyword">method</span> <span class="Identifier">read</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-             <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Read</span><span class="Other">)</span></pre></dt>
+<dt id="read"><a name="read.e,FuseFs,Request,int64,int64,int64,int32,Read"></a><pre><span class="Keyword">method</span> <span class="Identifier">read</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+             <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Read</span><span class="Other">)</span></pre></dt>
 <dd>
 Read data Read should send exactly the number of bytes requested except on EOF or error, otherwise the rest of the data will be substituted with zeroes. An exception to this is when the file has been opened in 'direct_io' mode, in which case the return value of the read system call will reflect the return value of this operation. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value.
 
 </dd>
-<dt id="write"><a name="write.e,FuseFs,Request,uint64,uint64,uint64,Buf,uint32,Write"></a><pre><span class="Keyword">method</span> <span class="Identifier">write</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Write</span><span class="Other">)</span></pre></dt>
+<dt id="write"><a name="write.e,FuseFs,Request,int64,int64,int64,Buf,int32,Write"></a><pre><span class="Keyword">method</span> <span class="Identifier">write</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Write</span><span class="Other">)</span></pre></dt>
 <dd>
 Write data Write should return exactly the number of bytes requested except on error. An exception to this is when the file has been opened in 'direct_io' mode, in which case the return value of the write system call will reflect the return value of this operation. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value.
 
 </dd>
-<dt id="flush"><a name="flush.e,FuseFs,Request,uint64,uint64,uint64,Flush"></a><pre><span class="Keyword">method</span> <span class="Identifier">flush</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Flush</span><span class="Other">)</span></pre></dt>
+<dt id="flush"><a name="flush.e,FuseFs,Request,int64,int64,int64,Flush"></a><pre><span class="Keyword">method</span> <span class="Identifier">flush</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Flush</span><span class="Other">)</span></pre></dt>
 <dd>
 Flush method This is called on each close() of the opened file. Since file descriptors can be duplicated (dup, dup2, fork), for one open call there may be many flush calls. Filesystems shouldn't assume that flush will always be called after some writes, or that if will be called at all. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value. NOTE: the name of the method is misleading, since (unlike fsync) the filesystem is not forced to flush pending writes. One reason to flush data, is if the filesystem wants to return write errors. If the filesystem supports file locking operations (setlk, getlk) it should remove all locks belonging to 'lock_owner'.
 
 </dd>
-<dt id="release"><a name="release.e,FuseFs,Request,uint64,uint64,uint32,uint64,bool,Release"></a><pre><span class="Keyword">method</span> <span class="Identifier">release</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-                <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flush</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Release</span><span class="Other">)</span></pre></dt>
+<dt id="release"><a name="release.e,FuseFs,Request,int64,int64,int32,int64,bool,Release"></a><pre><span class="Keyword">method</span> <span class="Identifier">release</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> 
+                <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">flush</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Release</span><span class="Other">)</span></pre></dt>
 <dd>
 Release an open file Release is called when there are no more references to an open file: all file descriptors are closed and all memory mappings are unmapped. For every open call there will be exactly one release call. The filesystem may reply with an error, but error values are not returned to close() or munmap() which triggered the release. fh will contain the value set by the open method, or will be undefined if the open method didn't set any value. flags will contain the same flags as for open.
 
 </dd>
-<dt id="fsync"><a name="fsync.e,FuseFs,Request,uint64,uint64,bool,Fsync"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsync</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">datasync</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Fsync</span><span class="Other">)</span></pre></dt>
+<dt id="fsync"><a name="fsync.e,FuseFs,Request,int64,int64,bool,Fsync"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsync</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">datasync</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> 
+              <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Fsync</span><span class="Other">)</span></pre></dt>
 <dd>
 Synchronize file contents If the datasync parameter is non-zero, then only the user data should be flushed, not the meta data.
 
 </dd>
-<dt id="opendir"><a name="opendir.e,FuseFs,Request,uint64,uint32,Opendir"></a><pre><span class="Keyword">method</span> <span class="Identifier">opendir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
+<dt id="opendir"><a name="opendir.e,FuseFs,Request,int64,int32,Opendir"></a><pre><span class="Keyword">method</span> <span class="Identifier">opendir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> 
                 <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Opendir</span><span class="Other">)</span></pre></dt>
 <dd>
 Open a directory Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other directory stream operations (readdir, releasedir, fsyncdir). Filesystem may also implement stateless directory I/O and not store anything in fh, though that makes it impossible to implement standard conforming directory stream operations in case the contents of the directory can change between opendir and releasedir.
 
 </dd>
-<dt id="readdir"><a name="readdir.e,FuseFs,Request,uint64,uint64,uint64,Readdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">readdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-                <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">)</span></pre></dt>
+<dt id="readdir"><a name="readdir.e,FuseFs,Request,int64,int64,int64,Readdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">readdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+                <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Readdir</span><span class="Other">)</span></pre></dt>
 <dd>
 Read directory Send a buffer filled using buffer.fill(), with size not exceeding the requested size. Send an empty buffer on end of stream. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
-<dt id="releasedir"><a name="releasedir.e,FuseFs,Request,uint64,uint32,Releasedir"></a><pre><span class="Keyword">method</span> <span class="Identifier">releasedir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
+<dt id="releasedir"><a name="releasedir.e,FuseFs,Request,int64,int32,Releasedir"></a><pre><span class="Keyword">method</span> <span class="Identifier">releasedir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> 
                    <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Releasedir</span><span class="Other">)</span></pre></dt>
 <dd>
 Release an open directory For every opendir call there will be exactly one releasedir call. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
-<dt id="fsyncdir"><a name="fsyncdir.e,FuseFs,Request,uint64,uint64,bool,Fsyncdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsyncdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
+<dt id="fsyncdir"><a name="fsyncdir.e,FuseFs,Request,int64,int64,bool,Fsyncdir"></a><pre><span class="Keyword">method</span> <span class="Identifier">fsyncdir</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
                  <span class="Identifier">datasync</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Fsyncdir</span><span class="Other">)</span></pre></dt>
 <dd>
 Synchronize directory contents If the datasync parameter is set, then only the directory contents should be flushed, not the meta data. fh will contain the value set by the opendir method, or will be undefined if the opendir method didn't set any value.
 
 </dd>
-<dt id="statfs"><a name="statfs.e,FuseFs,Request,uint64,Statfs"></a><pre><span class="Keyword">method</span> <span class="Identifier">statfs</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Statfs</span><span class="Other">)</span></pre></dt>
+<dt id="statfs"><a name="statfs.e,FuseFs,Request,int64,Statfs"></a><pre><span class="Keyword">method</span> <span class="Identifier">statfs</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Statfs</span><span class="Other">)</span></pre></dt>
 <dd>
 Get file system statistics
 
 </dd>
-<dt id="setxattr"><a name="setxattr.e,FuseFs,Request,uint64,string,Buf,uint32,uint32,SetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-                 <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">position</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetXAttr</span><span class="Other">)</span></pre></dt>
+<dt id="setxattr"><a name="setxattr.e,FuseFs,Request,int64,string,Buf,int32,int32,SetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">setxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+                 <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">Buf</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">position</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">SetXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 Set an extended attribute
 
 </dd>
-<dt id="getxattr"><a name="getxattr.e,FuseFs,Request,uint64,string,GetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="getxattr"><a name="getxattr.e,FuseFs,Request,int64,string,GetXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">getxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                  <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">GetXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 Get an extended attribute
 
 </dd>
-<dt id="listxattr"><a name="listxattr.e,FuseFs,Request,uint64,ListXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">listxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">ListXAttr</span><span class="Other">)</span></pre></dt>
+<dt id="listxattr"><a name="listxattr.e,FuseFs,Request,int64,ListXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">listxattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">ListXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 List extended attribute names
 
 </dd>
-<dt id="removexattr"><a name="removexattr.e,FuseFs,Request,uint64,string,RemoveXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">removexattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="removexattr"><a name="removexattr.e,FuseFs,Request,int64,string,RemoveXAttr"></a><pre><span class="Keyword">method</span> <span class="Identifier">removexattr</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                     <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">RemoveXAttr</span><span class="Other">)</span></pre></dt>
 <dd>
 Remove an extended attribute
 
 </dd>
-<dt id="access"><a name="access.e,FuseFs,Request,uint64,uint32,Access"></a><pre><span class="Keyword">method</span> <span class="Identifier">access</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">mask</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
+<dt id="access"><a name="access.e,FuseFs,Request,int64,int32,Access"></a><pre><span class="Keyword">method</span> <span class="Identifier">access</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">mask</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> 
                <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Access</span><span class="Other">)</span></pre></dt>
 <dd>
 Check file access permissions This will be called for the access() system call. If the 'default_permissions' mount option is given, this method is not called. This method is not called under Linux kernel versions 2.4.x
 
 </dd>
-<dt id="create"><a name="create.e,FuseFs,Request,uint64,string,uint32,uint32,Create"></a><pre><span class="Keyword">method</span> <span class="Identifier">create</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
-               <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Create</span><span class="Other">)</span></pre></dt>
+<dt id="create"><a name="create.e,FuseFs,Request,int64,string,int32,int32,Create"></a><pre><span class="Keyword">method</span> <span class="Identifier">create</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+               <span class="Identifier">mode</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Create</span><span class="Other">)</span></pre></dt>
 <dd>
 Create and open a file If the file does not exist, first create it with the specified mode, and then open it. Open flags (with the exception of O_NOCTTY) are available in flags. Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and use this in other all other file operations (read, write, flush, release, fsync). There are also some flags (direct_io, keep_cache) which the filesystem may set, to change the way the file is opened. See fuse_file_info structure in &lt;fuse_common.h&gt; for more details. If this method is not implemented or under Linux kernel versions earlier than 2.6.15, the mknod() and open() methods will be called instead.
 
 </dd>
-<dt id="getlk"><a name="getlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,Getlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">getlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Getlk</span><span class="Other">)</span></pre></dt>
+<dt id="getlk"><a name="getlk.e,FuseFs,Request,int64,int64,int64,int64,int64,int64,int32,Getlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">getlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Getlk</span><span class="Other">)</span></pre></dt>
 <dd>
 Test for a POSIX file lock
 
 </dd>
-<dt id="setlk"><a name="setlk.e,FuseFs,Request,uint64,uint64,uint64,uint64,uint64,uint64,uint32,bool,Setlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">setlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> 
-              <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">sleep</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Setlk</span><span class="Other">)</span></pre></dt>
+<dt id="setlk"><a name="setlk.e,FuseFs,Request,int64,int64,int64,int64,int64,int64,int32,bool,Setlk"></a><pre><span class="Keyword">method</span> <span class="Identifier">setlk</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">fh</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">lock_owner</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">theEnd</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">theType</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> 
+              <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> <span class="Identifier">sleep</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Setlk</span><span class="Other">)</span></pre></dt>
 <dd>
 Acquire, modify or release a POSIX file lock For POSIX threads (NPTL) there's a 1-1 relation between pid and owner, but otherwise this is not always the case.  For checking lock ownership, 'fi-&gt;owner' must be used. The l_pid field in 'struct flock' should only be used to fill in this field in getlk(). Note: if the locking methods are not implemented, the kernel will still allow file locking to work locally. Hence these are only interesting for network filesystems and similar.
 
 </dd>
-<dt id="bmap"><a name="bmap.e,FuseFs,Request,uint64,uint32,uint64,Bmap"></a><pre><span class="Keyword">method</span> <span class="Identifier">bmap</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">blocksize</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> 
-             <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Bmap</span><span class="Other">)</span></pre></dt>
+<dt id="bmap"><a name="bmap.e,FuseFs,Request,int64,int32,int64,Bmap"></a><pre><span class="Keyword">method</span> <span class="Identifier">bmap</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">FuseFs</span><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <span class="Identifier">Request</span><span class="Other">;</span> <span class="Identifier">ino</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">blocksize</span><span class="Other">:</span> <span class="Identifier">int32</span><span class="Other">;</span> 
+             <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">int64</span><span class="Other">;</span> <span class="Identifier">reply</span><span class="Other">:</span> <span class="Identifier">Bmap</span><span class="Other">)</span></pre></dt>
 <dd>
 Map block index within file to block index within device Note: This makes sense only for block device backed filesystems mounted with the 'blkdev' option
 
@@ -1961,7 +2001,7 @@ Map block index within file to block index within device Note: This makes sense 
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-02-14 10:35:53 UTC</small>
+        <small>Made with Nim. Generated: 2015-02-21 20:57:09 UTC</small>
       </div>
     </div>
   </div>
