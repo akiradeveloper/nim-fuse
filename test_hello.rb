@@ -6,7 +6,7 @@ def s(cmd)
 end
 
 def mount(cmd, &block)
-  # p `ls -l /dev/fuse`
+  p `ls -l /dev/fuse`
   # p `lsmod | grep fuse`
   # p `pwd`
   s "rm -rf mnt; mkdir mnt"
@@ -20,8 +20,8 @@ def mount(cmd, &block)
   p Time.new
   block.call
   # p `pwd`
-  # s "fusermount -u mnt"
-  s "kill -9 #{pid}"
+  s "fusermount -u mnt"
+  # s "kill -9 #{pid}"
 end
 
 def t(cmd, &block)
