@@ -236,85 +236,46 @@ let
   # Release flags
   FUSE_RELEASE_FLUSH = 1 shl 0
 
-when hostOS == "macosx":
-  type fuse_opcode = enum
-    FUSE_LOOKUP = 1
-    FUSE_FORGET = 2
-    FUSE_GETATTR = 3
-    FUSE_SETATTR = 4
-    FUSE_READLINK = 5
-    FUSE_SYMLINK = 6
-    FUSE_MKNOD = 8
-    FUSE_MKDIR = 9
-    FUSE_UNLINK = 10
-    FUSE_RMDIR = 11
-    FUSE_RENAME = 12
-    FUSE_LINK = 13
-    FUSE_OPEN = 14
-    FUSE_READ = 15
-    FUSE_WRITE = 16
-    FUSE_STATFS = 17
-    FUSE_RELEASE = 18
-    FUSE_FSYNC = 20
-    FUSE_SETXATTR = 21
-    FUSE_GETXATTR = 22
-    FUSE_LISTXATTR = 23
-    FUSE_REMOVEXATTR = 24
-    FUSE_FLUSH = 25
-    FUSE_INIT = 26
-    FUSE_OPENDIR = 27
-    FUSE_READDIR = 28
-    FUSE_RELEASEDIR = 29
-    FUSE_FSYNCDIR = 30
-    FUSE_GETLK = 31
-    FUSE_SETLK = 32
-    FUSE_SETLKW = 33
-    FUSE_ACCESS = 34
-    FUSE_CREATE = 35
-    FUSE_INTERRUPT = 36
-    FUSE_BMAP = 37
-    FUSE_DESTROY = 38
-    FUSE_SETVOLNAME = 61
-    FUSE_GETXTIMES = 62
-    FUSE_EXCHANGE = 63
-else:
-  type fuse_opcode = enum
-    FUSE_LOOKUP = 1
-    FUSE_FORGET = 2
-    FUSE_GETATTR = 3
-    FUSE_SETATTR = 4
-    FUSE_READLINK = 5
-    FUSE_SYMLINK = 6
-    FUSE_MKNOD = 8
-    FUSE_MKDIR = 9
-    FUSE_UNLINK = 10
-    FUSE_RMDIR = 11
-    FUSE_RENAME = 12
-    FUSE_LINK = 13
-    FUSE_OPEN = 14
-    FUSE_READ = 15
-    FUSE_WRITE = 16
-    FUSE_STATFS = 17
-    FUSE_RELEASE = 18
-    FUSE_FSYNC = 20
-    FUSE_SETXATTR = 21
-    FUSE_GETXATTR = 22
-    FUSE_LISTXATTR = 23
-    FUSE_REMOVEXATTR = 24
-    FUSE_FLUSH = 25
-    FUSE_INIT = 26
-    FUSE_OPENDIR = 27
-    FUSE_READDIR = 28
-    FUSE_RELEASEDIR = 29
-    FUSE_FSYNCDIR = 30
-    FUSE_GETLK = 31
-    FUSE_SETLK = 32
-    FUSE_SETLKW = 33
-    FUSE_ACCESS = 34
-    FUSE_CREATE = 35
-    FUSE_INTERRUPT = 36
-    FUSE_BMAP = 37
-    FUSE_DESTROY = 38
+type fuse_opcode = enum
+  FUSE_LOOKUP = 1
+  FUSE_FORGET = 2
+  FUSE_GETATTR = 3
+  FUSE_SETATTR = 4
+  FUSE_READLINK = 5
+  FUSE_SYMLINK = 6
+  FUSE_MKNOD = 8
+  FUSE_MKDIR = 9
+  FUSE_UNLINK = 10
+  FUSE_RMDIR = 11
+  FUSE_RENAME = 12
+  FUSE_LINK = 13
+  FUSE_OPEN = 14
+  FUSE_READ = 15
+  FUSE_WRITE = 16
+  FUSE_STATFS = 17
+  FUSE_RELEASE = 18
+  FUSE_FSYNC = 20
+  FUSE_SETXATTR = 21
+  FUSE_GETXATTR = 22
+  FUSE_LISTXATTR = 23
+  FUSE_REMOVEXATTR = 24
+  FUSE_FLUSH = 25
+  FUSE_INIT = 26
+  FUSE_OPENDIR = 27
+  FUSE_READDIR = 28
+  FUSE_RELEASEDIR = 29
+  FUSE_FSYNCDIR = 30
+  FUSE_GETLK = 31
+  FUSE_SETLK = 32
+  FUSE_SETLKW = 33
+  FUSE_ACCESS = 34
+  FUSE_CREATE = 35
+  FUSE_INTERRUPT = 36
+  FUSE_BMAP = 37
+  FUSE_DESTROY = 38
+  FUSE_SETVOLNAME = 61 # macosx
+  FUSE_GETXTIMES = 62 # macosx
+  FUSE_EXCHANGE = 63 # macosx
 
 let
   FUSE_MIN_READ_BUFFER = 8192
@@ -917,7 +878,6 @@ when hostOS == "macosx":
   defErr(Exchange)
 
   defWrapper(GetXTimes)
-
   discard """
     ERROR: proc getxtimes() does not compile on OSX!
 
@@ -1370,9 +1330,9 @@ proc dispatch(req: Request, se: Session) =
     let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Timespec(sec:arg.mtime, nsec:arg.mtimensec)) else: None[Timespec]()
     let fh = if (arg.valid and FATTR_FH) != 0: Some(arg.fh) else: None[int64]()
     when hostOS == "macosx":
-      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Timespec(tv_sec:arg.crtime, tv_nsec:arg.crtimensec)) else: None[Timespec]()
-      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Timespec(tv_sec:arg.chgtime, tv_nsec:arg.chgtimensec)) else: None[Timespec]()
-      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Timespec(tv_sec:arg.bkuptime, tv_nsec:arg.bkuptimensec)) else: None[Timespec]()
+      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Timespec(sec:arg.crtime, nsec:arg.crtimensec)) else: None[Timespec]()
+      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Timespec(sec:arg.chgtime, nsec:arg.chgtimensec)) else: None[Timespec]()
+      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Timespec(sec:arg.bkuptime, nsec:arg.bkuptimensec)) else: None[Timespec]()
       let flags = if (arg.valid and FATTR_FLAGS) != 0: Some(arg.flags) else: None[int32]()
       fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime, bkuptime, flags, newSetAttr(req, se))
     else:
@@ -1513,20 +1473,26 @@ proc dispatch(req: Request, se: Session) =
     fs.destroy(req)
     se.destroyed = true
     newAny(req, se).ok(@[])
-  # FIXME not all case are covered! (macosx)
-  when hostOS == "macosx":
-    case opcode:
-    of FUSE_SETVOLNAME:
+  of FUSE_SETVOLNAME:
+    when hostOS == "macosx":
       let name = data.parseS
       fs.setvolname(req, name, newSetVolname(req, se))
-    of FUSE_GETXTIMES:
+    else:
+      discard
+  of FUSE_GETXTIMES:
+    when hostOS == "macosx":
       fs.getxtimes(req, hd.nodeid, newGetXTimes(req, se))
-    of FUSE_EXCHANGE:
+    else:
+      discard
+  of FUSE_EXCHANGE:
+    when hostOS == "macosx":
       let arg = read[fuse_exchange_in](data)
       let oldname = data.parseS
       data.pos += (len(oldname) + 1)
       let newname = data.parseS
       fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options, newExchange(req, se))
+    else:
+      discard
 
 proc mkSession(fs: FuseFs, chan: Channel): Session =
   Session (
