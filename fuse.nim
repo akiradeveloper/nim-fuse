@@ -1549,6 +1549,7 @@ proc handler() {.noconv.} =
 proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
   ## Mount the given filesystem `fs` to the given mountpoint `mountpoint`
   var Lc = newConsoleLogger()
+  # devel hides handler variable and instead use addHandler()
   logging.handlers.add(Lc)
 
   let chan = connect(mountpoint, options)
