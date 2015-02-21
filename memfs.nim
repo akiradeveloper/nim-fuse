@@ -5,12 +5,11 @@
 import fuse
 import posix
 import tables
-import times
 import logging
 import os
 
-let TTL = Ttimespec(tv_sec: 1.Time, tv_nsec: 0)
-let GEN = 0'u64
+let TTL = Timespec(sec: 1, nsec: 0)
+let GEN = 0
 
 type File = ref object
   ## file or symlink
@@ -51,7 +50,7 @@ proc mkMemfs(): Memfs =
   let rootId = result.getNewId() # get root id
   let rootDir = Dir(
     attr: FileAttr (
-      ino: rootId.uint64,
+      ino: rootId.int64,
       size: 4096,
       nlink: 0,
     ),
@@ -59,13 +58,13 @@ proc mkMemfs(): Memfs =
   )
   result.dirs.add(rootId, rootDir)
 
-template checkFile(self: Memfs, id: uint64) =
+template checkFile(self: Memfs, id: int64) =
   if not self.files.hasKey(id.int):
     debug("file not found $1", id.int)
     reply.err(-ENOENT)
     return
 
-template checkDir(self: Memfs, id: uint64) =
+template checkDir(self: Memfs, id: int64) =
   if not self.dirs.hasKey(id.int):
     debug("directory not found $1", id.int)
     reply.err(-ENOENT)
@@ -83,7 +82,7 @@ method init*(self: Memfs, req: Request): int =
 method destroy*(self: Memfs, req: Request) =
   discard
 
-method lookup*(self: Memfs, req: Request, parent: uint64, name: string, reply: Lookup) =
+method lookup*(self: Memfs, req: Request, parent: int64, name: string, reply: Lookup) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
   let ino = dir.children[name]
@@ -106,7 +105,7 @@ method lookup*(self: Memfs, req: Request, parent: uint64, name: string, reply: L
   else:
     reply.err(-ENOENT)
 
-method getattr*(self: Memfs, req: Request, ino: uint64, reply: GetAttr) =
+method getattr*(self: Memfs, req: Request, ino: int64, reply: GetAttr) =
   if self.files.hasKey(ino.int):
     let found = self.files[ino.int]
     reply.attr(TTL, found.attr)
@@ -116,22 +115,22 @@ method getattr*(self: Memfs, req: Request, ino: uint64, reply: GetAttr) =
   else:
     reply.err(-ENOENT)
 
-method setattr*(self: Memfs, req: Request, ino: uint64, mode: Option[uint32], uid: Option[uint32], gid: Option[uint32], size: Option[uint64], atime: Option[Ttimespec], mtime: Option[Ttimespec], fh: Option[uint64], crtime: Option[Ttimespec], chgtime: Option[Ttimespec], bkuptime: Option[Ttimespec], flags: Option[uint32], reply: SetAttr) =
+method setattr*(self: Memfs, req: Request, ino: int64, mode: Option[int32], uid: Option[int32], gid: Option[int32], size: Option[int64], atime: Option[Ttimespec], mtime: Option[Ttimespec], fh: Option[int64], crtime: Option[Ttimespec], chgtime: Option[Ttimespec], bkuptime: Option[Ttimespec], flags: Option[int32], reply: SetAttr) =
   reply.err(-ENOSYS)
 
-method readlink*(self: Memfs, req: Request, ino: uint64, reply: Readlink) =
+method readlink*(self: Memfs, req: Request, ino: int64, reply: Readlink) =
   self.checkFile(ino)
   let found = self.files[ino.int]
   reply.readlink(found.contents.parseS)
 
-method symlink*(self: Memfs, req: Request, link: string, parent: uint64, name: string, reply: Symlink) =
+method symlink*(self: Memfs, req: Request, link: string, parent: int64, name: string, reply: Symlink) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
 
   let newIno = self.getNewId()
   let newf = File (
     attr: FileAttr (
-      ino: newIno.uint64,
+      ino: newIno.int64,
       # TODO ?
     ),
     contents: mkBuf(len(name) + 1)
@@ -146,7 +145,7 @@ method symlink*(self: Memfs, req: Request, link: string, parent: uint64, name: s
     attr: newf.attr,
   ))
 
-method mknod*(self: Memfs, req: Request, parent: uint64, name: string, mode: uint32, rdev: uint32, reply: Mknod) =
+method mknod*(self: Memfs, req: Request, parent: int64, name: string, mode: int32, rdev: int32, reply: Mknod) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
   let newIno = self.getNewId()
@@ -155,7 +154,7 @@ method mknod*(self: Memfs, req: Request, parent: uint64, name: string, mode: uin
   let mo = mode.TMode
   let newFile = File (
     attr: FileAttr (
-      ino: newIno.uint64,
+      ino: newIno.int64,
       mode: mo,
       rdev: rdev
     ),
@@ -169,13 +168,13 @@ method mknod*(self: Memfs, req: Request, parent: uint64, name: string, mode: uin
     attr: newFile.attr
   ))
 
-method mkdir*(self: Memfs, req: Request, parent: uint64, name: string, mode: uint32, reply: Mkdir) =
+method mkdir*(self: Memfs, req: Request, parent: int64, name: string, mode: int32, reply: Mkdir) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
   let newIno = self.getNewId()
   let newDir = Dir (
     attr: FileAttr (
-      ino: newIno.uint64,
+      ino: newIno.int64,
       mode: mode.TMode,
     ),
     children: newTable[string, int](0)
@@ -188,21 +187,21 @@ method mkdir*(self: Memfs, req: Request, parent: uint64, name: string, mode: uin
     attr: newDir.attr
   ))
 
-method unlink*(self: Memfs, req: Request, parent: uint64, name: string, reply: Unlink) =
+method unlink*(self: Memfs, req: Request, parent: int64, name: string, reply: Unlink) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
   dir.children.del(name)
   # TODO remove from files
   reply.err(0)
 
-method rmdir*(self: Memfs, req: Request, parent: uint64, name: string, reply: Rmdir) =
+method rmdir*(self: Memfs, req: Request, parent: int64, name: string, reply: Rmdir) =
   self.checkDir(parent)
   let dir = self.dirs[parent.int]
   dir.children.del(name)
   # TODO remove from dirs
   reply.err(0)
 
-method rename*(self: Memfs, req: Request, parent: uint64, name: string, newdir: uint64, newname: string, reply: Rename) =
+method rename*(self: Memfs, req: Request, parent: int64, name: string, newdir: int64, newname: string, reply: Rename) =
   self.checkDir(parent)
   let fromDir = self.dirs[parent.int]
   let ino = fromDir.children[name]
@@ -212,7 +211,7 @@ method rename*(self: Memfs, req: Request, parent: uint64, name: string, newdir: 
   let toDir = self.dirs[newDir.int]
   toDir.children[newname] = ino
 
-method open*(self: Memfs, req: Request, ino: uint64, flags: uint32, reply: Open) =
+method open*(self: Memfs, req: Request, ino: int64, flags: int32, reply: Open) =
   if self.files.hasKey(ino.int):
     reply.open(
       fuse_open_out (
@@ -222,7 +221,7 @@ method open*(self: Memfs, req: Request, ino: uint64, flags: uint32, reply: Open)
   else:
     reply.err(-ENOENT)
 
-method read*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
+method read*(self: Memfs, req: Request, ino: int64, fh: int64, offset: int64, size: int32, reply: Read) =
   self.checkFile(ino)
   let file = self.files[ino.int]
   # TODO error if the range isn't included
@@ -231,26 +230,26 @@ method read*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint64,
     iov_len: size.int))
 
 # FIXME what's in flags?
-method write*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint64, data: Buf, flags: uint32, reply: Write) =
+method write*(self: Memfs, req: Request, ino: int64, fh: int64, offset: int64, data: Buf, flags: int32, reply: Write) =
   self.checkFile(ino)
   let file = self.files[ino.int]
   file.contents.extend(data.size + offset.int)
   copyMem(file.contents.asPtr(offset.int), data.asPtr(0), data.size)
   reply.write(fuse_write_out(
-    size: data.size.uint32
+    size: data.size.int32
   ))
 
-method flush*(self: Memfs, req: Request, ino: uint64, fh: uint64, lock_owner: uint64, reply: Flush) =
+method flush*(self: Memfs, req: Request, ino: int64, fh: int64, lock_owner: int64, reply: Flush) =
   # FIXME just return -ENOSYS because this is a volatile filesystem?
   reply.err(0)
 
-method fsync*(self: Memfs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsync) =
+method fsync*(self: Memfs, req: Request, ino: int64, fh: int64, datasync: bool, reply: Fsync) =
   reply.err(0)
 
-method fsyncdir*(self: Memfs, req: Request, ino: uint64, fh: uint64, datasync: bool, reply: Fsyncdir) =
+method fsyncdir*(self: Memfs, req: Request, ino: int64, fh: int64, datasync: bool, reply: Fsyncdir) =
   reply.err(0)
 
-method opendir*(self: Memfs, req: Request, ino: uint64, flags: uint32, reply: Opendir) =
+method opendir*(self: Memfs, req: Request, ino: int64, flags: int32, reply: Opendir) =
   if self.dirs.hasKey(ino.int):
     reply.open(
       fuse_open_out (
@@ -260,7 +259,7 @@ method opendir*(self: Memfs, req: Request, ino: uint64, flags: uint32, reply: Op
   else:
     reply.err(-EACCES)
 
-method readdir*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
+method readdir*(self: Memfs, req: Request, ino: int64, fh: int64, offset: int64, reply: Readdir) =
   self.checkDir(ino)
   let dir = self.dirs[ino.int]
   discard reply.tryAdd(ino, 0, S_IFDIR, ".")
@@ -268,11 +267,11 @@ method readdir*(self: Memfs, req: Request, ino: uint64, fh: uint64, offset: uint
   var i = 0
   for name, chIno in dir.children.pairs:
     let attr = self.getFileAttr(chIno)
-    discard reply.tryAdd(chIno.uint64, (2+i).uint64, attr.mode, name)
+    discard reply.tryAdd(chIno.int64, (2+i).int64, attr.mode, name)
     i += 1
   reply.ok
 
-method access*(self: Memfs, req: Request, ino: uint64, mask: uint32, reply: Access) =
+method access*(self: Memfs, req: Request, ino: int64, mask: int32, reply: Access) =
   self.checkFile(ino)
   let file = self.files[ino.int]
   if (file.attr.mode and mask.TMode) > 0:

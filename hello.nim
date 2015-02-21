@@ -1,14 +1,11 @@
 import fuse
 import posix
-import times
-
 import os
-import unsigned
 import logging
 
 let
-  TTL = Ttimespec(tv_sec:1.Time, tv_nsec:0)
-  CREATE_TIME = Ttimespec(tv_sec: 1381237736.Time, tv_nsec: 0)
+  TTL = Timespec(sec:1, nsec:0)
+  CREATE_TIME = Timespec(sec: 1381237736, nsec: 0)
   DIR_ATTR = FileAttr (
     ino: 1,
     size: 0,
@@ -38,7 +35,7 @@ let
   TXT = "Hello World\n"
 
 type HelloFs = ref object of FuseFs
-method lookup*(self: HelloFs, req: Request, parent: uint64, name: string, reply: Lookup) =
+method lookup*(self: HelloFs, req: Request, parent: int64, name: string, reply: Lookup) =
   if parent == 1 and name == "hello.txt":
     reply.entry(TEntryOut(
       entry_timeout: TTL,
@@ -48,7 +45,7 @@ method lookup*(self: HelloFs, req: Request, parent: uint64, name: string, reply:
   else:
     reply.err(-ENOENT)
        
-method getattr*(self: HelloFs, req: Request, ino: uint64, reply: GetAttr) =
+method getattr*(self: HelloFs, req: Request, ino: int64, reply: GetAttr) =
   case ino.int
   of 1:
     debug("1")
@@ -60,14 +57,14 @@ method getattr*(self: HelloFs, req: Request, ino: uint64, reply: GetAttr) =
   else:
     reply.err(-ENOENT)
 
-method read*(self: HelloFs, req: Request, ino: uint64, fh: uint64, offset: uint64, size: uint32, reply: Read) =
+method read*(self: HelloFs, req: Request, ino: int64, fh: int64, offset: int64, size: int32, reply: Read) =
   if ino == 2:
     var t = TXT
     reply.buf(mkTIOVecS(t))
   else:
     reply.err(-ENOENT)
 
-method readdir*(self: HelloFs, req: Request, ino: uint64, fh: uint64, offset: uint64, reply: Readdir) =
+method readdir*(self: HelloFs, req: Request, ino: int64, fh: int64, offset: int64, reply: Readdir) =
   if ino == 1:
     if offset == 0:
       debug("offset:$1", offset)
