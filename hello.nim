@@ -79,4 +79,4 @@ if isMainModule:
   var fs = HelloFs()
   let cl = commandLineParams()
   let mp = cl[0]
-  mount(fs, mp, cl[1..mp.high])
+  mount(fs, mp, cl[1..high(cl)])

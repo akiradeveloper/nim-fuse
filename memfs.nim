@@ -285,4 +285,4 @@ if isMainModule:
   let mp = cl[0]
   debug("mount point $1", mp)
   # mount(fs, mp, cl[1..mp.high])
-  mount(fs, "mnt", @[])
+  mount(fs, "mnt", cl[1..high(cl)])
