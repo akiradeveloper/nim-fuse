@@ -1550,7 +1550,7 @@ proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
   ## Mount the given filesystem `fs` to the given mountpoint `mountpoint`
   var Lc = newConsoleLogger()
   # devel hides handler variable and instead use addHandler()
-  when defined(handlers):
+  when declared(logging.handlers):
     logging.handlers.add(Lc)
   else:
     logging.addHandler(Lc)
