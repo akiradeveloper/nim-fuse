@@ -115,8 +115,31 @@ method getattr*(self: Memfs, req: Request, ino: int64, reply: GetAttr) =
   else:
     reply.err(-ENOENT)
 
-method setattr*(self: Memfs, req: Request, ino: int64, mode: Option[int32], uid: Option[int32], gid: Option[int32], size: Option[int64], atime: Option[Ttimespec], mtime: Option[Ttimespec], fh: Option[int64], crtime: Option[Ttimespec], chgtime: Option[Ttimespec], bkuptime: Option[Ttimespec], flags: Option[int32], reply: SetAttr) =
-  reply.err(-ENOSYS)
+method setattr*(self: Memfs, req: Request, ino: int64, mode: Option[int32], uid: Option[int32], gid: Option[int32], size: Option[int64], atime: Option[Timespec], mtime: Option[Timespec], fh: Option[int64], crtime: Option[Timespec], chgtime: Option[Timespec], bkuptime: Option[Timespec], flags: Option[int32], reply: SetAttr) =
+  let attr = self.getFileAttr(ino.int)
+  if mode.isSome:
+    attr.mode = mode.unwrap
+  if uid.isSome:
+    attr.uid = uid.unwrap
+  if gid.isSome:
+    attr.gid = gid.unwrap
+  if size.isSome:
+    attr.size = size.unwrap
+  if atime.isSome:
+    attr.atime = atime.unwrap
+  if mtime.isSome:
+    attr.mtime = mtime.unwrap
+  # if fh.isSome:
+  #   attr.fh = fh.unwrap
+  if crtime.isSome:
+    attr.crtime = crtime.unwrap
+  # if chgtime.isSome:
+  #   attr.chgtime = chgtime.unwrap
+  # if bkuptime.isSome:
+  #   attr.bkuptime = bkuptime.unwrap
+  if flags.isSome:
+    attr.flags = flags.unwrap
+  reply.attr(TTL, attr)
 
 method readlink*(self: Memfs, req: Request, ino: int64, reply: Readlink) =
   self.checkFile(ino)
