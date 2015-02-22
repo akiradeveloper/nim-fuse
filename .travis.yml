@@ -17,7 +17,7 @@ before_script:
   # - ruby -v
   - set -e
   - set -x
-  - export PATH=./Nim/bin:$PATH
+  - export PATH=`pwd`/Nim/bin:$PATH
 script:
   - cd test
   - nim c -p:.. hello
