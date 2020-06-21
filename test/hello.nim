@@ -4,9 +4,9 @@ import os
 import logging
 
 let
-  TTL = Timespec(sec:1, nsec:0)
-  CREATE_TIME = Timespec(sec: 1381237736, nsec: 0)
-  DIR_ATTR = FileAttr (
+  TTL = fuse.Timespec(sec:1, nsec:0)
+  CREATE_TIME = fuse.Timespec(sec: 1381237736, nsec: 0)
+  DIR_ATTR = FileAttr(
     ino: 1,
     size: 0,
     blocks: 0,
@@ -19,7 +19,7 @@ let
     gid: 20,
     rdev: 0,
   )
-  TXT_ATTR = FileAttr (
+  TXT_ATTR = FileAttr(
     ino: 2,
     size: 13,
     blocks: 1,
@@ -35,6 +35,7 @@ let
   TXT = "Hello World\n"
 
 type HelloFs = ref object of FuseFs
+
 method lookup*(self: HelloFs, req: Request, parent: int64, name: string, reply: Lookup) =
   if parent == 1 and name == "hello.txt":
     reply.entry(TEntryOut(
@@ -44,7 +45,7 @@ method lookup*(self: HelloFs, req: Request, parent: int64, name: string, reply: 
       generation: 0))
   else:
     reply.err(-ENOENT)
-       
+
 method getattr*(self: HelloFs, req: Request, ino: int64, reply: GetAttr) =
   case ino.int
   of 1:
@@ -77,6 +78,6 @@ method readdir*(self: HelloFs, req: Request, ino: int64, fh: int64, offset: int6
 
 if isMainModule:
   var fs = HelloFs()
-  let cl = commandLineParams()
-  let mp = cl[0]
-  mount(fs, mp, cl[1..high(cl)])
+  let args = commandLineParams()
+  let mp = args[0]
+  mount(fs, mp, args[1..high(args)])
