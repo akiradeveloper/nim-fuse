@@ -6,4 +6,4 @@ description   = "A FUSE binding for Nim"
 license       = "MIT"
 
 [Deps]
-Requires: "nim >= 0.10.0"
+Requires: "nim >= 1.0.0"

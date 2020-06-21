@@ -9,7 +9,8 @@ import posix
 
 {.compile: "c_bridge.c".}
 
-type TFuseFileInfo* {.importc:"struct fuse_file_info", header:"<fuse.h>".} = object
+type TFuseFileInfo* {.importc: "struct fuse_file_info",
+    header: "<fuse.h>".} = object
   flags: cint
   fh_old: culong
   writepage: cint
@@ -20,7 +21,8 @@ type TFuseFileInfo* {.importc:"struct fuse_file_info", header:"<fuse.h>".} = obj
   fh: uint64
   lock_owner: uint64
 
-type TFuseConnInfo* {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = object
+type TFuseConnInfo* {.importc: "struct fuse_conn_info",
+    header: "<fuse.h>".} = object
   proto_major: cuint
   proto_minor: cuint
   async_read: cuint
@@ -28,13 +30,14 @@ type TFuseConnInfo* {.importc:"struct fuse_conn_info", header:"<fuse.h>".} = obj
   max_readahead: cuint
   reserved: array[27, cuint]
 
-type TFuseFillDir* {.importc:"fuse_fill_dir_t", header:"<fuse.h>"} = proc (buf: pointer, name: cstring, st: ptr TStat, off: TOff): cint
+type TFuseFillDir* {.importc: "fuse_fill_dir_t", header: "<fuse.h>".} = proc (
+    buf: pointer, name: cstring, st: ptr Stat, off: Off): cint
 
 # ------------------------------------------------------------------------------
 
 type HiFuseFs* = ref object of RootObj
 
-method getattr(fs: HiFuseFs, a: cstring, b: ptr TStat): cint =
+method getattr(fs: HiFuseFs, a: cstring, b: ptr Stat): cint =
   discard
 
 method readlink(fs: HiFuseFs, a: cstring, b: int): cint =
@@ -43,7 +46,7 @@ method readlink(fs: HiFuseFs, a: cstring, b: int): cint =
 method mknod(fs: HiFuseFs, a: cstring, b: int): cint =
   discard
 
-method mkdir(fs: HiFuseFs, a: cstring, b: TMode): cint =
+method mkdir(fs: HiFuseFs, a: cstring, b: Mode): cint =
   discard
 
 method unlink(fs: HiFuseFs, a: cstring): cint =
@@ -61,25 +64,27 @@ method rename(fs: HiFuseFs, a: cstring, b: cstring): cint =
 method link(fs: HiFuseFs, a: cstring, b: cstring): cint =
   discard
 
-method chmod(fs: HiFuseFs, a: cstring, b: TMode): cint =
+method chmod(fs: HiFuseFs, a: cstring, b: Mode): cint =
   discard
 
-method chown(fs: HiFuseFs, a: cstring, b: Tuid, c: TGid): cint =
+method chown(fs: HiFuseFs, a: cstring, b: Uid, c: Gid): cint =
   discard
 
-method truncate(fs: HiFuseFs, a: cstring, b: TOff): cint =
+method truncate(fs: HiFuseFs, a: cstring, b: Off): cint =
   discard
 
 method open(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
   discard
 
-method read(fs: HiFuseFs, a: cstring, b: pointer, c: int, d: TOff, e: ptr TFuseFileInfo): cint =
+method read(fs: HiFuseFs, a: cstring, b: pointer, c: int, d: Off,
+    e: ptr TFuseFileInfo): cint =
   discard
 
-method write(fs: HiFuseFs, a: cstring, b: cstring, c: int, d: TOff, e: ptr TFuseFileInfo): cint =
+method write(fs: HiFuseFs, a: cstring, b: cstring, c: int, d: Off,
+    e: ptr TFuseFileInfo): cint =
   discard
 
-method statfs(fs: HiFuseFs, a: cstring, b: ptr TStatvfs): cint =
+method statfs(fs: HiFuseFs, a: cstring, b: ptr Statvfs): cint =
   discard
 
 method flush(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
@@ -106,7 +111,8 @@ method removexattr(fs: HiFuseFs, a: cstring, b: cstring): cint =
 method opendir(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
   discard
 
-method readdir(fs: HiFuseFs, a: cstring, b: pointer, c: TFuseFillDir, d: TOff, e: ptr TFuseFileInfo): cint =
+method readdir(fs: HiFuseFs, a: cstring, b: pointer, c: TFuseFillDir, d: Off,
+    e: ptr TFuseFileInfo): cint =
   discard
 
 method releasedir(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo): cint =
@@ -124,19 +130,22 @@ method destroy(fs: HiFuseFs, a: pointer): void =
 method access(fs: HiFuseFs, a: cstring, b: cint): cint =
   discard
 
-method create(fs: HiFuseFs, a: cstring, b: TMode, c: ptr TFuseFileInfo): cint =
+method create(fs: HiFuseFs, a: cstring, b: Mode, c: ptr TFuseFileInfo): cint =
   discard
 
-method ftruncate(fs: HiFuseFs, a: cstring, b: TOff, c: ptr TFuseFileInfo): cint =
+method ftruncate(fs: HiFuseFs, a: cstring, b: Off,
+    c: ptr TFuseFileInfo): cint =
   discard
 
-method fgetattr(fs: HiFuseFs, a: cstring, b: ptr TStat, c: ptr TFuseFileInfo): cint =
+method fgetattr(fs: HiFuseFs, a: cstring, b: ptr Stat,
+    c: ptr TFuseFileInfo): cint =
   discard
 
-method lock(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo, c: cint, d: ptr Tflock): cint =
+method lock(fs: HiFuseFs, a: cstring, b: ptr TFuseFileInfo, c: cint,
+    d: ptr Tflock): cint =
   discard
 
-method utimens(fs: HiFuseFs, a: cstring, b: array[2, Ttimespec]): cint =
+method utimens(fs: HiFuseFs, a: cstring, b: array[2, Timespec]): cint =
   discard
 
 method bmap(fs: HiFuseFs, a: cstring, b: int, c: ptr uint64): cint =
@@ -147,7 +156,7 @@ method bmap(fs: HiFuseFs, a: cstring, b: int, c: ptr uint64): cint =
 proc getFs(id: cint): HiFuseFs =
   discard
 
-proc nim_bridge_getattr(id: cint, a: cstring, b: ptr TStat): cint {.exportc.} =
+proc nim_bridge_getattr(id: cint, a: cstring, b: ptr Stat): cint {.exportc.} =
   var fs = getFs(id)
   fs.getattr(a, b)
 
@@ -159,7 +168,7 @@ proc nim_bridge_mknod(id: cint, a: cstring, b: int): cint {.exportc.} =
   var fs = getFs(id)
   fs.mknod(a, b)
 
-proc nim_bridge_mkdir(id: cint, a: cstring, b: TMode): cint {.exportc.} =
+proc nim_bridge_mkdir(id: cint, a: cstring, b: Mode): cint {.exportc.} =
   var fs = getFs(id)
   fs.mkdir(a, b)
 
@@ -183,15 +192,15 @@ proc nim_bridge_link(id: cint, a: cstring, b: cstring): cint {.exportc.} =
   var fs = getFs(id)
   fs.link(a, b)
 
-proc nim_bridge_chmod(id: cint, a: cstring, b: TMode): cint {.exportc.} =
+proc nim_bridge_chmod(id: cint, a: cstring, b: Mode): cint {.exportc.} =
   var fs = getFs(id)
   fs.chmod(a, b)
 
-proc nim_bridge_chown(id: cint, a: cstring, b: Tuid, c: TGid): cint {.exportc.} =
+proc nim_bridge_chown(id: cint, a: cstring, b: Uid, c: Gid): cint {.exportc.} =
   var fs = getFs(id)
   fs.chown(a, b, c)
 
-proc nim_bridge_truncate(id: cint, a: cstring, b: TOff): cint {.exportc.} =
+proc nim_bridge_truncate(id: cint, a: cstring, b: Off): cint {.exportc.} =
   var fs = getFs(id)
   fs.truncate(a, b)
 
@@ -199,15 +208,17 @@ proc nim_bridge_open(id: cint, a: cstring, b: ptr TFuseFileInfo): cint {.exportc
   var fs = getFs(id)
   fs.open(a, b)
 
-proc nim_bridge_read(id: cint, a: cstring, b: pointer, c: int, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_read(id: cint, a: cstring, b: pointer, c: int, d: Off,
+    e: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.read(a, b, c, d, e)
 
-proc nim_bridge_write(id: cint, a: cstring, b: cstring, c: int, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_write(id: cint, a: cstring, b: cstring, c: int, d: Off,
+    e: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.write(a, b, c, d, e)
 
-proc nim_bridge_statfs(id: cint, a: cstring, b: ptr TStatvfs): cint {.exportc.} =
+proc nim_bridge_statfs(id: cint, a: cstring, b: ptr Statvfs): cint {.exportc.} =
   var fs = getFs(id)
   fs.statfs(a, b)
 
@@ -219,11 +230,13 @@ proc nim_bridge_release(id: cint, a: cstring, b: ptr TFuseFileInfo): cint {.expo
   var fs = getFs(id)
   fs.release(a, b)
 
-proc nim_bridge_fsync(id: cint, a: cstring, b: cint, c: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_fsync(id: cint, a: cstring, b: cint,
+    c: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.fsync(a, b, c)
 
-proc nim_bridge_setxattr(id: cint, a: cstring, b: cstring, c: int, d: cint): cint {.exportc.} =
+proc nim_bridge_setxattr(id: cint, a: cstring, b: cstring, c: int,
+    d: cint): cint {.exportc.} =
   var fs = getFs(id)
   fs.setxattr(a, b, c, d)
 
@@ -243,7 +256,8 @@ proc nim_bridge_opendir(id: cint, a: cstring, b: ptr TFuseFileInfo): cint {.expo
   var fs = getFs(id)
   fs.opendir(a, b)
 
-proc nim_bridge_readdir(id: cint, a: cstring, b: pointer, c: TFuseFillDir, d: TOff, e: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_readdir(id: cint, a: cstring, b: pointer, c: TFuseFillDir,
+    d: Off, e: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.readdir(a, b, c, d, e)
 
@@ -251,7 +265,8 @@ proc nim_bridge_releasedir(id: cint, a: cstring, b: ptr TFuseFileInfo): cint {.e
   var fs = getFs(id)
   fs.releasedir(a, b)
 
-proc nim_bridge_fsyncdir(id: cint, a: cstring, b: cint, c: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_fsyncdir(id: cint, a: cstring, b: cint,
+    c: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.fsyncdir(a, b, c)
 
@@ -267,23 +282,27 @@ proc nim_bridge_access(id: cint, a: cstring, b: cint): cint {.exportc.} =
   var fs = getFs(id)
   fs.access(a, b)
 
-proc nim_bridge_create(id: cint, a: cstring, b: TMode, c: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_create(id: cint, a: cstring, b: Mode,
+    c: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.create(a, b, c)
 
-proc nim_bridge_ftruncate(id: cint, a: cstring, b: TOff, c: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_ftruncate(id: cint, a: cstring, b: Off,
+    c: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.ftruncate(a, b, c)
 
-proc nim_bridge_fgetattr(id: cint, a: cstring, b: ptr TStat, c: ptr TFuseFileInfo): cint {.exportc.} =
+proc nim_bridge_fgetattr(id: cint, a: cstring, b: ptr Stat,
+    c: ptr TFuseFileInfo): cint {.exportc.} =
   var fs = getFs(id)
   fs.fgetattr(a, b, c)
 
-proc nim_bridge_lock(id: cint, a: cstring, b: ptr TFuseFileInfo, c: cint, d: ptr Tflock): cint {.exportc.} =
+proc nim_bridge_lock(id: cint, a: cstring, b: ptr TFuseFileInfo, c: cint,
+    d: ptr Tflock): cint {.exportc.} =
   var fs = getFs(id)
   fs.lock(a, b, c, d)
 
-proc nim_bridge_utimens(id: cint, a: cstring, b: array[2, Ttimespec]): cint {.exportc.} =
+proc nim_bridge_utimens(id: cint, a: cstring, b: array[2, Timespec]): cint {.exportc.} =
   var fs = getFs(id)
   fs.utimens(a, b)
 
@@ -291,7 +310,8 @@ proc nim_bridge_bmap(id: cint, a: cstring, b: int, c: ptr uint64): cint {.export
   var fs = getFs(id)
   fs.bmap(a, b, c)
 
-proc c_bridge_main(id: cint, argc: cint, argv: cstringArray) {.importc:"c_bridge_main".}
+proc c_bridge_main(id: cint, argc: cint, argv: cstringArray) {.
+    importc: "c_bridge_main".}
 proc mount*(fs: HiFuseFs, options: openArray[string]) =
   let id = 0
   var argv = allocCStringArray(options)

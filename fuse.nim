@@ -80,29 +80,29 @@ proc asPtr*(self: Buf): pointer =
 
 proc asBuf*(self: Buf): Buf =
   ## Get the [pos,] buffer like slicing
-  Buf (
+  result = Buf(
     data: self.data[self.pos..self.size-1],
     size: self.size - self.pos,
     pos: 0,
   )
 
-proc `$`(self: TIOVec): string =
-  "TIOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
+proc `$`(self: IOVec): string =
+  "IOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
 
-proc asTIOVec*(self: Buf): TIOVec =
-  TIOVec (
+proc asTIOVec*(self: Buf): IOVec =
+  result = IOVec(
     iov_base: self.asPtr,
     iov_len: self.size,
   )
 
-proc mkTIOVecT*[T](o: var T): TIOVec =
-  TIOVec (
+proc mkTIOVecT*[T](o: var T): IOVec =
+  result = IOVec(
     iov_base: addr(o),
     iov_len: sizeof(T),
   )
 
-proc mkTIOVecS*(s: var string): TIOVec =
-  TIOVec (
+proc mkTIOVecS*(s: var string): IOVec =
+  result = IOVec(
     iov_base: addr(s[0]),
     iov_len: len(s),
   )
@@ -111,7 +111,6 @@ proc write*(self: Buf, p: pointer, size: int) =
   copyMem(self.asPtr, p, size)
 
 proc write*[T](self: Buf, obj: T) =
-  let sz = sizeof(T)
   var v = obj
   self.write(addr(v), sizeof(T))
 
@@ -124,7 +123,7 @@ proc nullTerminated*(s: string): string =
   ## The length is incremented
   ## e.g. mybuf.writeS("hoge".nullTerminated)
   var ss = s
-  ss.safeAdd(chr(0))
+  ss.add(chr(0))
   ss
 
 proc writeS*(self: Buf, s: string) =
@@ -274,8 +273,8 @@ type fuse_opcode = enum
   FUSE_BMAP = 37
   FUSE_DESTROY = 38
   FUSE_SETVOLNAME = 61 # macosx
-  FUSE_GETXTIMES = 62 # macosx
-  FUSE_EXCHANGE = 63 # macosx
+  FUSE_GETXTIMES = 62  # macosx
+  FUSE_EXCHANGE = 63   # macosx
 
 let
   FUSE_MIN_READ_BUFFER = 8192
@@ -479,23 +478,23 @@ type Timespec* = object
   nsec*: int32
 
 type FileAttr* = ref object
-  ino*: int64 # Tino?
-  size*: int64 # int? Tblksize?
-  blocks*: int64 # Tblkcnt?
+  ino*: int64       # Tino?
+  size*: int64      # int? Tblksize?
+  blocks*: int64    # Tblkcnt?
   atime*: Timespec
   mtime*: Timespec
   ctime*: Timespec
   crtime*: Timespec # macosx
   mode*: int32
-  nlink*: int32 ## number of hard links. TNlink?
-  uid*: int32 # T
-  gid*: int32 # TGid?
-  rdev*: int32 # TDev?
-  flags*: int32 # macosx
+  nlink*: int32     ## number of hard links. TNlink?
+  uid*: int32       # T
+  gid*: int32       # TGid?
+  rdev*: int32      # TDev?
+  flags*: int32     # macosx
 
 when hostOS == "macosx":
   proc fuse_attr_of(at: FileAttr): fuse_attr =
-    result = fuse_attr (
+    result = fuse_attr(
       ino: at.ino,
       size: at.size,
       blocks: at.blocks,
@@ -513,7 +512,7 @@ when hostOS == "macosx":
       rdev: at.rdev,
       flags: at.flags,
     )
-    debug("attr:$1", expr(result))
+    debug("attr:", result)
 else:
   proc fuse_attr_of(at: FileAttr): fuse_attr =
     result = fuse_attr(
@@ -532,10 +531,10 @@ else:
       gid: at.gid,
       rdev: at.rdev,
     )
-    debug("attr:$1", expr(result))
+    debug("attr:", result)
 
 type Sender = ref object of RootObj
-method send(self: Sender, iovs: var openArray[TIOVec]): int =
+method send(self: Sender, iovs: var openArray[IOVec]): int {.base.} =
   debug("NULLSender.send")
   0
 
@@ -546,40 +545,40 @@ type Raw = ref object
 proc newRaw(sender: Sender, unique: int64): Raw =
   Raw(sender: sender, unique: unique)
 
-proc send(self: Raw, err: int, iovs: openArray[TIOVec]) =
+proc send(self: Raw, err: int, iovs: openArray[IOVec]) =
   assert(err <= 0)
 
-  var iovL = newSeq[TIOVec](len(iovs) + 1)
+  var iovL = newSeq[IOVec](len(iovs) + 1)
   var sumLen = sizeof(fuse_out_header)
   for i, iov in iovs:
     iovL[i+1] = iov
-    debug("iov[$1]:$2", i, iov)
+    debug("iov[$1]:$2" % [$i, $iov])
     sumLen += iov.iov_len
 
   var outH: fuse_out_header
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.int32
-  debug("COMMON OUT:$1", expr(outH))
+  debug("COMMON OUT:", outH)
   iovL[0] = mkTIOVecT(outH)
 
   discard self.sender.send(iovL)
 
-proc ok(self: Raw, iovs: openArray[TIOVec]) =
+proc ok(self: Raw, iovs: openArray[IOVec]) =
   self.send(0, iovs)
 
 proc err(self: Raw, e: int) =
   self.send(e, @[])
 
-template defWrapper(typ: expr) =
-  type `typ`* {. inject .} = ref object
+template defWrapper(typ: untyped) =
+  type `typ`* {.inject.} = ref object
     raw: Raw
   proc sendOk[T](self: `typ`, a: T) =
     var aa = a
     self.raw.ok(@[mkTIOVecT(aa)])
 
 template defOk(typ: typedesc) =
-  proc ok*(self: typ, iovs: openArray[TIOVec]) =
+  proc ok*(self: typ, iovs: openArray[IOVec]) =
     self.raw.ok(iovs)
 
 template defErr(typ: typedesc) =
@@ -590,19 +589,18 @@ template defErr(typ: typedesc) =
 type TEntryOut* = ref object
   generation*: int64 ## (`ino`, `generation`) should be unique for the filesystem's lifetime.
   entry_timeout*: Timespec ## Validity timeout for the name.
-  attr_timeout*: Timespec ## Validity timeout for the attributes.
+  attr_timeout*: Timespec  ## Validity timeout for the attributes.
   attr*: FileAttr
 
 proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
-  fuse_entry_out (
+  result = fuse_entry_out(
     nodeid: eout.attr.ino,
     generation: eout.generation,
     entry_valid: eout.entry_timeout.sec,
     entry_valid_nsec: eout.entry_timeout.nsec,
     attr_valid: eout.attr_timeout.sec,
     attr_valid_nsec: eout.attr_timeout.nsec,
-    attr: fuse_attr_of(eout.attr)
-  )
+    attr: fuse_attr_of(eout.attr))
 
 template defEntry(typ: typedesc) =
   proc entry(self: `typ`, hd: fuse_entry_out) =
@@ -616,7 +614,7 @@ type fuse_create_out = object
 
 template defCreate(typ: typedesc) =
   proc create(self: typ, hd0: fuse_entry_out, hd1: fuse_open_out) =
-    let hd = fuse_create_out(hd0: hd0, hd1:hd1)
+    let hd = fuse_create_out(hd0: hd0, hd1: hd1)
     # TODO self.raw.ok(@[hd0, hd1])?
     self.sendOk(hd)
   proc create*(self: typ, eout: TEntryOut, oout: fuse_open_out) =
@@ -646,18 +644,18 @@ template defWrite(typ: typedesc) =
     self.sendOk(hd)
 
 template defBuf(typ: typedesc) =
-  proc buf*(self: `typ`, iov: TIOVec) =
+  proc buf*(self: `typ`, iov: IOVec) =
     self.raw.ok(@[iov])
 
 template defIov(typ: typedesc) =
-  proc iov*(self: typ, iovs: openArray[TIOVec]) =
+  proc iov*(self: typ, iovs: openArray[IOVec]) =
     self.raw.ok(iovs)
 
 template defStatfs(typ: typedesc) =
   proc statfs(self: typ, hd: fuse_statfs_out) =
     self.sendOk(hd)
   proc statfs*(self: typ, hd: fuse_kstatfs) =
-    self.statfs(fuse_statfs_out(st:hd))
+    self.statfs(fuse_statfs_out(st: hd))
 
 template defXAttr(typ: typedesc) =
   proc xattr*(self: `typ`, hd: fuse_getxattr_out) =
@@ -750,10 +748,11 @@ type Readdir* = ref object
   raw: Raw
   data: Buf
 
-proc tryAdd*(self: Readdir, ino: int64, off: int64, st_mode: int32, name: string): bool =
+proc tryAdd*(self: Readdir, ino: int64, off: int64, st_mode: int32,
+    name: string): bool =
   ## Try to add the entry
   ## If the buffer is too small for the entry then it returns false
-  proc align(x:int): int =
+  proc align(x: int): int =
     let sz = sizeof(int64)
     (x + sz - 1) and not(sz - 1)
 
@@ -787,7 +786,8 @@ proc tryAdd*(self: Readdir, ino: int64, off: int64, st_mode: int32, name: string
 
   let pos3 = self.data.pos
 
-  debug("try add dirent. name:$1 entlen:$2 entsize:$3 pos:$4->$5->$6->$7", name, entlen, entsize, pos0, pos1, pos2, pos3)
+  debug("try add dirent. name:$1 entlen:$2 entsize:$3 pos:$4->$5->$6->$7" % [
+    name, $entlen, $entsize, $pos0, $pos1, $pos2, $pos3])
   return true
 
 proc ok*(self: Readdir) =
@@ -818,7 +818,7 @@ defErr(GetXAttr)
 type GetXAttrData = ref object
   raw: Raw
   size: int
-proc ok*(self: GetXAttrData, data: TIOVec) =
+proc ok*(self: GetXAttrData, data: IOVec) =
   if self.size < data.iov_len:
     self.raw.err(-ERANGE)
     return
@@ -842,7 +842,7 @@ proc ok*(self: ListXAttrData, keys: openArray[string]) =
     self.raw.err(-ERANGE)
     return
 
-  var iovs = newSeq[TIOVec](len(ss))
+  var iovs = newSeq[IOVec](len(ss))
   for i, s in ss:
     iovs[i] = ss[i].mkTIOVecS
   self.raw.ok(iovs)
@@ -883,14 +883,14 @@ when hostOS == "macosx":
 
     fuse.nim(911, 12) Error: type mismatch: got (Raw, fuse_getxtimes_out)
       but expected one of:
-      fuse.ok(self: Raw, iovs: openarray[TIOVec])
-      fuse.ok(self: Any, iovs: openarray[TIOVec])
+      fuse.ok(self: Raw, iovs: openarray[IOVec])
+      fuse.ok(self: Any, iovs: openarray[IOVec])
       fuse.ok(self: Readdir)
-      fuse.ok(self: GetXAttrData, data: TIOVec)
+      fuse.ok(self: GetXAttrData, data: IOVec)
       fuse.ok(self: ListXAttrData, keys: openarray[string])
   """
   proc getxtimes(self: GetXTimes, bkuptime: Timespec, crtime: Timespec) =
-    self.sendOk(fuse_get_xtimes_out (
+    self.sendOk(fuse_get_xtimes_out(
       bkuptime: bkuptime.sec,
       crtime: crtime.sec,
       bkuptimensec: bkuptime.nsec,
@@ -901,27 +901,28 @@ when hostOS == "macosx":
 # ------------------------------------------------------------------------------
 
 
-type fuse_args {. importc:"struct fuse_args", header:"<fuse.h>" .} = object
+type fuse_args {.importc: "struct fuse_args", header: "<fuse.h>".} = object
   argc: cint
   argv: cstringArray
   allocated: cint
 
-proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {. importc, header:"<fuse.h>" .}
-proc fuse_unmount_compat22(mountpoint: cstring) {. importc, header: "<fuse.h>" .}
+proc fuse_mount_compat25(mountpoint: cstring, args: ptr fuse_args): cint {.
+    importc, header: "<fuse.h>".}
+proc fuse_unmount_compat22(mountpoint: cstring) {.importc, header: "<fuse.h>".}
 
 type Channel = ref object
   mount_point: string
   fd: cint
 
 proc connect(mount_point: string, mount_options: openArray[string]): Channel =
-  var args = fuse_args (
+  var args = fuse_args(
     argc: mount_options.len.cint,
     argv: allocCStringArray(mount_options),
     allocated: 0, # control freeing by ourselves
   )
   let fd = fuse_mount_compat25(mount_point, addr(args))
   deallocCStringArray(args.argv)
-  Channel(mount_point:mount_point, fd:fd)
+  Channel(mount_point: mount_point, fd: fd)
 
 proc disconnect(chan: Channel) =
   # FIXME only linux
@@ -937,19 +938,20 @@ proc fetch(chan: Channel, buf: Buf): int =
     result = 0
   else:
     result = osLastError().int
-  debug("fetch result. fd:$1 err:$2", chan.fd, result)
+  debug("fetch result. fd:$1 err:$2" % [$chan.fd, $result])
 
 type ChannelSender = ref object of Sender
   chan: Channel
 
-method send(self: ChannelSender, iovs: var openArray[TIOVec]): int =
+method send(self: ChannelSender, iovs: var openArray[IOVec]): int =
   let n = iovs.len.cint
   var sumLen = 0
   for iov in iovs:
     sumLen += iov.iov_len
   let bytes = posix.writev(self.chan.fd, addr(iovs[0]), n)
   if bytes != sumLen:
-    debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4", bytes, sumLen, osLastError(), osErrorMsg())
+    debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4" % [
+      $bytes, $sumLen, $osLastError(), $osErrorMsg(osLastError())])
     result = -posix.EIO
   else:
     debug("send OK")
@@ -971,21 +973,22 @@ type FuseFs* = ref object of RootObj
   ## implementations are provided here to get a mountable filesystem that does
   ## nothing.
 
-method init*(self: FuseFs, req: Request): int =
+method init*(self: FuseFs, req: Request): int {.base.} =
   ## Initialize filesystem
   ## Called before any other filesystem method.
   0
 
-method destroy*(self: FuseFs, req: Request) =
+method destroy*(self: FuseFs, req: Request) {.base.} =
   ## Clean up filesystem
   ## Called on filesystem exit.
   discard
 
-method lookup*(self: FuseFs, req: Request, parent: int64, name: string, reply: Lookup) =
+method lookup*(self: FuseFs, req: Request, parent: int64, name: string,
+    reply: Lookup) {.base.} =
   ## Look up a directory entry by name and get its attributes.
   reply.err(-ENOSYS)
 
-method forget*(self: FuseFs, req: Request, ino: int64, nlookup: int64) =
+method forget*(self: FuseFs, req: Request, ino: int64, nlookup: int64) {.base.} =
   ## Forget about an inode
   ## The nlookup parameter indicates the number of lookups previously performed on
   ## this inode. If the filesystem implements inode lifetimes, it is recommended that
@@ -995,51 +998,63 @@ method forget*(self: FuseFs, req: Request, ino: int64, nlookup: int64) =
   ## inodes will receive a forget message.
   discard
 
-method getattr*(self: FuseFs, req: Request, ino: int64, reply: GetAttr) =
+method getattr*(self: FuseFs, req: Request, ino: int64, reply: GetAttr) {.base.} =
   ## Get file attributes
   reply.err(-ENOSYS)
 
-method setattr*(self: FuseFs, req: Request, ino: int64, mode: Option[int32], uid: Option[int32], gid: Option[int32], size: Option[int64], atime: Option[Timespec], mtime: Option[Timespec], fh: Option[int64], crtime: Option[Timespec], chgtime: Option[Timespec], bkuptime: Option[Timespec], flags: Option[int32], reply: SetAttr) =
+method setattr*(self: FuseFs, req: Request, ino: int64, mode: Option[int32],
+    uid: Option[int32], gid: Option[int32], size: Option[int64], atime: Option[
+    Timespec], mtime: Option[Timespec], fh: Option[int64], crtime: Option[
+    Timespec], chgtime: Option[Timespec], bkuptime: Option[Timespec],
+    flags: Option[int32], reply: SetAttr) {.base.} =
   ## Set file attributes
   reply.err(-ENOSYS)
 
-method readlink*(self: FuseFs, req: Request, ino: int64, reply: Readlink) =
+method readlink*(self: FuseFs, req: Request, ino: int64, reply: Readlink) {.base.} =
   ## Read symbolic link
   reply.err(-ENOSYS)
 
-method mknod*(self: FuseFs, req: Request, parent: int64, name: string, mode: int32, rdev: int32, reply: Mknod) =
+method mknod*(self: FuseFs, req: Request, parent: int64, name: string,
+    mode: int32, rdev: int32, reply: Mknod) {.base.} =
   ## Create file node
   ## Create a regular file, character device, block device, fifo or socket node.
   reply.err(-ENOSYS)
 
-method mkdir*(self: FuseFs, req: Request, parent: int64, name: string, mode: int32, reply: Mkdir) =
+method mkdir*(self: FuseFs, req: Request, parent: int64, name: string,
+    mode: int32, reply: Mkdir) {.base.} =
   ## Create a directory
   reply.err(-ENOSYS)
 
-method unlink*(self: FuseFs, req: Request, parent: int64, name: string, reply: Unlink) =
+method unlink*(self: FuseFs, req: Request, parent: int64, name: string,
+    reply: Unlink) {.base.} =
   ## Remove a file
   reply.err(-ENOSYS)
 
-method rmdir*(self: FuseFs, req: Request, parent: int64, name: string, reply: Rmdir) =
+method rmdir*(self: FuseFs, req: Request, parent: int64, name: string,
+    reply: Rmdir) {.base.} =
   ## Remove a directory
   reply.err(-ENOSYS)
 
-method symlink*(self: FuseFs, req: Request, link: string, parent: int64, name: string, reply: Symlink) =
+method symlink*(self: FuseFs, req: Request, link: string, parent: int64,
+    name: string, reply: Symlink) {.base.} =
   ## Create a symboilc link (`parent`, `name`) which, when evaluated, will lead to `link`
   ## ~= ln -s `link` (`parent`, `name`)
   reply.err(-ENOSYS)
 
-method rename*(self: FuseFs, req: Request, parent: int64, name: string, newdir: int64, newname: string, reply: Rename) =
+method rename*(self: FuseFs, req: Request, parent: int64, name: string,
+    newdir: int64, newname: string, reply: Rename) {.base.} =
   ## Rename a file (`parent`, `name`) to (`newdir`, `newname`)
   reply.err(-ENOSYS)
 
-method link*(self: FuseFs, req: Request, ino: int64, newparent: int64, newname: string, reply: Link) =
+method link*(self: FuseFs, req: Request, ino: int64, newparent: int64,
+    newname: string, reply: Link) {.base.} =
   ## Create a hard link (`newparent`, `newname`) to `ino`
   ## ~= ln `ino` (`newparent`, `newname`)
   ## Hard links aren't required for a working filesystem, and many successful filesystems don't support them.
   reply.err(-ENOSYS)
 
-method open*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Open) =
+method open*(self: FuseFs, req: Request, ino: int64, flags: int32,
+    reply: Open) {.base.} =
   ## Open a file
   ## Open flags (with the exception of O_CREAT, O_EXCL, O_NOCTTY and O_TRUNC) are
   ## available in flags. Filesystem may store an arbitrary file handle (pointer, index,
@@ -1048,14 +1063,10 @@ method open*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Open) 
   ## anything in fh. There are also some flags (direct_io, keep_cache) which the
   ## filesystem may set, to change the way the file is opened. See fuse_file_info
   ## structure in <fuse_common.h> for more details.
-  reply.open(
-    fuse_open_out (
-      fh: 0,
-      open_flags: 0,
-    )
-  )
+  reply.open(fuse_open_out(fh: 0, open_flags: 0))
 
-method read*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64, size: int32, reply: Read) =
+method read*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64,
+    size: int32, reply: Read) {.base.} =
   ## Read data
   ## Read should send exactly the number of bytes requested except on EOF or error,
   ## otherwise the rest of the data will be substituted with zeroes. An exception to
@@ -1065,7 +1076,8 @@ method read*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64, s
   ## if the open method didn't set any value.
   reply.err(-ENOSYS)
 
-method write*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64, data: Buf, flags: int32, reply: Write) =
+method write*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64,
+    data: Buf, flags: int32, reply: Write) {.base.} =
   ## Write data
   ## Write should return exactly the number of bytes requested except on error. An
   ## exception to this is when the file has been opened in 'direct_io' mode, in
@@ -1074,7 +1086,8 @@ method write*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64, 
   ## will be undefined if the open method didn't set any value.
   reply.err(-ENOSYS)
 
-method flush*(self: FuseFs, req: Request, ino: int64, fh: int64, lock_owner: int64, reply: Flush) =
+method flush*(self: FuseFs, req: Request, ino: int64, fh: int64,
+    lock_owner: int64, reply: Flush) {.base.} =
   ## Flush method
   ## This is called on each close() of the opened file. Since file descriptors can
   ## be duplicated (dup, dup2, fork), for one open call there may be many flush
@@ -1087,7 +1100,8 @@ method flush*(self: FuseFs, req: Request, ino: int64, fh: int64, lock_owner: int
   ## operations (setlk, getlk) it should remove all locks belonging to 'lock_owner'.
   reply.err(-ENOSYS)
 
-method release*(self: FuseFs, req: Request, ino: int64, fh: int64, flags: int32, lock_owner: int64, flush: bool, reply: Release) =
+method release*(self: FuseFs, req: Request, ino: int64, fh: int64, flags: int32,
+    lock_owner: int64, flush: bool, reply: Release) {.base.} =
   ## Release an open file
   ## Release is called when there are no more references to an open file: all file
   ## descriptors are closed and all memory mappings are unmapped. For every open
@@ -1098,13 +1112,15 @@ method release*(self: FuseFs, req: Request, ino: int64, fh: int64, flags: int32,
   ## open.
   reply.err(0)
 
-method fsync*(self: FuseFs, req: Request, ino: int64, fh: int64, datasync: bool, reply: Fsync) =
+method fsync*(self: FuseFs, req: Request, ino: int64, fh: int64, datasync: bool,
+    reply: Fsync) {.base.} =
   ## Synchronize file contents
   ## If the datasync parameter is non-zero, then only the user data should be flushed,
   ## not the meta data.
   reply.err(-ENOSYS)
 
-method opendir*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Opendir) =
+method opendir*(self: FuseFs, req: Request, ino: int64, flags: int32,
+    reply: Opendir) {.base.} =
   ## Open a directory
   ## Filesystem may store an arbitrary file handle (pointer, index, etc) in fh, and
   ## use this in other all other directory stream operations (readdir, releasedir,
@@ -1112,14 +1128,10 @@ method opendir*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Ope
   ## anything in fh, though that makes it impossible to implement standard conforming
   ## directory stream operations in case the contents of the directory can change
   ## between opendir and releasedir.
-  reply.open(
-    fuse_open_out (
-      fh: 0,
-      open_flags: 0,
-    )
-  )
+  reply.open(fuse_open_out(fh: 0, open_flags: 0))
 
-method readdir*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64, reply: Readdir) =
+method readdir*(self: FuseFs, req: Request, ino: int64, fh: int64,
+    offset: int64, reply: Readdir) {.base.} =
   ## Read directory
   ## Send a buffer filled using buffer.fill(), with size not exceeding the
   ## requested size. Send an empty buffer on end of stream. fh will contain the
@@ -1127,21 +1139,23 @@ method readdir*(self: FuseFs, req: Request, ino: int64, fh: int64, offset: int64
   ## didn't set any value.
   reply.err(-ENOSYS)
 
-method releasedir*(self: FuseFs, req: Request, fh: int64, flags: int32, reply: Releasedir) =
+method releasedir*(self: FuseFs, req: Request, fh: int64, flags: int32,
+    reply: Releasedir) {.base.} =
   ## Release an open directory
   ## For every opendir call there will be exactly one releasedir call. fh will
   ## contain the value set by the opendir method, or will be undefined if the
   ## opendir method didn't set any value.
   reply.err(0)
 
-method fsyncdir*(self: FuseFs, req: Request, ino: int64, fh: int64, datasync: bool, reply: Fsyncdir) =
+method fsyncdir*(self: FuseFs, req: Request, ino: int64, fh: int64,
+    datasync: bool, reply: Fsyncdir) {.base.} =
   ## Synchronize directory contents
   ## If the datasync parameter is set, then only the directory contents should
   ## be flushed, not the meta data. fh will contain the value set by the opendir
   ## method, or will be undefined if the opendir method didn't set any value.
   reply.err(-ENOSYS)
 
-method statfs*(self: FuseFs, req: Request, ino: int64, reply: Statfs) =
+method statfs*(self: FuseFs, req: Request, ino: int64, reply: Statfs) {.base.} =
   ## Get file system statistics
   reply.statfs(fuse_kstatfs(
     blocks: 0,
@@ -1154,30 +1168,35 @@ method statfs*(self: FuseFs, req: Request, ino: int64, reply: Statfs) =
     frsize: 0,
   ))
 
-method setxattr*(self: FuseFs, req: Request, ino: int64, key: string, value: Buf, flags: int32, position: int32, reply: SetXAttr) =
+method setxattr*(self: FuseFs, req: Request, ino: int64, key: string,
+    value: Buf, flags: int32, position: int32, reply: SetXAttr) {.base.} =
   ## Set an extended attribute
   reply.err(-ENOSYS)
 
-method getxattr*(self: FuseFs, req: Request, ino: int64, key: string, reply: GetXAttr) =
+method getxattr*(self: FuseFs, req: Request, ino: int64, key: string,
+    reply: GetXAttr) {.base.} =
   ## Get an extended attribute
   reply.err(-ENOSYS)
 
-method listxattr*(self: FuseFs, req: Request, ino: int64, reply: ListXAttr) =
+method listxattr*(self: FuseFs, req: Request, ino: int64, reply: ListXAttr) {.base.} =
   ## List extended attribute names
   reply.err(-ENOSYS)
 
-method removexattr*(self: FuseFs, req: Request, ino: int64, name: string, reply: RemoveXAttr) =
+method removexattr*(self: FuseFs, req: Request, ino: int64, name: string,
+    reply: RemoveXAttr) {.base.} =
   ## Remove an extended attribute
   reply.err(-ENOSYS)
 
-method access*(self: FuseFs, req: Request, ino: int64, mask: int32, reply: Access) =
+method access*(self: FuseFs, req: Request, ino: int64, mask: int32,
+    reply: Access) {.base.} =
   ## Check file access permissions
   ## This will be called for the access() system call. If the 'default_permissions'
   ## mount option is given, this method is not called. This method is not called
   ## under Linux kernel versions 2.4.x
   reply.err(-ENOSYS)
 
-method create*(self: FuseFs, req: Request, parent: int64, name: string, mode: int32, flags: int32, reply: Create) =
+method create*(self: FuseFs, req: Request, parent: int64, name: string,
+    mode: int32, flags: int32, reply: Create) {.base.} =
   ## Create and open a file
   ## If the file does not exist, first create it with the specified mode, and then
   ## open it. Open flags (with the exception of O_NOCTTY) are available in flags.
@@ -1190,11 +1209,15 @@ method create*(self: FuseFs, req: Request, parent: int64, name: string, mode: in
   ## and open() methods will be called instead.
   reply.err(-ENOSYS)
 
-method getlk*(self: FuseFs, req: Request, ino: int64, fh: int64, lock_owner: int64, start: int64, theEnd: int64, theType: int64, pid: int32, reply: Getlk) =
+method getlk*(self: FuseFs, req: Request, ino: int64, fh: int64,
+    lock_owner: int64, start: int64, theEnd: int64, theType: int64, pid: int32,
+    reply: Getlk) {.base.} =
   ## Test for a POSIX file lock
   reply.err(-ENOSYS)
 
-method setlk*(self: FuseFs, req: Request, ino: int64, fh: int64, lock_owner: int64, start: int64, theEnd: int64, theType: int64, pid: int32, sleep: bool, reply: Setlk) =
+method setlk*(self: FuseFs, req: Request, ino: int64, fh: int64,
+    lock_owner: int64, start: int64, theEnd: int64, theType: int64, pid: int32,
+    sleep: bool, reply: Setlk) {.base.} =
   ## Acquire, modify or release a POSIX file lock
   ## For POSIX threads (NPTL) there's a 1-1 relation between pid and owner, but
   ## otherwise this is not always the case.  For checking lock ownership,
@@ -1204,21 +1227,24 @@ method setlk*(self: FuseFs, req: Request, ino: int64, fh: int64, lock_owner: int
   ## Hence these are only interesting for network filesystems and similar.
   reply.err(-ENOSYS)
 
-method bmap*(self: FuseFs, req: Request, ino: int64, blocksize: int32, idx: int64, reply: Bmap) =
+method bmap*(self: FuseFs, req: Request, ino: int64, blocksize: int32,
+    idx: int64, reply: Bmap) {.base.} =
   ## Map block index within file to block index within device
   ## Note: This makes sense only for block device backed filesystems mounted
   ## with the 'blkdev' option
   reply.err(-ENOSYS)
 
 when hostOS == "macosx":
-  method setvolname(self: FuseFs, req: Request, name: string, reply: SetVolname) =
+  method setvolname(self: FuseFs, req: Request, name: string,
+      reply: SetVolname) {.base.} =
     reply.err(-ENOSYS)
 
-  method exchange(self: FuseFs, req: Request, parent: int64, name: string, newparent: int64, newname: string, options: int64, reply: Exchange) =
+  method exchange(self: FuseFs, req: Request, parent: int64, name: string,
+      newparent: int64, newname: string, options: int64, reply: Exchange) {.base.} =
     reply.err(-ENOSYS)
 
   # ERROR ON OSX: `XTimes` is unknown!
-  method getxtimes(self: FuseFs, req: Request, ino: int64, reply: GetXTimes) =
+  method getxtimes(self: FuseFs, req: Request, ino: int64, reply: GetXTimes) {.base.} =
     reply.err(-ENOSYS)
 
 # ------------------------------------------------------------------------------
@@ -1237,9 +1263,7 @@ proc mkRaw(req: Request, se: Session): Raw =
 
 template defNew(typ: typedesc) =
   proc `new typ`(req: Request, se: Session): `typ` =
-    typ (
-      raw: mkRaw(req, se)
-    )
+    typ(raw: mkRaw(req, se))
 
 defNew(Any)
 # init
@@ -1264,10 +1288,7 @@ defNew(Release)
 defNew(Fsync)
 defNew(Opendir)
 proc newReaddir(req: Request, se: Session, size: int): Readdir =
-  Readdir (
-    raw: mkRaw(req, se),
-    data: mkBuf(size)
-  )
+  Readdir(raw: mkRaw(req, se), data: mkBuf(size))
 defNew(Releasedir)
 defNew(Fsyncdir)
 defNew(Statfs)
@@ -1290,7 +1311,7 @@ proc dispatch(req: Request, se: Session) =
   let anyReply = newAny(req, se)
 
   let opcode = req.header.opcode.fuse_opcode
-  debug("opcode:$1", opcode)
+  debug("opcode:", opcode)
 
   # if destroyed, any requests are discarded.
   if se.destroyed:
@@ -1313,7 +1334,7 @@ proc dispatch(req: Request, se: Session) =
   of FUSE_LOOKUP:
     debug("parseS start")
     let name = data.parseS
-    debug("parseS done")
+    debug("parseS done. name: ", name)
     fs.lookup(req, hd.nodeid, name, newLookup(req, se))
   of FUSE_FORGET:
     let arg = read[fuse_forget_in](req.data)
@@ -1322,21 +1343,34 @@ proc dispatch(req: Request, se: Session) =
     fs.getattr(req, hd.nodeid, newGetAttr(req, se))
   of FUSE_SETATTR:
     let arg = pop[fuse_setattr_in](data)
-    let mode = if (arg.valid and FATTR_MODE) != 0: Some(arg.mode) else: None[int32]()
-    let uid = if (arg.valid and FATTR_UID) != 0: Some(arg.uid) else: None[int32]()
-    let gid = if (arg.valid and FATTR_GID) != 0: Some(arg.gid) else: None[int32]()
-    let size = if (arg.valid and FATTR_SIZE) != 0: Some(arg.size) else: None[int64]()
-    let atime = if (arg.valid and FATTR_ATIME) != 0: Some(Timespec(sec:arg.atime, nsec:arg.atimensec)) else: None[Timespec]()
-    let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Timespec(sec:arg.mtime, nsec:arg.mtimensec)) else: None[Timespec]()
+    let mode = if (arg.valid and FATTR_MODE) != 0: Some(arg.mode) else: None[
+        int32]()
+    let uid = if (arg.valid and FATTR_UID) != 0: Some(arg.uid) else: None[
+        int32]()
+    let gid = if (arg.valid and FATTR_GID) != 0: Some(arg.gid) else: None[
+        int32]()
+    let size = if (arg.valid and FATTR_SIZE) != 0: Some(arg.size) else: None[
+        int64]()
+    let atime = if (arg.valid and FATTR_ATIME) != 0: Some(Timespec(
+        sec: arg.atime, nsec: arg.atimensec)) else: None[Timespec]()
+    let mtime = if (arg.valid and FATTR_MTIME) != 0: Some(Timespec(
+        sec: arg.mtime, nsec: arg.mtimensec)) else: None[Timespec]()
     let fh = if (arg.valid and FATTR_FH) != 0: Some(arg.fh) else: None[int64]()
     when hostOS == "macosx":
-      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Timespec(sec:arg.crtime, nsec:arg.crtimensec)) else: None[Timespec]()
-      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Timespec(sec:arg.chgtime, nsec:arg.chgtimensec)) else: None[Timespec]()
-      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Timespec(sec:arg.bkuptime, nsec:arg.bkuptimensec)) else: None[Timespec]()
-      let flags = if (arg.valid and FATTR_FLAGS) != 0: Some(arg.flags) else: None[int32]()
-      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime, bkuptime, flags, newSetAttr(req, se))
+      let crtime = if (arg.valid and FATTR_CRTIME) != 0: Some(Timespec(
+          sec: arg.crtime, nsec: arg.crtimensec)) else: None[Timespec]()
+      let chgtime = if (arg.valid and FATTR_CHGTIME) != 0: Some(Timespec(
+          sec: arg.chgtime, nsec: arg.chgtimensec)) else: None[Timespec]()
+      let bkuptime = if (arg.valid and FATTR_BKUPTIME) != 0: Some(Timespec(
+          sec: arg.bkuptime, nsec: arg.bkuptimensec)) else: None[Timespec]()
+      let flags = if (arg.valid and FATTR_FLAGS) != 0: Some(
+          arg.flags) else: None[int32]()
+      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, crtime,
+          chgtime, bkuptime, flags, newSetAttr(req, se))
     else:
-      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, None[Timespec](), None[Timespec](), None[Timespec](), None[int32](), newSetAttr(req, se))
+      fs.setattr(req, hd.nodeid, mode, uid, gid, size, atime, mtime, fh, None[
+          Timespec](), None[Timespec](), None[Timespec](), None[int32](),
+          newSetAttr(req, se))
   of FUSE_READLINK:
     fs.readlink(req, hd.nodeid, newReadlink(req, se))
   of FUSE_SYMLINK:
@@ -1378,13 +1412,16 @@ proc dispatch(req: Request, se: Session) =
     let arg = pop[fuse_write_in](data)
     let remainingBuf = data.asBuf
     assert(remainingBuf.size == arg.size.int)
-    fs.write(req, hd.nodeid, arg.fh, arg.offset, remainingBuf, arg.write_flags, newWrite(req, se))
+    fs.write(req, hd.nodeid, arg.fh, arg.offset, remainingBuf, arg.write_flags,
+        newWrite(req, se))
   of FUSE_STATFS:
     fs.statfs(req, hd.nodeid, newStatfs(req, se))
   of FUSE_RELEASE:
     let arg = read[fuse_release_in](data)
-    let flush = if (arg.release_flags and FUSE_RELEASE_FLUSH) == 0: false else: true
-    fs.release(req, hd.nodeid, arg.fh, arg.flags, arg.lock_owner, flush, newRelease(req, se))
+    let flush = if (arg.release_flags and FUSE_RELEASE_FLUSH) ==
+        0: false else: true
+    fs.release(req, hd.nodeid, arg.fh, arg.flags, arg.lock_owner, flush,
+        newRelease(req, se))
   of FUSE_FSYNC:
     let arg = read[fuse_fsync_in](data)
     let datasync = if (arg.fsync_flags and 1) == 0: false else: true
@@ -1398,7 +1435,8 @@ proc dispatch(req: Request, se: Session) =
       let pos = arg.position.int32
     else:
       let pos = 0.int32
-    fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(req, se))
+    fs.setxattr(req, req.header.nodeid, key, value, arg.flags, pos, newSetXAttr(
+        req, se))
   of FUSE_GETXATTR:
     # FIXME
     let arg = pop[fuse_getxattr_in](req.data)
@@ -1416,23 +1454,23 @@ proc dispatch(req: Request, se: Session) =
     fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
   of FUSE_INIT:
     let arg = read[fuse_init_in](req.data)
-    debug("INIT IN:$1", expr(arg))
+    debug("INIT IN:", $arg)
     if (arg.major < 7) or (arg.minor < 6):
       anyReply.err(-EPROTO)
       return
     let res = fs.init(req)
-    debug("INIT res:$1", res)
+    debug("INIT res:", res)
     if res != 0:
       anyReply.err(res)
       return
-    var init = fuse_init_out (
+    var init = fuse_init_out(
       major: FUSE_KERNEL_VERSION,
       minor: FUSE_KERNEL_MINOR_VERSION,
       max_readahead: arg.max_readahead,
       flags: arg.flags,
       max_write: MAX_WRITE_BUFSIZE.int32,
     )
-    debug("INIT OUT:$1", expr(init))
+    debug("INIT OUT:", init)
     se.initialized = true
     var initVar = init
     anyReply.ok(@[mkTIOVecT(initVar)])
@@ -1451,11 +1489,13 @@ proc dispatch(req: Request, se: Session) =
     fs.fsyncdir(req, req.header.nodeid, arg.fh, datasync, newFsyncdir(req, se))
   of FUSE_GETLK:
     let arg = read[fuse_lk_in](req.data)
-    fs.getlk(req, req.header.nodeid, arg.fh, arg.owner, arg.lk.start, arg.lk.theEnd, arg.lk.theType, arg.lk.pid, newGetlk(req, se))
+    fs.getlk(req, req.header.nodeid, arg.fh, arg.owner, arg.lk.start,
+        arg.lk.theEnd, arg.lk.theType, arg.lk.pid, newGetlk(req, se))
   of FUSE_SETLK, FUSE_SETLKW:
     let arg = read[fuse_lk_in](req.data)
     let sleep = if (opcode == FUSE_SETLKW): true else: false
-    fs.setlk(req, req.header.nodeid, arg.fh, arg.owner, arg.lk.start, arg.lk.theEnd, arg.lk.theType, arg.lk.pid, sleep, newSetlk(req, se))
+    fs.setlk(req, req.header.nodeid, arg.fh, arg.owner, arg.lk.start,
+        arg.lk.theEnd, arg.lk.theType, arg.lk.pid, sleep, newSetlk(req, se))
   of FUSE_ACCESS:
     let arg = read[fuse_access_in](req.data)
     fs.access(req, req.header.nodeid, arg.mask, newAccess(req, se))
@@ -1490,12 +1530,13 @@ proc dispatch(req: Request, se: Session) =
       let oldname = data.parseS
       data.pos += (len(oldname) + 1)
       let newname = data.parseS
-      fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options, newExchange(req, se))
+      fs.exchange(req, arg.olddir, oldname, arg.newdir, newname, arg.options,
+          newExchange(req, se))
     else:
       discard
 
 proc mkSession(fs: FuseFs, chan: Channel): Session =
-  Session (
+  Session(
     fs: fs,
     chan: chan,
     initialized: false,
@@ -1508,12 +1549,12 @@ proc processBuf(self: Session, buf: Buf) =
     return
 
   var hd = pop[fuse_in_header](buf)
-  debug("COMMON IN:$1", expr(hd))
+  debug("COMMON IN:", hd)
   if buf.size != hd.len.int:
     error("fetched buffer is too short")
     return
 
-  var req = Request (
+  var req = Request(
     header: hd,
     data: buf.asBuf
   )
@@ -1544,7 +1585,7 @@ proc loop(self: Session) =
 var se: Session = nil
 proc handler() {.noconv.} =
   se.destroyed = true
-  raiseOsError() # raising error from interrupt context is dangerous?
+  raiseOsError(osLastError()) # raising error from interrupt context is dangerous?
 
 proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
   ## Mount the given filesystem `fs` to the given mountpoint `mountpoint`
