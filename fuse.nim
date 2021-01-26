@@ -80,31 +80,31 @@ proc asPtr*(self: Buf): pointer =
 
 proc asBuf*(self: Buf): Buf =
   ## Get the [pos,] buffer like slicing
-  Buf (
+  Buf(
     data: self.data[self.pos..self.size-1],
     size: self.size - self.pos,
     pos: 0,
   )
 
-proc `$`(self: TIOVec): string =
-  "TIOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
+proc `$`(self: IOVec): string =
+  "IOVec(base:$1 len:$2)" % [$cast[ByteAddress](self.iov_base), $self.iov_len]
 
-proc asTIOVec*(self: Buf): TIOVec =
-  TIOVec (
+proc asIOVec*(self: Buf): IOVec =
+  IOVec(
     iov_base: self.asPtr,
-    iov_len: self.size,
+    iov_len: (csize_t)self.size,
   )
 
-proc mkTIOVecT*[T](o: var T): TIOVec =
-  TIOVec (
+proc mkIOVecT*[T](o: var T): IOVec =
+  IOVec(
     iov_base: addr(o),
-    iov_len: sizeof(T),
+    iov_len: (csize_t)sizeof(T),
   )
 
-proc mkTIOVecS*(s: var string): TIOVec =
-  TIOVec (
+proc mkIOVecS*(s: var string): IOVec =
+  IOVec(
     iov_base: addr(s[0]),
-    iov_len: len(s),
+    iov_len: (csize_t)len(s),
   )
 
 proc write*(self: Buf, p: pointer, size: int) =
@@ -123,9 +123,8 @@ proc nullTerminated*(s: string): string =
   ## Returns null terminated string of `s`
   ## The length is incremented
   ## e.g. mybuf.writeS("hoge".nullTerminated)
-  var ss = s
-  ss.safeAdd(chr(0))
-  ss
+  result = s
+  result.add(chr(0))
 
 proc writeS*(self: Buf, s: string) =
   ## Write string `s` (Only the contents. Exclude null terminator)
@@ -513,7 +512,7 @@ when hostOS == "macosx":
       rdev: at.rdev,
       flags: at.flags,
     )
-    debug("attr:$1", expr(result))
+    debug("attr:$1", repr(result))
 else:
   proc fuse_attr_of(at: FileAttr): fuse_attr =
     result = fuse_attr(
@@ -532,10 +531,10 @@ else:
       gid: at.gid,
       rdev: at.rdev,
     )
-    debug("attr:$1", expr(result))
+    debug("attr:$1", repr(result))
 
 type Sender = ref object of RootObj
-method send(self: Sender, iovs: var openArray[TIOVec]): int =
+method send(self: Sender, iovs: var openArray[IOVec]): int =
   debug("NULLSender.send")
   0
 
@@ -546,40 +545,40 @@ type Raw = ref object
 proc newRaw(sender: Sender, unique: int64): Raw =
   Raw(sender: sender, unique: unique)
 
-proc send(self: Raw, err: int, iovs: openArray[TIOVec]) =
+proc send(self: Raw, err: int, iovs: openArray[IOVec]) =
   assert(err <= 0)
 
-  var iovL = newSeq[TIOVec](len(iovs) + 1)
+  var iovL = newSeq[IOVec](len(iovs) + 1)
   var sumLen = sizeof(fuse_out_header)
   for i, iov in iovs:
     iovL[i+1] = iov
     debug("iov[$1]:$2", i, iov)
-    sumLen += iov.iov_len
+    sumLen += iov.iov_len.int
 
   var outH: fuse_out_header
   outH.unique = self.unique
   outH.error = err.int32
   outH.len = sumLen.int32
-  debug("COMMON OUT:$1", expr(outH))
-  iovL[0] = mkTIOVecT(outH)
+  debug("COMMON OUT:$1", repr(outH))
+  iovL[0] = mkIOVecT(outH)
 
   discard self.sender.send(iovL)
 
-proc ok(self: Raw, iovs: openArray[TIOVec]) =
+proc ok(self: Raw, iovs: openArray[IOVec]) =
   self.send(0, iovs)
 
 proc err(self: Raw, e: int) =
   self.send(e, @[])
 
-template defWrapper(typ: expr) =
+template defWrapper(typ: untyped) =
   type `typ`* {. inject .} = ref object
     raw: Raw
   proc sendOk[T](self: `typ`, a: T) =
     var aa = a
-    self.raw.ok(@[mkTIOVecT(aa)])
+    self.raw.ok(@[mkIOVecT(aa)])
 
 template defOk(typ: typedesc) =
-  proc ok*(self: typ, iovs: openArray[TIOVec]) =
+  proc ok*(self: typ, iovs: openArray[IOVec]) =
     self.raw.ok(iovs)
 
 template defErr(typ: typedesc) =
@@ -594,7 +593,7 @@ type TEntryOut* = ref object
   attr*: FileAttr
 
 proc fuse_entry_out_of(eout: TEntryOut): fuse_entry_out =
-  fuse_entry_out (
+  fuse_entry_out(
     nodeid: eout.attr.ino,
     generation: eout.generation,
     entry_valid: eout.entry_timeout.sec,
@@ -635,7 +634,7 @@ template defAttr(typ: typedesc) =
 template defReadlink(typ: typedesc) =
   proc readlink*(self: typ, s: string) =
     var ss = s
-    self.raw.ok(@[mkTIOVecS(ss)])
+    self.raw.ok(@[mkIOVecS(ss)])
 
 template defOpen(typ: typedesc) =
   proc open*(self: `typ`, hd: fuse_open_out) =
@@ -646,11 +645,11 @@ template defWrite(typ: typedesc) =
     self.sendOk(hd)
 
 template defBuf(typ: typedesc) =
-  proc buf*(self: `typ`, iov: TIOVec) =
+  proc buf*(self: `typ`, iov: IOVec) =
     self.raw.ok(@[iov])
 
 template defIov(typ: typedesc) =
-  proc iov*(self: typ, iovs: openArray[TIOVec]) =
+  proc iov*(self: typ, iovs: openArray[IOVec]) =
     self.raw.ok(iovs)
 
 template defStatfs(typ: typedesc) =
@@ -795,7 +794,7 @@ proc ok*(self: Readdir) =
   ## If nothing is in the buffer it notifies the end of the stream.
   self.data.size = self.data.pos
   self.data.pos = 0
-  self.raw.ok(@[self.data.asTIOVec])
+  self.raw.ok(@[self.data.asIOVec])
 defErr(Readdir)
 
 defWrapper(Releasedir)
@@ -817,8 +816,8 @@ defErr(GetXAttr)
 
 type GetXAttrData = ref object
   raw: Raw
-  size: int
-proc ok*(self: GetXAttrData, data: TIOVec) =
+  size: uint
+proc ok*(self: GetXAttrData, data: IOVec) =
   if self.size < data.iov_len:
     self.raw.err(-ERANGE)
     return
@@ -831,20 +830,20 @@ defErr(ListXAttr)
 
 type ListXAttrData = ref object
   raw: Raw
-  size: int
+  size: uint
 proc ok*(self: ListXAttrData, keys: openArray[string]) =
   var ss = newSeq[string](len(keys))
-  var size = 0
+  var size: uint
   for i, k in keys:
     ss[i] = k.nullTerminated
-    size += len(ss[i])
+    size += (uint)len(ss[i])
   if self.size < size:
     self.raw.err(-ERANGE)
     return
 
-  var iovs = newSeq[TIOVec](len(ss))
+  var iovs = newSeq[IOVec](len(ss))
   for i, s in ss:
-    iovs[i] = ss[i].mkTIOVecS
+    iovs[i] = ss[i].mkIOVecS
   self.raw.ok(iovs)
 
 defErr(ListXAttrData)
@@ -883,10 +882,10 @@ when hostOS == "macosx":
 
     fuse.nim(911, 12) Error: type mismatch: got (Raw, fuse_getxtimes_out)
       but expected one of:
-      fuse.ok(self: Raw, iovs: openarray[TIOVec])
-      fuse.ok(self: Any, iovs: openarray[TIOVec])
+      fuse.ok(self: Raw, iovs: openarray[IOVec])
+      fuse.ok(self: Any, iovs: openarray[IOVec])
       fuse.ok(self: Readdir)
-      fuse.ok(self: GetXAttrData, data: TIOVec)
+      fuse.ok(self: GetXAttrData, data: IOVec)
       fuse.ok(self: ListXAttrData, keys: openarray[string])
   """
   proc getxtimes(self: GetXTimes, bkuptime: Timespec, crtime: Timespec) =
@@ -914,7 +913,7 @@ type Channel = ref object
   fd: cint
 
 proc connect(mount_point: string, mount_options: openArray[string]): Channel =
-  var args = fuse_args (
+  var args = fuse_args(
     argc: mount_options.len.cint,
     argv: allocCStringArray(mount_options),
     allocated: 0, # control freeing by ourselves
@@ -942,14 +941,14 @@ proc fetch(chan: Channel, buf: Buf): int =
 type ChannelSender = ref object of Sender
   chan: Channel
 
-method send(self: ChannelSender, iovs: var openArray[TIOVec]): int =
+method send(self: ChannelSender, iovs: var openArray[IOVec]): int =
   let n = iovs.len.cint
-  var sumLen = 0
+  var sumLen: uint
   for iov in iovs:
     sumLen += iov.iov_len
   let bytes = posix.writev(self.chan.fd, addr(iovs[0]), n)
-  if bytes != sumLen:
-    debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4", bytes, sumLen, osLastError(), osErrorMsg())
+  if bytes.uint != sumLen:
+    debug("send NG. actual:$1(byte) expected:$2 error:$3 msg:$4", bytes, sumLen, osLastError(), osErrorMsg(osLastError()))
     result = -posix.EIO
   else:
     debug("send OK")
@@ -1049,7 +1048,7 @@ method open*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Open) 
   ## filesystem may set, to change the way the file is opened. See fuse_file_info
   ## structure in <fuse_common.h> for more details.
   reply.open(
-    fuse_open_out (
+    fuse_open_out(
       fh: 0,
       open_flags: 0,
     )
@@ -1113,7 +1112,7 @@ method opendir*(self: FuseFs, req: Request, ino: int64, flags: int32, reply: Ope
   ## directory stream operations in case the contents of the directory can change
   ## between opendir and releasedir.
   reply.open(
-    fuse_open_out (
+    fuse_open_out(
       fh: 0,
       open_flags: 0,
     )
@@ -1237,7 +1236,7 @@ proc mkRaw(req: Request, se: Session): Raw =
 
 template defNew(typ: typedesc) =
   proc `new typ`(req: Request, se: Session): `typ` =
-    typ (
+    typ(
       raw: mkRaw(req, se)
     )
 
@@ -1264,7 +1263,7 @@ defNew(Release)
 defNew(Fsync)
 defNew(Opendir)
 proc newReaddir(req: Request, se: Session, size: int): Readdir =
-  Readdir (
+  Readdir(
     raw: mkRaw(req, se),
     data: mkBuf(size)
   )
@@ -1416,7 +1415,7 @@ proc dispatch(req: Request, se: Session) =
     fs.flush(req, req.header.nodeid, arg.fh, arg.lock_owner, newFlush(req, se))
   of FUSE_INIT:
     let arg = read[fuse_init_in](req.data)
-    debug("INIT IN:$1", expr(arg))
+    debug("INIT IN:$1", repr(arg))
     if (arg.major < 7) or (arg.minor < 6):
       anyReply.err(-EPROTO)
       return
@@ -1425,17 +1424,17 @@ proc dispatch(req: Request, se: Session) =
     if res != 0:
       anyReply.err(res)
       return
-    var init = fuse_init_out (
+    var init = fuse_init_out(
       major: FUSE_KERNEL_VERSION,
       minor: FUSE_KERNEL_MINOR_VERSION,
       max_readahead: arg.max_readahead,
       flags: arg.flags,
       max_write: MAX_WRITE_BUFSIZE.int32,
     )
-    debug("INIT OUT:$1", expr(init))
+    debug("INIT OUT:$1", repr(init))
     se.initialized = true
     var initVar = init
-    anyReply.ok(@[mkTIOVecT(initVar)])
+    anyReply.ok(@[mkIOVecT(initVar)])
   of FUSE_OPENDIR:
     let arg = read[fuse_open_in](req.data)
     fs.opendir(req, req.header.nodeid, arg.flags, newOpendir(req, se))
@@ -1495,7 +1494,7 @@ proc dispatch(req: Request, se: Session) =
       discard
 
 proc mkSession(fs: FuseFs, chan: Channel): Session =
-  Session (
+  Session(
     fs: fs,
     chan: chan,
     initialized: false,
@@ -1508,12 +1507,12 @@ proc processBuf(self: Session, buf: Buf) =
     return
 
   var hd = pop[fuse_in_header](buf)
-  debug("COMMON IN:$1", expr(hd))
+  debug("COMMON IN:$1", repr(hd))
   if buf.size != hd.len.int:
     error("fetched buffer is too short")
     return
 
-  var req = Request (
+  var req = Request(
     header: hd,
     data: buf.asBuf
   )
@@ -1544,7 +1543,7 @@ proc loop(self: Session) =
 var se: Session = nil
 proc handler() {.noconv.} =
   se.destroyed = true
-  raiseOsError() # raising error from interrupt context is dangerous?
+  raiseOsError(osLastError()) # raising error from interrupt context is dangerous?
 
 proc mount*(fs: FuseFs, mountpoint: string, options: openArray[string]) =
   ## Mount the given filesystem `fs` to the given mountpoint `mountpoint`
