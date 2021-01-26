@@ -248,7 +248,7 @@ method read*(self: Memfs, req: Request, ino: int64, fh: int64, offset: int64, si
   self.checkFile(ino)
   let file = self.files[ino.int]
   # TODO error if the range isn't included
-  reply.buf(TIOVec(
+  reply.buf(IOVec(
     iov_base: file.contents.asPtr(offset.int),
     iov_len: size.int))
 

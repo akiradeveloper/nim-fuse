@@ -60,7 +60,7 @@ method getattr*(self: HelloFs, req: Request, ino: int64, reply: GetAttr) =
 method read*(self: HelloFs, req: Request, ino: int64, fh: int64, offset: int64, size: int32, reply: Read) =
   if ino == 2:
     var t = TXT
-    reply.buf(mkTIOVecS(t))
+    reply.buf(mkIOVecS(t))
   else:
     reply.err(-ENOENT)
 
